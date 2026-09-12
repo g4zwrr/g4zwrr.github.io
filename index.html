@@ -265,7 +265,6 @@
   .links a{ color:var(--fg); border-bottom:1px solid var(--line); padding-bottom:2px; }
   .links a:hover{ color:var(--accent); border-color:var(--accent); text-decoration:none; }
 
-  /* ---- repos section ---- */
   .repo-grid{
     display:grid;
     grid-template-columns:repeat(auto-fill,minmax(240px,1fr));
@@ -351,10 +350,10 @@
 
 <canvas id="matrix-bg"></canvas>
 
-<div id="enter-hint"></div>
+<div id="enter-hint"><span>tap to enter</span></div>
 
 <audio id="bg-audio" loop preload="auto">
-  <source src="https://raw.githubusercontent.com/g4zwr/g4zwr/main/fish%20Slowed%20Down.mp3" type="audio/mpeg">
+  <source src="https://cdn.jsdelivr.net/gh/g4zwr/g4zwr@main/fish%20Slowed%20Down.mp3" type="audio/mpeg">
 </audio>
 
 <button id="sound-toggle" aria-label="Toggle sound">
@@ -551,7 +550,7 @@
   revealEls.forEach(el => io.observe(el));
 
   const REPO_USER = 'g4zwr';
-  const EXCLUDED_REPOS = ['g4zwr', 'g4zwr.github.io']; 
+  const EXCLUDED_REPOS = ['g4zwr', 'g4zwr.github.io'];
 
   function escapeHTML(str){
     const d = document.createElement('div');
