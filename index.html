@@ -45,6 +45,18 @@
     transition: filter 2s ease;
   }
 
+  #visualizer{
+    position:fixed;
+    top:0;
+    left:0;
+    width:100%;
+    height:140px;
+    z-index:-1;
+    pointer-events:none;
+    filter: blur(3px);
+    opacity:0.92;
+  }
+
   #page{
     filter: blur(10px);
   }
@@ -349,11 +361,12 @@
 <body>
 
 <canvas id="matrix-bg"></canvas>
+<canvas id="visualizer"></canvas>
 
 <div id="enter-hint"><span>tap to enter</span></div>
 
-<audio id="bg-audio" loop preload="auto">
-  <source src="https://cdn.jsdelivr.net/gh/g4zwr/g4zwr@main/fish%20Slowed%20Down.mp3" type="audio/mpeg">
+<audio id="bg-audio" loop preload="auto" crossorigin="anonymous">
+  <source src="https://cdn.jsdelivr.net/gh/g4zwr/g4zwr.github.io@main/fish%20Slowed%20Down.mp3" type="audio/mpeg">
 </audio>
 
 <button id="sound-toggle" aria-label="Toggle sound">
@@ -489,6 +502,106 @@
   }
   setInterval(drawMatrix, 45);
 
+  const vcanvas = document.getElementById('visualizer');
+  const vctx = vcanvas.getContext('2d');
+  let vPrevW = 0;
+  let burstCooldown = 0;
+  let prevEnergy = 0;
+  let bursts = [];
+
+  function setupVisualizerCanvas(){
+    const nw = window.innerWidth;
+    if(Math.abs(nw - vPrevW) < 5) return;
+    vPrevW = nw;
+    vcanvas.width = nw;
+    vcanvas.height = 140;
+  }
+  setupVisualizerCanvas();
+  window.addEventListener('resize', setupVisualizerCanvas);
+
+  let audioCtx, analyser, dataArray, bufferLength, sourceNode;
+
+  function setupAudioAnalyser(){
+    if (audioCtx) return;
+    audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    analyser = audioCtx.createAnalyser();
+    analyser.fftSize = 256;
+    bufferLength = analyser.frequencyBinCount;
+    dataArray = new Uint8Array(bufferLength);
+    sourceNode = audioCtx.createMediaElementSource(audio);
+    sourceNode.connect(analyser);
+    analyser.connect(audioCtx.destination);
+  }
+
+  function drawVisualizer(){
+    requestAnimationFrame(drawVisualizer);
+    vctx.clearRect(0, 0, vcanvas.width, vcanvas.height);
+    if(!analyser) return;
+    analyser.getByteFrequencyData(dataArray);
+
+    const fontSize = 14;
+    const minColWidth = fontSize + 4;
+    const totalBars = Math.max(24, Math.floor(vcanvas.width / minColWidth));
+    const colWidth = vcanvas.width / totalBars;
+    vctx.font = fontSize + 'px monospace';
+    vctx.textAlign = 'center';
+
+    let sumEnergy = 0;
+    for(let b = 0; b < bufferLength; b++) sumEnergy += dataArray[b];
+    const avgEnergy = sumEnergy / bufferLength / 255;
+    if(burstCooldown > 0) burstCooldown--;
+    if(avgEnergy - prevEnergy > 0.12 && burstCooldown <= 0){
+      bursts.push({ col: Math.floor(Math.random() * totalBars), life: 14 });
+      burstCooldown = 8;
+    }
+    prevEnergy = prevEnergy * 0.7 + avgEnergy * 0.3;
+
+    for(let i = 0; i < totalBars; i++){
+      const t0 = i / totalBars;
+      const t1 = (i + 1) / totalBars;
+      const startBin = Math.floor(Math.pow(t0, 1.8) * bufferLength);
+      const endBin = Math.max(startBin + 1, Math.floor(Math.pow(t1, 1.8) * bufferLength));
+
+      let peak = 0;
+      for(let b = startBin; b < endBin && b < bufferLength; b++){
+        if(dataArray[b] > peak) peak = dataArray[b];
+      }
+      const normalized = peak / 255;
+      const boosted = Math.pow(normalized, 0.55);
+      const jitter = 0.85 + Math.random() * 0.3;
+      const charCount = Math.round(boosted * jitter * (vcanvas.height / fontSize));
+
+      const x = i * colWidth + colWidth / 2;
+      for(let c = 0; c < charCount; c++){
+        const y = c * fontSize + fontSize;
+        const fade = 1 - (c / Math.max(charCount, 1));
+        const ch = chars[Math.floor(Math.random() * chars.length)];
+        vctx.globalAlpha = Math.max(fade * (0.35 + boosted * 0.65), 0.05);
+        vctx.fillStyle = '#f2d024';
+        vctx.fillText(ch, x, y);
+      }
+    }
+
+    for(let i = bursts.length - 1; i >= 0; i--){
+      const burst = bursts[i];
+      const x = burst.col * colWidth + colWidth / 2;
+      const charCount = Math.round((burst.life / 14) * (vcanvas.height / fontSize));
+      for(let c = 0; c < charCount; c++){
+        const y = c * fontSize + fontSize;
+        const fade = 1 - (c / Math.max(charCount, 1));
+        const ch = chars[Math.floor(Math.random() * chars.length)];
+        vctx.globalAlpha = Math.max(fade, 0.1);
+        vctx.fillStyle = '#ffffff';
+        vctx.fillText(ch, x, y);
+      }
+      burst.life--;
+      if(burst.life <= 0) bursts.splice(i, 1);
+    }
+
+    vctx.globalAlpha = 1;
+  }
+  requestAnimationFrame(drawVisualizer);
+
   const quoteEl = document.getElementById('quote');
   const quotes = [
     'Hi :3333333333333',
@@ -515,7 +628,9 @@
     page.classList.add('unblurred');
     matrixBg.classList.add('unblurred');
     enterHint.classList.add('hidden');
-    audio.volume = 0.5;
+    audio.volume = 0.15;
+    setupAudioAnalyser();
+    if (audioCtx.state === 'suspended') audioCtx.resume();
     audio.play().catch(() => {});
     soundToggle.classList.add('visible');
   }, { once: true });
