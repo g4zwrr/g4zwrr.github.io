@@ -1,5 +1,4 @@
-<!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -8,13 +7,14 @@
   @import url('https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Inter:wght@400;500;800&display=swap');
 
   :root{
-    --bg:#060606;
-    --bg-panel:#0e0e0e;
-    --line:#232323;
-    --fg:#f2f2f0;
-    --fg-dim:#a8a8a4;
-    --fg-dim2:#7a7a76;
-    --accent:#f2d024;
+    --bg:#000000;
+    --bg-panel:#000000;
+    --line:#ffffff;
+    --fg:#ffffff;
+    --fg-dim:#ffffff;
+    --fg-dim2:#ffffff;
+    --accent:#ffffff;
+    /* TODO: actually dim these, everything is #fff rn lol */
   }
 
   *{box-sizing:border-box;}
@@ -27,7 +27,7 @@
     line-height:1.6;
     overflow-x:hidden;
   }
-  ::selection{ background:var(--accent); color:#060606; }
+  ::selection{ background:var(--accent); color:#000000; }
   h1,h2,.mono{ font-family:'Space Mono',monospace; }
   a{ color:var(--accent); text-decoration:none; }
   a:hover{ text-decoration:underline; }
@@ -37,12 +37,7 @@
     position:fixed;
     inset:0;
     z-index:-2;
-    background:#060606;
-    filter: blur(10px);
-  }
-  #matrix-bg.unblurred{
-    filter: blur(4px);
-    transition: filter 2s ease;
+    background:#000000;
   }
 
   #visualizer{
@@ -53,8 +48,22 @@
     height:140px;
     z-index:-1;
     pointer-events:none;
-    filter: blur(3px);
-    opacity:0.92;
+    opacity:0;
+    transition:opacity 2.4s ease 0.4s;
+  }
+  #visualizer.on{ opacity:0.92; }
+
+  /* scroll progress, thin line on top */
+  #progress{
+    position:fixed;
+    top:0; left:0;
+    width:100%;
+    height:2px;
+    background:#ffffff;
+    transform-origin:0 50%;
+    transform:scaleX(0);
+    z-index:600;
+    pointer-events:none;
   }
 
   #page{
@@ -62,31 +71,18 @@
   }
   #page.unblurred{
     filter: blur(0);
-    transition: filter 2s ease;
+    transition: filter 2s cubic-bezier(0.22,1,0.36,1);
   }
 
+  /* invisible click catcher now, hint text is gone (was: pulsing "tap to enter") */
   #enter-hint{
     position:fixed;
     inset:0;
     z-index:900;
-    display:flex;
-    align-items:flex-end;
-    justify-content:center;
-    padding-bottom:14vh;
-    cursor:pointer;
-  }
-  #enter-hint span{
-    font-family:'Space Mono',monospace;
-    font-size:13px;
-    letter-spacing:0.08em;
-    color:var(--fg-dim);
-    background:rgba(6,6,6,0.6);
-    padding:10px 18px;
-    border:1px solid var(--line);
-    border-radius:20px;
-    animation: pulse 2s ease-in-out infinite;
+    cursor:default;
   }
   #enter-hint.hidden{ display:none; }
+  /* #enter-hint span{ animation: pulse 2s ease-in-out infinite; }  <- old */
   @keyframes pulse{
     0%,100%{ opacity:0.5; }
     50%{ opacity:1; }
@@ -109,10 +105,11 @@
     align-items:center;
     gap:8px;
     opacity:0;
-    transition:opacity 1s ease, color 0.2s ease, border-color 0.2s ease;
+    transform:translateY(10px);
+    transition:opacity 1s ease 2.5s, transform 1s cubic-bezier(0.16,1,0.3,1) 2.5s, color 0.2s ease, border-color 0.2s ease, background 0.2s ease;
   }
-  #sound-toggle.visible{ opacity:1; }
-  #sound-toggle:hover{ color:var(--fg); border-color:var(--accent); }
+  #sound-toggle.visible{ opacity:1; transform:none; }
+  #sound-toggle:hover{ color:#000000; background:#ffffff; border-color:var(--accent); }
   #sound-toggle .bar{
     width:3px; height:10px;
     background:currentColor;
@@ -141,11 +138,12 @@
     border-radius:20px;
     cursor:pointer;
     opacity:0;
+    transform:translateY(10px);
     pointer-events:none;
-    transition:opacity 0.4s ease, color 0.2s ease, border-color 0.2s ease;
+    transition:opacity 0.4s ease, transform 0.5s cubic-bezier(0.16,1,0.3,1), color 0.2s ease, border-color 0.2s ease, background 0.2s ease;
   }
-  #top-btn.visible{ opacity:1; pointer-events:auto; }
-  #top-btn:hover{ color:var(--fg); border-color:var(--accent); }
+  #top-btn.visible{ opacity:1; transform:none; pointer-events:auto; }
+  #top-btn:hover{ color:#000000; background:#ffffff; border-color:var(--accent); }
 
   .wrap{ max-width:720px; margin:0 auto; padding:0 24px; }
 
@@ -167,16 +165,47 @@
     margin:0;
     line-height:0.95;
     color:var(--fg);
-    text-shadow:0 0 12px rgba(242,208,36,0.55), 0 0 36px rgba(242,208,36,0.35), 0 0 80px rgba(242,208,36,0.2);
   }
+  /* letters get split in js so they can come in one by one */
+  .hero h1 .ch{
+    display:inline-block;
+    opacity:0;
+    transform:translateY(0.35em) scale(0.92);
+    filter:blur(10px);
+    transition:
+      opacity 0.8s ease,
+      transform 1.1s cubic-bezier(0.16,1,0.3,1),
+      filter 0.9s ease;
+    transition-delay:calc(var(--i) * 80ms + 350ms);
+  }
+  body.entered .hero h1 .ch{
+    opacity:1;
+    transform:none;
+    filter:none;
+  }
+  /* after intro is done we wipe the delay (js adds .settled) otherwise glitch is laggy */
+  .hero h1.settled .ch{ transition-delay:0s; }
+  .hero h1 .ch.glitch{ animation: glitch 0.28s steps(2) 1; }
+  @keyframes glitch{
+    0%  { transform:translate(0,0); }
+    25% { transform:translate(-4px,1px) skewX(-12deg); opacity:0.5; }
+    50% { transform:translate(3px,-2px) skewX(8deg); }
+    75% { transform:translate(-2px,0); opacity:0.7; }
+    100%{ transform:translate(0,0); }
+  }
+
   .aka{
     font-family:'Space Mono',monospace;
     color:var(--accent);
     letter-spacing:0.25em;
     font-size:clamp(12px,3vw,15px);
     margin-top:16px;
-    text-shadow:0 0 10px rgba(242,208,36,0.6), 0 0 24px rgba(242,208,36,0.3);
+    opacity:0;
+    letter-spacing:0.6em;
+    transition: opacity 1.4s ease 1.1s, letter-spacing 2.2s cubic-bezier(0.16,1,0.3,1) 1.1s;
   }
+  body.entered .aka{ opacity:1; letter-spacing:0.25em; }
+
   .quote{
     max-width:56ch;
     margin:44px auto 0;
@@ -187,23 +216,43 @@
   .quote .lead{
     color:var(--accent);
     font-weight:500;
-    text-shadow:0 0 8px rgba(242,208,36,0.5), 0 0 20px rgba(242,208,36,0.25);
   }
   .quote em{ font-style:italic; }
+  .caret{
+    display:inline-block;
+    width:0.55em;
+    height:1em;
+    background:#ffffff;
+    margin-left:3px;
+    vertical-align:-0.15em;
+    animation: blink 1s steps(2) infinite;
+    transition:opacity 0.6s ease;
+  }
+  .caret.gone{ opacity:0; }
+
   .tagline{
     margin-top:30px;
     font-size:16px;
     color:var(--fg-dim2);
     font-family:'Space Mono',monospace;
     letter-spacing:0.02em;
+    opacity:0;
+    transform:translateY(8px);
+    transition: opacity 1.2s ease 3.4s, transform 1.2s cubic-bezier(0.16,1,0.3,1) 3.4s;
   }
+  body.entered .tagline{ opacity:1; transform:none; }
+
   .scroll-cue{
     position:absolute;
     bottom:64px;
     left:50%;
     transform:translateX(-50%);
     text-align:center;
+    opacity:0;
+    transition: opacity 1s ease;
   }
+  body.entered .scroll-cue{ opacity:1; transition-delay:4s; }
+  body.entered .scroll-cue.gone{ opacity:0; transition-delay:0s; transition-duration:0.4s; }
   .scroll-cue .label{
     font-family:'Space Mono',monospace;
     font-size:11px;
@@ -233,14 +282,23 @@
     font-family:'Space Mono',monospace;
     font-size:12px;
     color:var(--fg-dim2);
+    opacity:0;
+    transition: opacity 1.2s ease;
   }
+  body.entered .made-with{ opacity:1; transition-delay:4.4s; }
 
+  /* --- scroll reveal --- */
+  /* was 2.6s + 60px which felt like the page was lagging, shortened */
   .reveal{
     opacity:0;
-    transform:translateY(60px);
-    transition: opacity 2.6s cubic-bezier(0.16,1,0.3,1), transform 2.6s cubic-bezier(0.16,1,0.3,1);
+    transform:translateY(28px);
+    filter:blur(6px);
+    transition:
+      opacity 1s cubic-bezier(0.16,1,0.3,1),
+      transform 1s cubic-bezier(0.16,1,0.3,1),
+      filter 0.9s ease;
   }
-  .reveal.show{ opacity:1; transform:translateY(0); }
+  .reveal.show{ opacity:1; transform:translateY(0); filter:none; }
 
   section{ padding:48px 0; border-top:1px solid var(--line); }
   .wrap > section:first-child{ border-top:none; padding-top:0; }
@@ -273,15 +331,6 @@
   .views{ margin-top:16px; }
   .views img{ display:block; }
 
-  .links{ display:flex; gap:20px; flex-wrap:wrap; font-family:'Space Mono',monospace; font-size:13px; justify-content:center; margin-top:34px; }
-  .links a{ color:var(--fg); border-bottom:1px solid var(--line); padding-bottom:2px; }
-  .links a:hover{ color:var(--accent); border-color:var(--accent); text-decoration:none; }
-
-  .repo-grid{
-    display:grid;
-    grid-template-columns:repeat(auto-fill,minmax(240px,1fr));
-    gap:14px;
-  }
   .repo-card{
     border:1px solid var(--line);
     background:var(--bg-panel);
@@ -289,7 +338,7 @@
     border-radius:3px;
     position:relative;
     overflow:hidden;
-    transition: border-color 0.3s ease, transform 0.3s ease, box-shadow 0.3s ease;
+    transition: border-color 0.3s ease, transform 0.3s ease;
     display:flex;
     flex-direction:column;
     gap:10px;
@@ -307,9 +356,82 @@
   .repo-card:hover{
     border-color:var(--accent);
     transform:translateY(-3px);
-    box-shadow:0 10px 30px -12px rgba(242,208,36,0.25);
   }
   .repo-card:hover::before{ opacity:1; }
+
+  /* hack: .stack-item / .repo-card set their own transition and were killing the reveal one
+     (same specificity, they come later). so redo it here, then swap back once settled. */
+  .stack-item.reveal, .repo-card.reveal{
+    transition:
+      opacity 1s cubic-bezier(0.16,1,0.3,1),
+      transform 1s cubic-bezier(0.16,1,0.3,1),
+      filter 0.9s ease,
+      border-color 0.3s ease;
+  }
+  .stack-item.reveal.settled, .repo-card.reveal.settled{
+    transition: border-color 0.3s ease, transform 0.3s ease;
+  }
+
+  .carousel{
+    --cw:260px;
+    position:relative;
+    display:flex;
+    gap:16px;
+    margin:0 calc(50% - 50vw);
+    padding:24px calc(50vw - var(--cw) / 2);
+    overflow-x:auto;
+    overflow-y:hidden;
+    scroll-snap-type:x mandatory;
+    overscroll-behavior-x:contain;
+    scrollbar-width:none;
+    cursor:grab;
+    user-select:none;
+    -webkit-user-select:none;
+  }
+  .carousel::-webkit-scrollbar{ display:none; }
+  .carousel:empty{ display:none; }
+  .carousel.dragging{ scroll-snap-type:none; cursor:grabbing; }
+  .carousel:focus-visible{ outline:2px solid var(--accent); outline-offset:-6px; }
+  .carousel > *{
+    flex:0 0 var(--cw);
+    width:var(--cw);
+    scroll-snap-align:center;
+    transform:scale(calc(1.12 - var(--t, 1) * 0.24));
+    opacity:calc(1 - var(--t, 1) * 0.6);
+    transition:border-color 0.3s ease, background 0.3s ease, color 0.3s ease;
+  }
+  .carousel.nojump > *, .carousel.nojump > *::before{ transition:none !important; }
+  .carousel > .repo-card:hover{ transform:scale(calc(1.12 - var(--t, 1) * 0.24)); }
+  .carousel > .repo-card:not(.active):hover::before{ opacity:0; }
+  .repo-card.active{ border-color:var(--accent); background:rgba(255,255,255,0.09); }
+  .repo-card.active::before{ opacity:1; }
+
+  #links{ --cw:180px; }
+  .link-card{
+    display:flex;
+    flex-direction:column;
+    gap:10px;
+    align-items:center;
+    justify-content:center;
+    height:88px;
+    border:1px solid var(--line);
+    background:var(--bg-panel);
+    border-radius:3px;
+    font-family:'Space Mono',monospace;
+    font-size:15px;
+    color:var(--fg) !important;
+    text-decoration:none !important;
+    -webkit-tap-highlight-color:transparent;
+    cursor:pointer;
+  }
+  .link-card, .link-card:link, .link-card:visited, .link-card:active, .link-card:focus{
+    color:var(--fg) !important;
+    text-decoration:none !important;
+  }
+  .link-card svg{ width:22px; height:22px; fill:currentColor; }
+  /* highlight follows the centered card, not the mouse, so it slides along with the scroll */
+  .link-card.active{ color:#000000 !important; background:#ffffff; text-decoration:none !important; }
+
   .repo-top{ display:flex; align-items:center; justify-content:space-between; gap:10px; }
   .repo-name{
     font-family:'Space Mono',monospace;
@@ -346,14 +468,21 @@
     text-align:center;
     padding:20px 0;
   }
-  .repo-status.error{ color:#e06c6c; }
+  .repo-status.error{ color:#ffffff; }
   .repo-status .blink{ animation: blink 1.2s steps(2) infinite; }
   @keyframes blink{ 50%{ opacity:0.2; } }
 
   footer.site-footer{ padding:40px 0 80px; color:var(--fg-dim2); font-size:13px; font-family:'Space Mono',monospace; }
 
+  /* @media (prefers-color-scheme: light){ ... }  nah, matrix rain on white looks awful */
+
   @media (prefers-reduced-motion: reduce){
-    .reveal{ opacity:1; transform:none; transition:none; }
+    .reveal, .hero h1 .ch, .aka, .tagline, .scroll-cue, .made-with{
+      opacity:1; transform:none; filter:none; transition:none; letter-spacing:inherit;
+    }
+    .aka{ letter-spacing:0.25em; }
+    .scroll-cue{ transform:translateX(-50%); }
+    .made-with{ transform:translateX(-50%); }
     #page{ filter:none; }
   }
 </style>
@@ -362,11 +491,13 @@
 
 <canvas id="matrix-bg"></canvas>
 <canvas id="visualizer"></canvas>
+<div id="progress"></div>
 
-<div id="enter-hint"><span>tap to enter</span></div>
+<!-- no visible hint anymore, click / tap / any key still gets you in -->
+<div id="enter-hint"></div>
 
 <audio id="bg-audio" loop preload="auto" crossorigin="anonymous">
-  <source src="https://cdn.jsdelivr.net/gh/g4zwr/g4zwr.github.io@main/fish%20Slowed%20Down.mp3" type="audio/mpeg">
+  <source src="fish%20Slowed%20Down.mp3" type="audio/mpeg">
 </audio>
 
 <button id="sound-toggle" aria-label="Toggle sound">
@@ -381,8 +512,8 @@
   <div class="hero">
     <h1>G4ZWR</h1>
     <div class="aka">AKA GAZE</div>
-    <p class="quote" id="quote"><span class="lead">"Nobody handed me any of this,"</span></p>
-    <p class="tagline">Unprofessional Cornball</p>
+    <p class="quote" id="quote"><span class="lead">"yes i see the bug too, im trying to fixin it rn"</span></p>
+    <p class="tagline">Gamedev</p>
     <div class="scroll-cue">
       <div class="label">SCROLL</div>
       <div class="chevrons"><span></span><span></span></div>
@@ -393,17 +524,42 @@
   <div class="wrap">
 
     <section>
-      <h2 class="reveal">projects:</h2>
-      <div class="repo-grid" id="repo-grid">
-        <div class="repo-status" id="repo-status"><span class="blink">fetching repos&hellip;</span></div>
+      <h2 class="reveal">contact me on:</h2>
+      <div class="carousel reveal" id="links" data-start-index="0" tabindex="0" aria-label="contact links">
+        <a class="link-card" href="https://wa.me/qr/g4zwr" target="_blank" rel="noopener">
+          <svg viewBox="0 0 24 24"><path d="M12.04 2C6.58 2 2.13 6.45 2.13 11.91c0 1.75.46 3.45 1.32 4.95L2.05 22l5.25-1.38a9.9 9.9 0 0 0 4.74 1.21h.01c5.46 0 9.91-4.45 9.91-9.91 0-2.65-1.03-5.14-2.9-7.01A9.87 9.87 0 0 0 12.04 2zm0 1.67c2.2 0 4.27.86 5.82 2.42a8.2 8.2 0 0 1 2.42 5.82c0 4.54-3.7 8.23-8.24 8.23a8.2 8.2 0 0 1-4.18-1.15l-.3-.18-3.12.82.83-3.04-.2-.31a8.18 8.18 0 0 1-1.26-4.37c0-4.54 3.7-8.24 8.23-8.24zm-4.56 4.4c-.16 0-.42.06-.64.3-.22.24-.85.83-.85 2.02s.87 2.35.99 2.51c.12.16 1.7 2.7 4.2 3.68 2.07.82 2.49.65 2.94.61.45-.04 1.45-.59 1.66-1.16.2-.57.2-1.06.14-1.16-.06-.1-.22-.16-.46-.28-.24-.12-1.45-.71-1.67-.8-.22-.08-.39-.12-.55.12-.16.24-.63.79-.77.96-.14.16-.28.18-.52.06-.24-.12-1.02-.38-1.94-1.2-.72-.64-1.2-1.43-1.35-1.67-.14-.24-.02-.37.1-.49.11-.11.24-.28.36-.42.12-.14.16-.24.24-.4.08-.16.04-.3-.02-.42-.06-.12-.55-1.34-.76-1.83-.2-.48-.4-.42-.55-.42z"/></svg>
+          WhatsApp
+        </a>
+        <a class="link-card" href="https://www.roblox.com/users/10841765037" target="_blank" rel="noopener">
+          <svg viewBox="0 0 24 24"><path d="M4.16 0 0 19.84 19.84 24 24 4.16 4.16 0zm7.09 8.42 4.33 1.09-1.09 4.33-4.33-1.09 1.09-4.33z"/></svg>
+          Roblox
+        </a>
+        <a class="link-card" href="https://www.youtube.com/@g4zwr" target="_blank" rel="noopener">
+          <svg viewBox="0 0 24 24"><path d="M23.5 6.19a3.02 3.02 0 0 0-2.12-2.14C19.51 3.5 12 3.5 12 3.5s-7.51 0-9.38.55A3.02 3.02 0 0 0 .5 6.19 31.6 31.6 0 0 0 0 12a31.6 31.6 0 0 0 .5 5.81 3.02 3.02 0 0 0 2.12 2.14c1.87.55 9.38.55 9.38.55s7.51 0 9.38-.55a3.02 3.02 0 0 0 2.12-2.14A31.6 31.6 0 0 0 24 12a31.6 31.6 0 0 0-.5-5.81zM9.6 15.6V8.4l6.4 3.6-6.4 3.6z"/></svg>
+          YouTube
+        </a>
+        <a class="link-card" href="https://discord.com/users/1296500534739734530" target="_blank" rel="noopener">
+          <svg viewBox="0 0 24 24"><path d="M20.32 4.37a19.8 19.8 0 0 0-4.9-1.52.07.07 0 0 0-.08.04c-.21.38-.45.86-.61 1.24a18.3 18.3 0 0 0-5.48 0 12.6 12.6 0 0 0-.62-1.24.08.08 0 0 0-.08-.04c-1.7.3-3.35.81-4.9 1.52a.07.07 0 0 0-.03.03C1.07 8.87.34 13.24.7 17.55a.08.08 0 0 0 .03.06c2.06 1.52 4.06 2.44 6.02 3.05a.08.08 0 0 0 .09-.03c.46-.64.88-1.31 1.23-2.02a.08.08 0 0 0-.04-.11 13 13 0 0 1-1.87-.9.08.08 0 0 1 0-.13c.13-.09.25-.19.37-.28a.07.07 0 0 1 .08 0c3.93 1.8 8.18 1.8 12.06 0a.07.07 0 0 1 .08 0c.12.1.24.19.37.28a.08.08 0 0 1 0 .13c-.6.35-1.22.65-1.87.9a.08.08 0 0 0-.04.11c.36.7.78 1.37 1.23 2.02a.08.08 0 0 0 .09.03c1.97-.6 3.97-1.53 6.03-3.05a.08.08 0 0 0 .03-.06c.44-4.98-.74-9.31-3.13-13.15a.06.06 0 0 0-.03-.03zM8.68 14.9c-1.18 0-2.15-1.08-2.15-2.42 0-1.33.95-2.42 2.15-2.42 1.21 0 2.17 1.1 2.15 2.42 0 1.34-.95 2.42-2.15 2.42zm6.66 0c-1.18 0-2.15-1.08-2.15-2.42 0-1.33.95-2.42 2.15-2.42 1.21 0 2.17 1.1 2.15 2.42 0 1.34-.94 2.42-2.15 2.42z"/></svg>
+          Discord
+        </a>
+        <a class="link-card" href="https://www.reddit.com/user/g4zwr" target="_blank" rel="noopener">
+          <svg viewBox="0 0 24 24"><path d="M24 12.09c0-1.23-.98-2.22-2.19-2.22-.59 0-1.13.24-1.52.62-1.5-1.04-3.55-1.71-5.82-1.79l1.19-3.75 3.28.78a1.6 1.6 0 1 0 .16-.78l-3.65-.87a.4.4 0 0 0-.48.28l-1.33 4.18c-2.32.05-4.42.72-5.94 1.77a2.2 2.2 0 0 0-1.51-.61A2.21 2.21 0 0 0 4 12.09c0 .85.47 1.58 1.16 1.97a3.6 3.6 0 0 0-.05.6c0 2.72 3.16 4.93 7.06 4.93s7.06-2.21 7.06-4.93c0-.2-.02-.4-.05-.6A2.2 2.2 0 0 0 24 12.09zM8.28 13.6a1.4 1.4 0 1 1 2.8 0 1.4 1.4 0 0 1-2.8 0zm7.7 3.48c-.85.85-2.47.91-2.98.91s-2.14-.06-2.98-.91a.32.32 0 0 1 .45-.45c.5.5 1.65.68 2.53.68s2.03-.18 2.53-.68a.32.32 0 0 1 .45.45zm-.18-2.08a1.4 1.4 0 1 1 0-2.8 1.4 1.4 0 0 1 0 2.8z"/></svg>
+          Reddit
+        </a>
       </div>
+    </section>
+
+    <section>
+      <h2 class="reveal">projects:</h2>
+      <div class="repo-status" id="repo-status"><span class="blink">fetching repos&hellip;</span></div>
+      <div class="carousel reveal" id="repo-grid" tabindex="0" aria-label="projects"></div>
     </section>
 
     <section>
       <h2 class="reveal">currently</h2>
       <ul class="now-list">
         <li class="reveal"><span class="dot"></span> Deep in Roblox development, building systems in Luau</li>
-        <li class="reveal"><span class="dot"></span> Producing music on mobile with FL Studio Mobile</li>
+        <li class="reveal"><span class="dot"></span> Producing music on PC and mobile with FL Studio</li>
         <li class="reveal"><span class="dot"></span> Drawing and animating in 2D and 3D</li>
       </ul>
     </section>
@@ -440,20 +596,14 @@
     <section>
       <h2 class="reveal">github stats</h2>
       <div class="stats-grid">
-        <img class="reveal stat-img" src="https://github-readme-stats-fast.vercel.app/api?username=g4zwr&show_icons=true&count_private=true&hide_border=true&bg_color=00000000&border_color=232323&title_color=f2f2f0&text_color=a8a8a4&icon_color=f2d024" alt="g4zwr's GitHub stats" loading="lazy">
-        <img class="reveal stat-img" src="https://streak-stats.demolab.com/?user=g4zwr&hide_border=true&background=00000000&border=232323&stroke=232323&ring=f2d024&fire=f2d024&currStreakLabel=f2f2f0&sideLabels=a8a8a4&currStreakNum=f2f2f0&sideNums=a8a8a4&dates=7a7a76" alt="g4zwr's GitHub streak" loading="lazy">
-        <img class="reveal stat-img full" src="https://github-readme-stats-fast.vercel.app/api/top-langs/?username=g4zwr&layout=compact&hide_border=true&bg_color=00000000&border_color=232323&title_color=f2f2f0&text_color=a8a8a4" alt="g4zwr's top languages" loading="lazy">
+        <img class="reveal stat-img" src="https://github-readme-stats-fast.vercel.app/api?username=g4zwr&show_icons=true&count_private=true&hide_border=true&bg_color=00000000&border_color=ffffff&title_color=ffffff&text_color=ffffff&icon_color=ffffff" alt="g4zwr's GitHub stats" loading="lazy">
+        <img class="reveal stat-img" src="https://streak-stats.demolab.com/?user=g4zwr&hide_border=true&background=00000000&border=ffffff&stroke=ffffff&ring=ffffff&fire=ffffff&currStreakLabel=ffffff&sideLabels=ffffff&currStreakNum=ffffff&sideNums=ffffff&dates=ffffff" alt="g4zwr's GitHub streak" loading="lazy">
+        <img class="reveal stat-img full" src="https://github-readme-stats-fast.vercel.app/api/top-langs/?username=g4zwr&layout=compact&hide_border=true&bg_color=00000000&border_color=ffffff&title_color=ffffff&text_color=ffffff" alt="g4zwr's top languages" loading="lazy">
       </div>
       <div class="views reveal">
-        <img src="https://komarev.com/ghpvc/?username=g4zwr&color=f2d024&style=flat-square&label=PROFILE+VIEWS" alt="profile views" loading="lazy">
+        <img src="https://komarev.com/ghpvc/?username=g4zwr&color=ffffff&style=flat-square&label=PROFILE+VIEWS" alt="profile views" loading="lazy">
       </div>
     </section>
-
-    <div class="links reveal">
-      <a href="https://www.roblox.com/users/10841765037" target="_blank" rel="noopener">Roblox</a>
-      <a href="https://www.youtube.com/@g4zwr" target="_blank" rel="noopener">YouTube</a>
-      <a href="https://discord.com/users/1296500534739734530" target="_blank" rel="noopener">Discord</a>
-    </div>
 
     <footer class="site-footer">
       g4zwr &middot; <a href="https://github.com/g4zwr">github.com/g4zwr</a>
@@ -463,15 +613,21 @@
 </div>
 
 <script>
+  // TODO: split this into separate files at some point, its getting long
+  var DEBUG = false;   // flip when something breaks
+  const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  /* ---------------- matrix bg ---------------- */
   const canvas = document.getElementById('matrix-bg');
   const ctx = canvas.getContext('2d');
-  let w, h, columns, drops;
+  let w, h, columns, drops, speeds;
   let prevW = 0, prevH = 0;
   const chars = 'アカサタナハマヤラワガザダバパイキシチニヒミリヰギジヂビピウクスツヌフムユルグズヅブプ0123456789';
 
   function setupMatrix(force){
     const nw = window.innerWidth;
     const nh = window.innerHeight;
+    // mobile url bar resizes the window constantly, ignore small height changes
     if(!force && Math.abs(nw - prevW) < 5 && Math.abs(nh - prevH) < 150) return;
     prevW = nw;
     prevH = nh;
@@ -479,19 +635,29 @@
     h = canvas.height = nh;
     const fontSize = 16;
     columns = Math.floor(w / fontSize);
-    drops = new Array(columns).fill(1);
+    // start above the screen at random heights so it doesnt fall as one wall
+    drops = Array.from({length: columns}, () => -Math.floor(Math.random() * 40));
+    speeds = Array.from({length: columns}, () => 0.45 + Math.random() * 0.55);
   }
   setupMatrix(true);
   window.addEventListener('resize', () => setupMatrix(false));
 
-  function drawMatrix(){
-    ctx.fillStyle = 'rgba(6,6,6,0.08)';
+  let lastMatrix = 0;
+  function drawMatrix(t){
+    requestAnimationFrame(drawMatrix);
+    if(document.hidden) return;              // dont burn battery in bg tabs
+    if(t - lastMatrix < 45) return;          // ~22fps, same feel as the old setInterval(45)
+    lastMatrix = t;
+
+    ctx.fillStyle = 'rgba(0,0,0,0.08)';
     ctx.fillRect(0, 0, w, h);
-    ctx.fillStyle = '#f2d024';
+    ctx.fillStyle = '#ffffff';
     ctx.font = '16px monospace';
     for(let i = 0; i < drops.length; i++){
+      if(Math.random() > speeds[i]) continue;   // columns fall at diff speeds now
       const text = chars[Math.floor(Math.random() * chars.length)];
-      ctx.globalAlpha = Math.random() * 0.5 + 0.3;
+      // every so often a head char goes full bright
+      ctx.globalAlpha = Math.random() > 0.93 ? 1 : Math.random() * 0.5 + 0.3;
       ctx.fillText(text, i * 16, drops[i] * 16);
       if(drops[i] * 16 > h && Math.random() > 0.975){
         drops[i] = 0;
@@ -500,8 +666,10 @@
     }
     ctx.globalAlpha = 1;
   }
-  setInterval(drawMatrix, 45);
+  // setInterval(drawMatrix, 45);   // old
+  if(!reduceMotion) requestAnimationFrame(drawMatrix);
 
+  /* ---------------- audio visualizer ---------------- */
   const vcanvas = document.getElementById('visualizer');
   const vctx = vcanvas.getContext('2d');
   let vPrevW = 0;
@@ -526,6 +694,7 @@
     audioCtx = new (window.AudioContext || window.webkitAudioContext)();
     analyser = audioCtx.createAnalyser();
     analyser.fftSize = 256;
+    analyser.smoothingTimeConstant = 0.78;
     bufferLength = analyser.frequencyBinCount;
     dataArray = new Uint8Array(bufferLength);
     sourceNode = audioCtx.createMediaElementSource(audio);
@@ -536,7 +705,7 @@
   function drawVisualizer(){
     requestAnimationFrame(drawVisualizer);
     vctx.clearRect(0, 0, vcanvas.width, vcanvas.height);
-    if(!analyser) return;
+    if(!analyser || document.hidden) return;
     analyser.getByteFrequencyData(dataArray);
 
     const fontSize = 14;
@@ -577,7 +746,7 @@
         const fade = 1 - (c / Math.max(charCount, 1));
         const ch = chars[Math.floor(Math.random() * chars.length)];
         vctx.globalAlpha = Math.max(fade * (0.35 + boosted * 0.65), 0.05);
-        vctx.fillStyle = '#f2d024';
+        vctx.fillStyle = '#ffffff';
         vctx.fillText(ch, x, y);
       }
     }
@@ -602,38 +771,106 @@
   }
   requestAnimationFrame(drawVisualizer);
 
-  const quoteEl = document.getElementById('quote');
-  const quotes = [
-    'Hi :3333333333333',
-    'Nobody handed me any of this..',
-    'Hi Guys.',
-    'Sometimes i think about not thinking.',
-    'yes i see the bug too, no i am not fixing it today',
-  ];
-  quoteEl.innerHTML = '<span class="lead">"' + quotes[Math.floor(Math.random() * quotes.length)] + '"</span>';
-
+  /* ---------------- dom refs ---------------- */
   const page = document.getElementById('page');
-  const matrixBg = document.getElementById('matrix-bg');
+  const matrixBg = document.getElementById('matrix-bg');   // not used anymore? leaving it
   const enterHint = document.getElementById('enter-hint');
   const audio = document.getElementById('bg-audio');
   const soundToggle = document.getElementById('sound-toggle');
   const soundLabel = document.getElementById('sound-label');
   const topBtn = document.getElementById('top-btn');
+  const progress = document.getElementById('progress');
+  const scrollCue = document.querySelector('.scroll-cue');
 
-  page.addEventListener('transitionend', () => {
+  /* ---------------- hero intro ---------------- */
+  const heroTitle = document.querySelector('.hero h1');
+  const heroText = heroTitle.textContent;
+  heroTitle.setAttribute('aria-label', heroText);
+  heroTitle.textContent = '';
+  [...heroText].forEach((c, i) => {
+    const s = document.createElement('span');
+    s.className = 'ch';
+    s.textContent = c;
+    s.style.setProperty('--i', i);
+    s.setAttribute('aria-hidden', 'true');
+    heroTitle.appendChild(s);
+  });
+  const letters = heroTitle.querySelectorAll('.ch');
+
+  // typewriter for the quote
+  const leadEl = document.querySelector('#quote .lead');
+  const fullQuote = leadEl.textContent;
+  const caret = document.createElement('span');
+  caret.className = 'caret';
+  if(!reduceMotion){
+    leadEl.textContent = '';
+    leadEl.after(caret);
+  }
+
+  function typeQuote(){
+    if(reduceMotion){ return; }
+    let n = 0;
+    (function step(){
+      leadEl.textContent = fullQuote.slice(0, ++n);
+      if(n < fullQuote.length){
+        // slower on punctuation / spaces, feels more like someone actually typing
+        const ch = fullQuote[n - 1];
+        const wait = ch === ',' ? 260 : ch === ' ' ? 55 : 28 + Math.random() * 45;
+        setTimeout(step, wait);
+      } else {
+        setTimeout(() => caret.classList.add('gone'), 2400);
+      }
+    })();
+  }
+
+  // random letter glitch after the intro, every few secs
+  function glitchLoop(){
+    if(reduceMotion) return;
+    setInterval(() => {
+      if(document.hidden || window.scrollY > window.innerHeight * 0.5) return;
+      const l = letters[Math.floor(Math.random() * letters.length)];
+      l.classList.add('glitch');
+      l.addEventListener('animationend', () => l.classList.remove('glitch'), { once: true });
+    }, 4200);
+  }
+
+  /* ---------------- enter ---------------- */
+  let entered = false;
+  function enterSite(){
+    if(entered) return;
+    entered = true;
+    if(DEBUG) console.log('[gaze] entered', Date.now());
+
+    page.classList.add('unblurred');
+    document.body.classList.add('entered');
+    enterHint.classList.add('hidden');
+    vcanvas.classList.add('on');
+    soundToggle.classList.add('visible');
+
+    // audio in try/catch bc if the analyser blows up (file:// + crossorigin) the sound should still play
+    audio.volume = 0.15;
+    try{
+      setupAudioAnalyser();
+      if (audioCtx.state === 'suspended') audioCtx.resume();
+    }catch(e){
+      console.warn('analyser failed, playing audio without visualizer', e);
+    }
+    audio.play().catch(() => {});
+
+    setTimeout(typeQuote, 1500);
+    setTimeout(() => { heroTitle.classList.add('settled'); glitchLoop(); }, 3200);
+  }
+
+  // click / tap / any key. no hint text so it has to be forgiving
+  enterHint.addEventListener('click', enterSite);
+  enterHint.addEventListener('touchend', enterSite);
+  window.addEventListener('keydown', enterSite);
+
+  // only care about the filter transition on #page itself, children bubble transitionend up too
+  page.addEventListener('transitionend', (e) => {
+    if (e.target !== page || e.propertyName !== 'filter') return;
     if (page.classList.contains('unblurred')) page.style.filter = 'none';
   });
-
-  enterHint.addEventListener('click', () => {
-    page.classList.add('unblurred');
-    matrixBg.classList.add('unblurred');
-    enterHint.classList.add('hidden');
-    audio.volume = 0.15;
-    setupAudioAnalyser();
-    if (audioCtx.state === 'suspended') audioCtx.resume();
-    audio.play().catch(() => {});
-    soundToggle.classList.add('visible');
-  }, { once: true });
 
   soundToggle.addEventListener('click', () => {
     if (audio.paused) {
@@ -647,23 +884,224 @@
     }
   });
 
+  /* ---------------- scroll stuff ---------------- */
+  let scrollTick = false;
+  function onScroll(){
+    const y = window.scrollY;
+    topBtn.classList.toggle('visible', y > window.innerHeight * 0.6);
+    scrollCue.classList.toggle('gone', y > 40);
+    const max = document.documentElement.scrollHeight - window.innerHeight;
+    progress.style.transform = 'scaleX(' + (max > 0 ? y / max : 0) + ')';
+    scrollTick = false;
+  }
   window.addEventListener('scroll', () => {
-    topBtn.classList.toggle('visible', window.scrollY > window.innerHeight * 0.6);
-  });
+    if(scrollTick) return;
+    scrollTick = true;
+    requestAnimationFrame(onScroll);
+  }, { passive: true });
   topBtn.addEventListener('click', () => window.scrollTo({ top: 0, behavior: 'smooth' }));
 
+  /* ---------------- reveal on scroll ---------------- */
   const revealEls = document.querySelectorAll('.reveal');
   const io = new IntersectionObserver((entries) => {
-    entries.forEach((entry, i) => {
-      if (entry.isIntersecting) {
-        setTimeout(() => entry.target.classList.add('show'), i * 90);
-      } else {
-        entry.target.classList.remove('show');
+    let n = 0;
+    entries.forEach((entry) => {
+      const el = entry.target;
+      if (entry.intersectionRatio >= 0.15) {
+        if (el.classList.contains('show') || el._rt) return;
+        el._rt = setTimeout(() => {
+          el._rt = 0;
+          el.classList.add('show');
+          el._st = setTimeout(() => el.classList.add('settled'), 1100);
+        }, Math.min(n++, 8) * 90);
+      } else if (entry.boundingClientRect.top > window.innerHeight / 2) {
+        clearTimeout(el._rt);
+        clearTimeout(el._st);
+        el._rt = 0;
+        el.classList.remove('show', 'settled');
       }
     });
-  }, { threshold: 0.15 });
+  }, { threshold: 0.15, rootMargin: '0px 0px -6% 0px' });
   revealEls.forEach(el => io.observe(el));
 
+  /* ---------------- carousels ---------------- */
+  function setupCarousel(c){
+    let raf = 0, dragging = false, moved = false, suppress = false, sx = 0, sl = 0;
+    let baseCount = 0, looping = false, guard = false;
+    let touching = false, idleT = 0, lastW = window.innerWidth;
+
+    function items(){ return [...c.children]; }
+
+    function update(){
+      raf = 0;
+      const els = items();
+      if(!els.length) return;
+      const step = els.length > 1 ? els[1].offsetLeft - els[0].offsetLeft : els[0].offsetWidth;
+      const mid = c.scrollLeft + c.clientWidth / 2;
+      let best = els[0], bestD = Infinity;
+      els.forEach(el => {
+        const d = Math.abs(el.offsetLeft + el.offsetWidth / 2 - mid);
+        el.style.setProperty('--t', Math.min(d / step, 1).toFixed(3));
+        if(d < bestD){ bestD = d; best = el; }
+      });
+      els.forEach(el => el.classList.toggle('active', el === best));
+    }
+
+    function centerOn(el, smooth){
+      c.scrollTo({
+        left: el.offsetLeft + el.offsetWidth / 2 - c.clientWidth / 2,
+        behavior: smooth && !reduceMotion ? 'smooth' : 'auto'
+      });
+    }
+
+    // infinite loop: 5 identical sets (2 before, the real one, 2 after) so the edges are
+    // never reachable in normal use. once scrolling stops we silently hop back to the middle set.
+    const COPIES = 5, MID = 2;
+    function buildLoop(){
+      const els = items();
+      baseCount = els.length;
+      // with only 2-3 cards, cloning just makes duplicates, so don't loop
+      if(baseCount < 4) return;
+      const firstOrig = els[0];
+      for(let k = 0; k < MID; k++){
+        els.forEach(el => c.insertBefore(el.cloneNode(true), firstOrig));
+      }
+      for(let k = 0; k < COPIES - MID - 1; k++){
+        els.forEach(el => c.appendChild(el.cloneNode(true)));
+      }
+      looping = true;
+    }
+
+    // hop by whole sets: identical content, so it's invisible. transitions are frozen
+    // for that instant so the highlight doesn't re-fade on the "new" copy of the same card.
+    function hop(newX){
+      guard = true;
+      c.classList.add('nojump');
+      c.scrollLeft = newX;
+      update();
+      void c.offsetWidth;
+      c.classList.remove('nojump');
+      guard = false;
+    }
+
+    function checkLoopBounds(force){
+      if(guard || dragging) return;
+      if(touching && !force) return;
+      const els = items();
+      if(els.length < baseCount * COPIES) return;
+      const step = els[1].offsetLeft - els[0].offsetLeft;
+      const setWidth = step * baseCount;
+      const x = c.scrollLeft;
+      const k = Math.floor((x + step * 0.5) / setWidth) - MID;
+      if(k !== 0) hop(x - k * setWidth);
+    }
+
+    function init(){
+      buildLoop();
+      const els = items();
+      if(!els.length) return;
+      let startIdx = 0;
+      if (c.dataset.start === 'middle') startIdx = Math.floor((baseCount - 1) / 2);
+      if (c.dataset.startIndex !== undefined) startIdx = parseInt(c.dataset.startIndex, 10);
+      // land on that item within the middle (base) set
+      const targetIdx = looping ? baseCount * MID + startIdx : startIdx;
+      centerOn(els[targetIdx], false);
+      update();
+    }
+
+    c.addEventListener('scroll', () => {
+      if(!raf) raf = requestAnimationFrame(update);
+      if(looping){
+        // emergency: nearly at the very end of the clones, hop right now
+        const max = c.scrollWidth - c.clientWidth;
+        const x = c.scrollLeft;
+        if(!guard && (x < 220 || x > max - 220)){ checkLoopBounds(true); return; }
+        // normal case: hop once the scroll has settled (hopping mid-animation would cancel it)
+        clearTimeout(idleT);
+        idleT = setTimeout(checkLoopBounds, 90);
+      }
+    }, { passive: true });
+
+    c.addEventListener('touchstart', () => { touching = true; }, { passive: true });
+    const touchDone = () => {
+      touching = false;
+      if(looping){ clearTimeout(idleT); idleT = setTimeout(checkLoopBounds, 120); }
+    };
+    c.addEventListener('touchend', touchDone, { passive: true });
+    c.addEventListener('touchcancel', touchDone, { passive: true });
+
+    window.addEventListener('resize', () => {
+      // mobile url bar fires resize while scrolling, only react to real width changes
+      if(Math.abs(window.innerWidth - lastW) < 5) return;
+      lastW = window.innerWidth;
+      const a = c.querySelector('.active');
+      if(a) centerOn(a, false);
+      update();
+    });
+
+    c.addEventListener('pointerdown', (e) => {
+      if(e.pointerType !== 'mouse' || e.button !== 0) return;
+      dragging = true;
+      moved = false;
+      sx = e.clientX;
+      sl = c.scrollLeft;
+      c.classList.add('dragging');
+    });
+
+    window.addEventListener('pointermove', (e) => {
+      if(!dragging) return;
+      const dx = e.clientX - sx;
+      if(Math.abs(dx) > 5) moved = true;
+      if(moved) c.scrollLeft = sl - dx;
+    });
+
+    window.addEventListener('pointerup', () => {
+      if(!dragging) return;
+      dragging = false;
+      c.classList.remove('dragging');
+      if(!moved) return;
+      suppress = true;
+      setTimeout(() => { suppress = false; }, 0);
+      update();
+      const a = c.querySelector('.active');
+      if(a) centerOn(a, true);
+    });
+
+    c.addEventListener('dragstart', (e) => e.preventDefault());
+
+    c.addEventListener('click', (e) => {
+      if(suppress){
+        e.preventDefault();
+        e.stopPropagation();
+        return;
+      }
+      const item = items().find(el => el.contains(e.target));
+      if(item && !item.classList.contains('active')){
+        e.preventDefault();
+        e.stopPropagation();
+        centerOn(item, true);
+      }
+    }, true);
+
+    c.addEventListener('keydown', (e) => {
+      if(e.key !== 'ArrowRight' && e.key !== 'ArrowLeft') return;
+      const els = items();
+      const i = els.findIndex(el => el.classList.contains('active'));
+      const next = els[i + (e.key === 'ArrowRight' ? 1 : -1)];
+      if(next){
+        e.preventDefault();
+        centerOn(next, true);
+      }
+    });
+
+    return { init };
+  }
+
+  const linksCarousel = setupCarousel(document.getElementById('links'));
+  const repoCarousel = setupCarousel(document.getElementById('repo-grid'));
+  linksCarousel.init();
+
+  /* ---------------- github repos ---------------- */
   const REPO_USER = 'g4zwr';
   const EXCLUDED_REPOS = ['g4zwr', 'g4zwr.github.io'];
 
@@ -708,8 +1146,7 @@
       grid.innerHTML = '';
       repos.forEach((r, i) => {
         const card = document.createElement('div');
-        card.className = 'repo-card reveal';
-        card.style.transitionDelay = (i * 40) + 'ms';
+        card.className = 'repo-card';
 
         const desc = r.description ? escapeHTML(r.description) : 'no description yet.';
         const lang = r.language ? `<span><span class="lang-dot"></span>${escapeHTML(r.language)}</span>` : '';
@@ -725,9 +1162,9 @@
           <div class="repo-meta">${lang}${stars}${forks}${updated}</div>
         `;
         grid.appendChild(card);
-        io.observe(card);
-        requestAnimationFrame(() => requestAnimationFrame(() => card.classList.add('show')));
       });
+      status.hidden = true;
+      repoCarousel.init();
     }catch(err){
       status.classList.add('error');
       status.textContent = 'could not load repos — rate limited or offline';
@@ -739,3 +1176,4 @@
 
 </body>
 </html>
+8
