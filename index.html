@@ -49,6 +49,7 @@
     height:140px;
     z-index:-1;
     pointer-events:none;
+    filter:blur(3px);
     opacity:0;
     transition:opacity 2.4s ease 0.4s;
   }
@@ -815,26 +816,30 @@
     }, 4200);
   }
 
+  function unblurPage(){
+    page.classList.add('unblurred');
+  }
+
   let entered = false;
   function enterSite(){
     if(entered) return;
     entered = true;
     if(DEBUG) console.log('[gaze] entered', Date.now());
 
-    page.classList.add('unblurred');
     document.body.classList.add('entered');
     enterHint.classList.add('hidden');
     vcanvas.classList.add('on');
     soundToggle.classList.add('visible');
 
-    audio.volume = 0.15;
+    audio.volume = 0.8;
     try{
       setupAudioAnalyser();
       if (audioCtx.state === 'suspended') audioCtx.resume();
     }catch(e){
       console.warn('analyser failed, playing audio without visualizer', e);
     }
-    audio.play().catch(() => {});
+    audio.addEventListener('playing', unblurPage, { once: true });
+    audio.play().catch(unblurPage);
 
     setTimeout(typeQuote, 1500);
     setTimeout(() => { heroTitle.classList.add('settled'); glitchLoop(); }, 3200);
