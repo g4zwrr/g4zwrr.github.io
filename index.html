@@ -16,7 +16,7 @@
     --accent:#ffffff;
   }
 
-  *{box-sizing:border-box;}
+  *{box-sizing:border-box; -webkit-tap-highlight-color:transparent;}
   html{scroll-behavior:smooth;}
   body{
     margin:0;
@@ -73,7 +73,7 @@
   }
   #page.unblurred{
     filter: blur(0);
-    transition: filter 2s cubic-bezier(0.22,1,0.36,1);
+    transition: filter 2.1s cubic-bezier(0.22,1,0.36,1);
   }
 
   #enter-hint{
@@ -490,7 +490,172 @@
   @keyframes blink{ 50%{ opacity:0.2; } }
 
   footer.site-footer{ padding:40px 0 80px; color:var(--fg-dim2); font-size:13px; font-family:'Space Mono',monospace; }
+  footer.site-footer .copyright{ margin-top:8px; font-size:11.5px; }
 
+
+  #hamburger{
+    position:fixed; top:18px; left:18px; z-index:950;
+    width:40px; height:40px;
+    display:flex; flex-direction:column; align-items:center; justify-content:center; gap:5px;
+    background:var(--bg-panel); border:1px solid var(--line); border-radius:50%;
+    cursor:pointer;
+    transition: border-color 0.25s ease, background 0.25s ease, transform 0.25s cubic-bezier(0.16,1,0.3,1);
+  }
+  #hamburger:hover{ border-color:var(--accent); transform:scale(1.06); }
+  #hamburger:active{ transform:scale(0.94); }
+  #hamburger span{
+    display:block; width:16px; height:2px; background:#fff; border-radius:1px;
+    transition:transform 0.3s cubic-bezier(0.16,1,0.3,1), opacity 0.2s ease, width 0.25s ease;
+  }
+  #hamburger:hover span{ width:18px; }
+  #hamburger.open span:nth-child(1){ transform:translateY(7px) rotate(45deg); width:18px; }
+  #hamburger.open span:nth-child(2){ opacity:0; transform:scaleX(0); }
+  #hamburger.open span:nth-child(3){ transform:translateY(-7px) rotate(-45deg); width:18px; }
+
+  #sidebar{
+    position:fixed; top:0; left:0; bottom:0; width:250px;
+    background:rgba(0,0,0,0.97); border-right:1px solid var(--line);
+    z-index:940; transform:translateX(-100%);
+    transition:transform 0.4s cubic-bezier(0.19,1,0.22,1);
+    padding:88px 28px 24px;
+    display:flex; flex-direction:column; gap:6px;
+  }
+  #sidebar.open{ transform:none; }
+  #sidebar a{
+    position:relative;
+    font-family:'Space Mono',monospace; font-size:15px; color:#fff !important;
+    letter-spacing:0.05em; text-decoration:none !important;
+    padding:10px 0 10px 18px;
+    transition: color 0.25s ease, padding-left 0.25s cubic-bezier(0.16,1,0.3,1);
+  }
+  #sidebar a::before{
+    content:'';
+    position:absolute; left:0; top:50%; width:2px; height:0;
+    background:var(--accent);
+    transform:translateY(-50%);
+    transition:height 0.25s cubic-bezier(0.16,1,0.3,1);
+  }
+  #sidebar a:hover{ padding-left:24px; }
+  #sidebar a:hover::before{ height:60%; }
+  #sidebar a.active-link{ color:var(--accent) !important; padding-left:24px; }
+  #sidebar a.active-link::before{ height:100%; }
+
+  #sidebar-overlay{
+    position:fixed; inset:0; background:rgba(0,0,0,0.55); z-index:930;
+    -webkit-backdrop-filter:blur(4px); backdrop-filter:blur(4px);
+    opacity:0; pointer-events:none; transition:opacity 0.35s ease;
+  }
+  #sidebar-overlay.open{ opacity:1; pointer-events:auto; }
+
+  .fake-page{
+    display:none;
+    min-height:100svh;
+    padding:110px 24px 60px;
+    max-width:680px; margin:0 auto;
+  }
+  .fake-page h1{
+    font-family:'Inter',sans-serif; font-weight:800;
+    font-size:clamp(30px,8vw,44px); letter-spacing:-0.01em;
+    margin:0 0 18px;
+  }
+  .fake-page p{ color:var(--fg-dim); font-size:15.5px; max-width:52ch; }
+  .fake-page .back-link{
+    display:inline-flex; align-items:center; gap:6px;
+    margin-top:38px; font-family:'Space Mono',monospace;
+    font-size:13px; color:var(--fg-dim2) !important;
+    transition:color 0.25s ease, gap 0.25s ease;
+  }
+  .fake-page .back-link:hover{ color:var(--accent) !important; gap:10px; text-decoration:none; }
+
+  .about-lead{ max-width:none; }
+  .about-section{ margin-top:36px; }
+  .about-h2{
+    font-family:'Space Mono',monospace;
+    font-size:13px;
+    letter-spacing:0.12em;
+    color:var(--fg-dim2);
+    margin:0 0 16px;
+  }
+  .about-section p{ max-width:none; }
+  .about-section a{ color:var(--accent); }
+  .about-section a:hover{ text-decoration:underline; }
+
+  .contact-list{ display:flex; flex-direction:column; gap:12px; margin-top:28px; }
+  .contact-row{
+    display:flex;
+    align-items:center;
+    gap:16px;
+    border:1px solid var(--line);
+    background:var(--bg-panel);
+    border-radius:3px;
+    padding:16px 18px;
+    color:var(--fg) !important;
+    text-decoration:none !important;
+    transition:border-color 0.3s ease, transform 0.3s ease;
+  }
+  .contact-row:hover{ border-color:var(--accent); transform:translateX(4px); text-decoration:none !important; }
+  .contact-row svg{ width:24px; height:24px; fill:currentColor; flex:none; }
+  .contact-row-text{ display:flex; flex-direction:column; gap:4px; }
+  .contact-row-name{ font-family:'Space Mono',monospace; font-size:14.5px; }
+  .contact-row-desc{ font-size:13px; color:var(--fg-dim); max-width:46ch; }
+
+  .projects-list{ display:flex; flex-direction:column; gap:16px; margin-top:28px; }
+  .proj-card{
+    border:1px solid var(--line);
+    background:var(--bg-panel);
+    padding:20px;
+    border-radius:3px;
+    transition:border-color 0.3s ease;
+  }
+  .proj-card:hover{ border-color:var(--accent); }
+  .proj-top{ display:flex; align-items:center; justify-content:space-between; gap:12px; flex-wrap:wrap; }
+  .proj-name{ font-family:'Space Mono',monospace; font-size:16px; }
+  .proj-name a{ color:var(--fg); }
+  .proj-name a:hover{ color:var(--accent); text-decoration:none; }
+  .license-badge{
+    font-family:'Space Mono',monospace;
+    font-size:11px;
+    border:1px solid var(--line);
+    border-radius:20px;
+    padding:3px 10px;
+    color:var(--fg-dim2);
+    white-space:nowrap;
+  }
+  .proj-desc{ font-size:14px; color:var(--fg-dim); margin-top:10px; max-width:none; }
+  .proj-topics{ display:flex; flex-wrap:wrap; gap:6px; margin-top:12px; }
+  .topic-pill{
+    font-family:'Space Mono',monospace;
+    font-size:11px;
+    border:1px solid var(--line);
+    border-radius:20px;
+    padding:2px 9px;
+    color:var(--fg-dim2);
+  }
+  .proj-card .repo-meta{ margin-top:14px; }
+  .proj-readme{
+    margin-top:16px;
+    border:1px solid var(--line);
+    border-radius:2px;
+    padding:14px 16px;
+    background:rgba(255,255,255,0.03);
+  }
+  .proj-readme-label{
+    font-family:'Space Mono',monospace;
+    font-size:11px;
+    letter-spacing:0.15em;
+    color:var(--fg-dim2);
+    margin-bottom:10px;
+  }
+  .proj-readme-body{
+    font-family:'Space Mono',monospace;
+    font-size:12.5px;
+    line-height:1.6;
+    color:var(--fg-dim);
+    white-space:pre-line;
+  }
+  .proj-links{ margin-top:16px; display:flex; gap:18px; }
+  .proj-links a{ font-family:'Space Mono',monospace; font-size:12.5px; color:var(--fg-dim2); }
+  .proj-links a:hover{ color:var(--accent); text-decoration:none; }
 
   @media (prefers-reduced-motion: reduce){
     .reveal, .hero h1 .ch, .aka, .tagline, .scroll-cue, .made-with{
@@ -508,6 +673,15 @@
 <canvas id="matrix-bg"></canvas>
 <canvas id="visualizer"></canvas>
 <div id="progress"></div>
+
+<button id="hamburger" aria-label="Open menu"><span></span><span></span><span></span></button>
+<div id="sidebar-overlay"></div>
+<nav id="sidebar">
+  <a href="/" data-route="home">Home</a>
+  <a href="/projects" data-route="projects">Projects</a>
+  <a href="/about" data-route="about">About</a>
+  <a href="/contact" data-route="contact">Contact</a>
+</nav>
 
 <div id="enter-hint"><span class="tap">[tap]</span></div>
 
@@ -634,9 +808,115 @@
 
     <footer class="site-footer">
       g4zwr &middot; <a href="https://github.com/g4zwr">github.com/g4zwr</a>
+      <div class="copyright">&copy; <span id="copyright-year"></span> g4zwr. All rights reserved.</div>
     </footer>
 
   </div>
+</div>
+
+<div class="fake-page" id="view-projects">
+  <h1>Projects</h1>
+  <p>Every public repo, pulled live from GitHub — description, license, stats, and a README preview for each.</p>
+  <div class="repo-status" id="projects-status"><span class="blink">fetching repos&hellip;</span></div>
+  <div class="projects-list" id="projects-list"></div>
+  <a class="back-link" href="/" data-route="home">&larr; back home</a>
+</div>
+
+<div class="fake-page" id="view-about">
+  <h1>About</h1>
+  <p class="about-lead">Gamedev, mostly Roblox &amp; Luau. Based wherever the WiFi is decent.</p>
+
+  <div class="about-section">
+    <h2 class="about-h2">what i do</h2>
+    <ul class="now-list">
+      <li><span class="dot"></span> Deep in Roblox development, building systems in Luau</li>
+      <li><span class="dot"></span> Producing music on PC and mobile with FL Studio</li>
+      <li><span class="dot"></span> Drawing and animating in 2D and 3D</li>
+    </ul>
+  </div>
+
+  <div class="about-section">
+    <h2 class="about-h2">stack</h2>
+    <div class="stack-grid">
+      <div class="stack-item"><span class="name">Luau</span><span class="role">Roblox scripting</span></div>
+      <div class="stack-item"><span class="name">Python</span><span class="role">tools &amp; scripts</span></div>
+      <div class="stack-item"><span class="name">Roblox Studio</span><span class="role">game dev</span></div>
+      <div class="stack-item"><span class="name">FL Studio Mobile</span><span class="role">music production</span></div>
+    </div>
+  </div>
+
+  <div class="about-section">
+    <h2 class="about-h2">get in touch</h2>
+    <p>Best way to reach me is Discord or WhatsApp — full breakdown of every contact method on the <a class="route-link" href="/contact" data-route="contact">contact page</a>.</p>
+  </div>
+
+  <a class="back-link" href="/" data-route="home">&larr; back home</a>
+</div>
+
+<div class="fake-page" id="view-contact">
+  <h1>Contact</h1>
+  <p class="about-lead">Pick whatever's easiest — here's what each one's actually good for.</p>
+
+  <div class="contact-list">
+    <a class="contact-row" href="https://wa.me/qr/g4zwr" target="_blank" rel="noopener">
+      <svg viewBox="0 0 24 24"><path d="M12.04 2C6.58 2 2.13 6.45 2.13 11.91c0 1.75.46 3.45 1.32 4.95L2.05 22l5.25-1.38a9.9 9.9 0 0 0 4.74 1.21h.01c5.46 0 9.91-4.45 9.91-9.91 0-2.65-1.03-5.14-2.9-7.01A9.87 9.87 0 0 0 12.04 2zm0 1.67c2.2 0 4.27.86 5.82 2.42a8.2 8.2 0 0 1 2.42 5.82c0 4.54-3.7 8.23-8.24 8.23a8.2 8.2 0 0 1-4.18-1.15l-.3-.18-3.12.82.83-3.04-.2-.31a8.18 8.18 0 0 1-1.26-4.37c0-4.54 3.7-8.24 8.23-8.24zm-4.56 4.4c-.16 0-.42.06-.64.3-.22.24-.85.83-.85 2.02s.87 2.35.99 2.51c.12.16 1.7 2.7 4.2 3.68 2.07.82 2.49.65 2.94.61.45-.04 1.45-.59 1.66-1.16.2-.57.2-1.06.14-1.16-.06-.1-.22-.16-.46-.28-.24-.12-1.45-.71-1.67-.8-.22-.08-.39-.12-.55.12-.16.24-.63.79-.77.96-.14.16-.28.18-.52.06-.24-.12-1.02-.38-1.94-1.2-.72-.64-1.2-1.43-1.35-1.67-.14-.24-.02-.37.1-.49.11-.11.24-.28.36-.42.12-.14.16-.24.24-.4.08-.16.04-.3-.02-.42-.06-.12-.55-1.34-.76-1.83-.2-.48-.4-.42-.55-.42z"/></svg>
+      <div class="contact-row-text">
+        <span class="contact-row-name">WhatsApp</span>
+        <span class="contact-row-desc">Fastest way to reach me — collab requests, commission questions, or just to chat. I check this daily.</span>
+      </div>
+    </a>
+    <a class="contact-row" href="https://discord.com/users/1296500534739734530" target="_blank" rel="noopener">
+      <svg viewBox="0 0 24 24"><path d="M20.32 4.37a19.8 19.8 0 0 0-4.9-1.52.07.07 0 0 0-.08.04c-.21.38-.45.86-.61 1.24a18.3 18.3 0 0 0-5.48 0 12.6 12.6 0 0 0-.62-1.24.08.08 0 0 0-.08-.04c-1.7.3-3.35.81-4.9 1.52a.07.07 0 0 0-.03.03C1.07 8.87.34 13.24.7 17.55a.08.08 0 0 0 .03.06c2.06 1.52 4.06 2.44 6.02 3.05a.08.08 0 0 0 .09-.03c.46-.64.88-1.31 1.23-2.02a.08.08 0 0 0-.04-.11 13 13 0 0 1-1.87-.9.08.08 0 0 1 0-.13c.13-.09.25-.19.37-.28a.07.07 0 0 1 .08 0c3.93 1.8 8.18 1.8 12.06 0a.07.07 0 0 1 .08 0c.12.1.24.19.37.28a.08.08 0 0 1 0 .13c-.6.35-1.22.65-1.87.9a.08.08 0 0 0-.04.11c.36.7.78 1.37 1.23 2.02a.08.08 0 0 0 .09.03c1.97-.6 3.97-1.53 6.03-3.05a.08.08 0 0 0 .03-.06c.44-4.98-.74-9.31-3.13-13.15a.06.06 0 0 0-.03-.03zM8.68 14.9c-1.18 0-2.15-1.08-2.15-2.42 0-1.33.95-2.42 2.15-2.42 1.21 0 2.17 1.1 2.15 2.42 0 1.34-.95 2.42-2.15 2.42zm6.66 0c-1.18 0-2.15-1.08-2.15-2.42 0-1.33.95-2.42 2.15-2.42 1.21 0 2.17 1.1 2.15 2.42 0 1.34-.94 2.42-2.15 2.42z"/></svg>
+      <div class="contact-row-text">
+        <span class="contact-row-name">Discord</span>
+        <span class="contact-row-desc">Add me for game dev talk, playtesting, or hanging out in dev servers.</span>
+      </div>
+    </a>
+    <a class="contact-row" href="https://www.roblox.com/users/10841765037" target="_blank" rel="noopener">
+      <svg viewBox="0 0 24 24"><path d="M4.16 0 0 19.84 19.84 24 24 4.16 4.16 0zm7.09 8.42 4.33 1.09-1.09 4.33-4.33-1.09 1.09-4.33z"/></svg>
+      <div class="contact-row-text">
+        <span class="contact-row-name">Roblox</span>
+        <span class="contact-row-desc">Add me in-game, or come see what I'm currently building.</span>
+      </div>
+    </a>
+    <a class="contact-row" href="mailto:g4zwr@duck.com">
+      <svg viewBox="0 0 24 24"><path d="M2 4h20a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2zm0 2v.51l10 6.25 10-6.25V6H2zm20 2.86-9.47 5.92a1 1 0 0 1-1.06 0L2 8.86V18h20V8.86z"/></svg>
+      <div class="contact-row-text">
+        <span class="contact-row-name">Email</span>
+        <span class="contact-row-desc">For anything longer-form or more formal, like business inquiries.</span>
+      </div>
+    </a>
+    <a class="contact-row" href="https://www.youtube.com/@g4zwr" target="_blank" rel="noopener">
+      <svg viewBox="0 0 24 24"><path d="M23.5 6.19a3.02 3.02 0 0 0-2.12-2.14C19.51 3.5 12 3.5 12 3.5s-7.51 0-9.38.55A3.02 3.02 0 0 0 .5 6.19 31.6 31.6 0 0 0 0 12a31.6 31.6 0 0 0 .5 5.81 3.02 3.02 0 0 0 2.12 2.14c1.87.55 9.38.55 9.38.55s7.51 0 9.38-.55a3.02 3.02 0 0 0 2.12-2.14A31.6 31.6 0 0 0 24 12a31.6 31.6 0 0 0-.5-5.81zM9.6 15.6V8.4l6.4 3.6-6.4 3.6z"/></svg>
+      <div class="contact-row-text">
+        <span class="contact-row-name">YouTube</span>
+        <span class="contact-row-desc">Devlogs, gameplay clips, whatever I've been building lately.</span>
+      </div>
+    </a>
+    <a class="contact-row" href="https://www.tiktok.com/@g4zwr" target="_blank" rel="noopener">
+      <svg viewBox="0 0 24 24"><path d="M12.525.02c1.31-.02 2.61-.01 3.91-.02.08 1.53.63 3.09 1.75 4.17 1.12 1.11 2.7 1.62 4.24 1.79v4.03c-1.44-.05-2.89-.35-4.2-.97-.57-.26-1.1-.59-1.62-.93-.01 2.92.01 5.84-.02 8.75-.08 1.4-.54 2.79-1.35 3.94-1.31 1.92-3.58 3.17-5.91 3.21-1.43.08-2.86-.31-4.08-1.03-2.02-1.19-3.44-3.37-3.65-5.71-.02-.5-.03-1-.01-1.49.18-1.9 1.12-3.72 2.58-4.96 1.66-1.44 3.98-2.13 6.15-1.72.02 1.48-.04 2.96-.04 4.44-.99-.32-2.15-.23-3.02.37-.63.41-1.11 1.04-1.36 1.75-.21.51-.15 1.07-.14 1.61.24 1.64 1.82 3.02 3.5 2.87 1.12-.01 2.19-.66 2.77-1.61.19-.33.4-.67.41-1.06.1-1.79.06-3.57.07-5.36.01-4.03-.01-8.05.02-12.07z"/></svg>
+      <div class="contact-row-text">
+        <span class="contact-row-name">TikTok</span>
+        <span class="contact-row-desc">Short clips and behind-the-scenes stuff.</span>
+      </div>
+    </a>
+    <a class="contact-row" href="https://www.reddit.com/user/g4zwr" target="_blank" rel="noopener">
+      <svg viewBox="0 0 24 24"><path d="M24 12.09c0-1.23-.98-2.22-2.19-2.22-.59 0-1.13.24-1.52.62-1.5-1.04-3.55-1.71-5.82-1.79l1.19-3.75 3.28.78a1.6 1.6 0 1 0 .16-.78l-3.65-.87a.4.4 0 0 0-.48.28l-1.33 4.18c-2.32.05-4.42.72-5.94 1.77a2.2 2.2 0 0 0-1.51-.61A2.21 2.21 0 0 0 4 12.09c0 .85.47 1.58 1.16 1.97a3.6 3.6 0 0 0-.05.6c0 2.72 3.16 4.93 7.06 4.93s7.06-2.21 7.06-4.93c0-.2-.02-.4-.05-.6A2.2 2.2 0 0 0 24 12.09zM8.28 13.6a1.4 1.4 0 1 1 2.8 0 1.4 1.4 0 0 1-2.8 0zm7.7 3.48c-.85.85-2.47.91-2.98.91s-2.14-.06-2.98-.91a.32.32 0 0 1 .45-.45c.5.5 1.65.68 2.53.68s2.03-.18 2.53-.68a.32.32 0 0 1 .45.45zm-.18-2.08a1.4 1.4 0 1 1 0-2.8 1.4 1.4 0 0 1 0 2.8z"/></svg>
+      <div class="contact-row-text">
+        <span class="contact-row-name">Reddit</span>
+        <span class="contact-row-desc">Posting progress and lurking dev communities.</span>
+      </div>
+    </a>
+    <a class="contact-row" href="https://x.com/g4zwr_" target="_blank" rel="noopener">
+      <svg viewBox="0 0 24 24"><path d="M18.901 1.153h3.68l-8.04 9.19L24 22.846h-7.406l-5.8-7.584-6.638 7.584H.474l8.6-9.83L0 1.154h7.594l5.243 6.932ZM17.61 20.644h2.039L6.486 3.24H4.298Z"/></svg>
+      <div class="contact-row-text">
+        <span class="contact-row-name">X</span>
+        <span class="contact-row-desc">Updates and random thoughts.</span>
+      </div>
+    </a>
+  </div>
+
+  <a class="back-link" href="/" data-route="home">&larr; back home</a>
 </div>
 
 <script>
@@ -813,6 +1093,7 @@
   const topBtn = document.getElementById('top-btn');
   const progress = document.getElementById('progress');
   const scrollCue = document.querySelector('.scroll-cue');
+  document.getElementById('copyright-year').textContent = new Date().getFullYear();
 
   const heroTitle = document.querySelector('.hero h1');
   const heroText = heroTitle.textContent;
@@ -863,7 +1144,11 @@
   }
 
   function unblurPage(){
-    page.classList.add('unblurred');
+    requestAnimationFrame(() => {
+      requestAnimationFrame(() => {
+        page.classList.add('unblurred');
+      });
+    });
   }
 
   let entered = false;
@@ -1134,6 +1419,8 @@
 
   const REPO_USER = 'g4zwr';
   const EXCLUDED_REPOS = ['g4zwr', 'g4zwr.github.io'];
+  let allRepos = null;
+  let projectsRendered = false;
 
   function escapeHTML(str){
     const d = document.createElement('div');
@@ -1152,6 +1439,112 @@
     return Math.floor(months / 12) + 'y ago';
   }
 
+  function licenseLabel(repo){
+    return repo.license && repo.license.name ? repo.license.name : 'no license';
+  }
+
+  function topicsHTML(repo){
+    const topics = repo.topics || [];
+    if(!topics.length) return '';
+    return `<div class="proj-topics">${topics.map(t => `<span class="topic-pill">${escapeHTML(t)}</span>`).join('')}</div>`;
+  }
+
+  function stripMarkdown(md){
+    return md
+      .replace(/```[\s\S]*?```/g, '')
+      .replace(/`([^`]+)`/g, '$1')
+      .replace(/!\[.*?\]\([^)]*\)/g, '')
+      .replace(/\[([^\]]+)\]\([^)]*\)/g, '$1')
+      .replace(/^#{1,6}\s+/gm, '')
+      .replace(/(\*\*|__)(.*?)\1/g, '$2')
+      .replace(/(\*|_)(.*?)\1/g, '$2')
+      .replace(/^>\s?/gm, '')
+      .replace(/^\s*[-*]{3,}\s*$/gm, '')
+      .replace(/\r/g, '')
+      .split('\n')
+      .filter(line => line.trim().length)
+      .join('\n')
+      .trim();
+  }
+
+  async function fetchReadmePreview(repoName, targetEl){
+    try{
+      const metaRes = await fetch(`https://api.github.com/repos/${REPO_USER}/${repoName}/readme`);
+      if(!metaRes.ok) throw new Error('no readme');
+      const meta = await metaRes.json();
+      const rawRes = await fetch(meta.download_url);
+      const raw = await rawRes.text();
+      const clean = stripMarkdown(raw);
+      if(!clean.length){
+        targetEl.textContent = 'README has no readable content.';
+        return;
+      }
+      const preview = clean.slice(0, 420);
+      targetEl.textContent = preview + (clean.length > 420 ? '…' : '');
+    }catch(err){
+      targetEl.textContent = 'no README found for this repo.';
+    }
+  }
+
+  function renderProjectsPage(){
+    const status = document.getElementById('projects-status');
+    const list = document.getElementById('projects-list');
+    if(projectsRendered) return;
+    if(allRepos === null){
+      status.hidden = false;
+      status.classList.remove('error');
+      status.innerHTML = '<span class="blink">fetching repos&hellip;</span>';
+      return;
+    }
+    if(allRepos === 'error'){
+      status.hidden = false;
+      status.classList.add('error');
+      status.textContent = 'could not load repos — rate limited or offline';
+      return;
+    }
+    if(!allRepos.length){
+      status.hidden = false;
+      status.classList.remove('error');
+      status.textContent = 'no public repos to show';
+      return;
+    }
+    status.hidden = true;
+    list.innerHTML = '';
+    projectsRendered = true;
+    allRepos.forEach((r, i) => {
+      const card = document.createElement('div');
+      card.className = 'proj-card';
+
+      const desc = r.description ? escapeHTML(r.description) : 'no description yet.';
+      const lang = r.language ? `<span><span class="lang-dot"></span>${escapeHTML(r.language)}</span>` : '';
+      const stars = r.stargazers_count ? `<span>★ ${r.stargazers_count}</span>` : '';
+      const forks = r.forks_count ? `<span>⑂ ${r.forks_count}</span>` : '';
+      const issues = r.open_issues_count ? `<span>◆ ${r.open_issues_count} open</span>` : '';
+      const size = r.size ? `<span>${(r.size / 1024).toFixed(1)}MB</span>` : '';
+      const updated = `<span>${timeAgo(r.updated_at)}</span>`;
+      const readmeId = `readme-body-${i}`;
+
+      card.innerHTML = `
+        <div class="proj-top">
+          <span class="proj-name"><a href="${r.html_url}" target="_blank" rel="noopener">${escapeHTML(r.name)}</a></span>
+          <span class="license-badge">${escapeHTML(licenseLabel(r))}</span>
+        </div>
+        <div class="proj-desc">${desc}</div>
+        ${topicsHTML(r)}
+        <div class="repo-meta">${lang}${stars}${forks}${issues}${size}${updated}</div>
+        <div class="proj-readme">
+          <div class="proj-readme-label">readme</div>
+          <div class="proj-readme-body" id="${readmeId}">loading readme&hellip;</div>
+        </div>
+        <div class="proj-links">
+          <a href="${r.html_url}" target="_blank" rel="noopener">view repo &rarr;</a>
+        </div>
+      `;
+      list.appendChild(card);
+      fetchReadmePreview(r.name, card.querySelector('#' + readmeId));
+    });
+  }
+
   async function loadRepos(){
     const grid = document.getElementById('repo-grid');
     const status = document.getElementById('repo-status');
@@ -1167,9 +1560,12 @@
         .filter(r => !EXCLUDED_REPOS.includes(r.name.toLowerCase()))
         .sort((a,b) => (b.stargazers_count - a.stargazers_count) || (new Date(b.updated_at) - new Date(a.updated_at)));
 
+      allRepos = repos;
+
       if(!repos.length){
         status.textContent = 'no public repos to show';
         status.classList.remove('error');
+        renderProjectsPage();
         return;
       }
 
@@ -1196,10 +1592,13 @@
       });
       status.hidden = true;
       repoCarousel.init();
+      renderProjectsPage();
     }catch(err){
       status.classList.add('error');
       status.textContent = 'could not load repos — rate limited or offline';
       console.error(err);
+      allRepos = 'error';
+      renderProjectsPage();
     }
   }
   loadRepos();
@@ -1210,6 +1609,123 @@
     if(!card || !card.dataset.href) return;
     window.open(card.dataset.href, '_blank', 'noopener');
   });
+
+  (function(){
+    const hamburger = document.getElementById('hamburger');
+    const sidebar = document.getElementById('sidebar');
+    const overlay = document.getElementById('sidebar-overlay');
+    const pageHome = document.getElementById('page');
+    const navEls = document.querySelectorAll('#sidebar a, .back-link, .route-link');
+    const DUR = 420;
+
+    const ROUTES = ['projects', 'about', 'contact'];
+    function pathToRoute(pathname){
+      const seg = pathname.replace(/^\/+|\/+$/g, '').split('/')[0];
+      return ROUTES.includes(seg) ? seg : 'home';
+    }
+    function viewFor(route){
+      return route === 'home' ? pageHome : document.getElementById('view-' + route);
+    }
+
+    function openSidebar(){ sidebar.classList.add('open'); overlay.classList.add('open'); hamburger.classList.add('open'); }
+    function closeSidebar(){ sidebar.classList.remove('open'); overlay.classList.remove('open'); hamburger.classList.remove('open'); }
+
+    hamburger.addEventListener('click', () => {
+      sidebar.classList.contains('open') ? closeSidebar() : openSidebar();
+    });
+    overlay.addEventListener('click', closeSidebar);
+    window.addEventListener('keydown', (e) => {
+      if(e.key === 'Escape') closeSidebar();
+    });
+
+    let currentView = pageHome;
+    let currentRoute = 'home';
+    let animating = false;
+
+    function setActiveLink(route){
+      document.querySelectorAll('#sidebar a').forEach(a => {
+        a.classList.toggle('active-link', a.dataset.route === route);
+      });
+    }
+
+    function crossFade(nextView){
+      if(!nextView || nextView === currentView || animating) return;
+      animating = true;
+      const prevView = currentView;
+
+      prevView.style.transition = `opacity ${DUR}ms cubic-bezier(0.16,1,0.3,1), transform ${DUR}ms cubic-bezier(0.16,1,0.3,1), filter ${DUR}ms cubic-bezier(0.16,1,0.3,1)`;
+      prevView.style.opacity = '0';
+      prevView.style.transform = 'translateY(-14px)';
+      prevView.style.filter = 'blur(10px)';
+      prevView.style.pointerEvents = 'none';
+
+      setTimeout(() => {
+        prevView.style.display = 'none';
+
+        nextView.style.display = 'block';
+        nextView.style.opacity = '0';
+        nextView.style.transform = 'translateY(14px)';
+        nextView.style.filter = 'blur(10px)';
+        nextView.style.transition = 'none';
+        void nextView.offsetWidth;
+        nextView.style.transition = `opacity ${DUR}ms cubic-bezier(0.16,1,0.3,1), transform ${DUR}ms cubic-bezier(0.16,1,0.3,1), filter ${DUR}ms cubic-bezier(0.16,1,0.3,1)`;
+
+        requestAnimationFrame(() => requestAnimationFrame(() => {
+          nextView.style.opacity = '1';
+          nextView.style.transform = 'none';
+          nextView.style.filter = 'none';
+          nextView.style.pointerEvents = '';
+          animating = false;
+        }));
+
+        currentView = nextView;
+        window.scrollTo(0, 0);
+      }, DUR);
+    }
+
+    function showRoute(route, push){
+      const target = viewFor(route);
+      if(!target) return;
+      crossFade(target);
+      currentRoute = route;
+      setActiveLink(route);
+      if(route === 'projects') renderProjectsPage();
+      if(push) history.pushState({ route }, '', route === 'home' ? '/' : '/' + route);
+      closeSidebar();
+    }
+
+    navEls.forEach(a => {
+      a.addEventListener('click', (e) => {
+        e.preventDefault();
+        if(a.dataset.route === currentRoute){ closeSidebar(); return; }
+        showRoute(a.dataset.route, true);
+      });
+    });
+
+    window.addEventListener('popstate', (e) => {
+      const route = (e.state && e.state.route) || pathToRoute(location.pathname);
+      if(route === currentRoute) return;
+      currentRoute = route;
+      crossFade(viewFor(route));
+      setActiveLink(route);
+      if(route === 'projects') renderProjectsPage();
+    });
+
+    const initialRoute = pathToRoute(location.pathname);
+    if(initialRoute !== 'home'){
+      const target = viewFor(initialRoute);
+      if(target){
+        pageHome.style.display = 'none';
+        target.style.display = 'block';
+        target.style.opacity = '1';
+        target.style.transform = 'none';
+        currentView = target;
+        currentRoute = initialRoute;
+        setActiveLink(initialRoute);
+        if(initialRoute === 'projects') renderProjectsPage();
+      }
+    }
+  })();
 </script>
 
 </body>
