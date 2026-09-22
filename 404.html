@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Oops something's wrong</title>
+<style>
+  * {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+  }
+  body {
+    background-color: #000000;
+    color: #ffffff;
+    font-family: system-ui, -apple-system, sans-serif;
+    height: 100vh;
+    overflow: hidden;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+  }
+  .message-box {
+    z-index: 10;
+    pointer-events: none;
+    background: rgba(0, 0, 0, 0.8);
+    padding: 2rem;
+    border-radius: 12px;
+  }
+  h1 {
+    font-size: 2rem;
+    margin-bottom: 0.5rem;
+    color: #ffffff;
+  }
+  p {
+    font-size: 1.25rem;
+    color: #ffffff;
+  }
+  #countdown {
+    font-weight: bold;
+    color: #ffffff;
+  }
+  #teto {
+    position: absolute;
+    width: 120px;
+    height: auto;
+    top: 0;
+    left: 0;
+    user-select: none;
+  }
+</style>
+</head>
+<body>
+
+<div class="message-box">
+  <h1>Oops something's wrong.</h1>
+  <p id="redirect-msg">Redirecting in <span id="countdown">5</span> seconds…</p>
+</div>
+
+<img id="teto" src="teto.gif" alt="Bouncing Teto">
+
+<script>
+  const img = document.getElementById('teto');
+  let x = Math.random() * (window.innerWidth - 120);
+  let y = Math.random() * (window.innerHeight - 120);
+  let dx = 3;
+  let dy = 3;
+
+  function move() {
+    const imgWidth = img.offsetWidth || 120;
+    const imgHeight = img.offsetHeight || 120;
+
+    x += dx;
+    y += dy;
+
+    if (x + imgWidth >= window.innerWidth || x <= 0) {
+      dx = -dx;
+    }
+    if (y + imgHeight >= window.innerHeight || y <= 0) {
+      dy = -dy;
+    }
+
+    img.style.left = x + 'px';
+    img.style.top = y + 'px';
+
+    requestAnimationFrame(move);
+  }
+
+  window.addEventListener('resize', () => {
+    x = Math.min(x, window.innerWidth - 120);
+    y = Math.min(y, window.innerHeight - 120);
+  });
+
+  requestAnimationFrame(move);
+
+  let timeLeft = 5;
+  const redirectMsg = document.getElementById('redirect-msg');
+  const countdownEl = document.getElementById('countdown');
+
+  const timer = setInterval(() => {
+    timeLeft--;
+    if (timeLeft > 1) {
+      countdownEl.textContent = timeLeft;
+    } else if (timeLeft === 1) {
+      redirectMsg.innerHTML = 'Redirecting in 1 second…';
+    } else {
+      clearInterval(timer);
+      redirectMsg.textContent = 'please wait...';
+      window.location.replace("https://g4zwr.is-a.dev");
+    }
+  }, 1000);
+</script>
+
+</body>
+</html>
