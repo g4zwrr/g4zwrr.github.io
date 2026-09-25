@@ -1618,6 +1618,14 @@
     const navEls = document.querySelectorAll('#sidebar a, .back-link, .route-link');
     const DUR = 420;
 
+    try{
+      const redirectedPath = new URLSearchParams(location.search).get('p');
+      if(redirectedPath){
+        const redirectedURL = new URL(redirectedPath, location.origin);
+        history.replaceState(null, '', redirectedURL.pathname + redirectedURL.search + redirectedURL.hash);
+      }
+    }catch(err){ console.error(err); }
+
     const ROUTES = ['projects', 'about', 'contact'];
     function pathToRoute(pathname){
       const seg = pathname.replace(/^\/+|\/+$/g, '').split('/')[0];
