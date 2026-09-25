@@ -94,7 +94,14 @@
 
   requestAnimationFrame(move);
 
-  let timeLeft = 5;
+  const KNOWN_ROUTES = ["projects", "about", "contact"];
+  const firstSegment = location.pathname.replace(/^\/+|\/+$/g, "").split("/")[0];
+  if (KNOWN_ROUTES.includes(firstSegment)) {
+    const preserved = location.pathname + location.search + location.hash;
+    document.getElementById("redirect-msg").textContent = "Loading requested page...";
+    window.location.replace("/?p=" + encodeURIComponent(preserved));
+  } else {
+let timeLeft = 5;
   const redirectMsg = document.getElementById('redirect-msg');
   const countdownEl = document.getElementById('countdown');
 
@@ -110,6 +117,7 @@
       window.location.replace("https://g4zwr.is-a.dev");
     }
   }, 1000);
+  }
 </script>
 
 </body>
