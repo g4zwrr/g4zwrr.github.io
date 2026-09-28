@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Oops something's wrong</title>
 <style>
-  @import url('https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Inter:wght@400;500;800&display=swap');
+  @import url('https://fonts.googleapis.com/css2?family=Big+Shoulders+Display:wght@700;800&family=IBM+Plex+Sans:wght@400;500&family=Space+Mono:wght@400;700&display=swap');
 
   :root{
     --bg:#000000;
@@ -15,6 +15,9 @@
     --bg-panel:rgba(255,255,255,0.035);
     --accent:#ffffff;
     --r:2px;
+    --font-display:'Big Shoulders Display','Arial Narrow',sans-serif;
+    --font-mono:'Space Mono',monospace;
+    --font-sans:'IBM Plex Sans',sans-serif;
   }
 
   * {
@@ -28,7 +31,7 @@
   body {
     background-color: var(--bg);
     color: var(--fg);
-    font-family: 'Inter', sans-serif;
+    font-family: var(--font-sans);
     min-height: 100vh;
     min-height: 100svh;
     overflow: hidden;
@@ -51,12 +54,24 @@
     max-width: 460px;
   }
   h1 {
-    font-family: 'Space Mono', monospace;
-    font-size: clamp(24px, 7vw, 34px);
-    font-weight: 700;
+    position: relative;
+    font-family: var(--font-display);
+    font-size: clamp(40px, 11vw, 62px);
+    font-weight: 800;
+    text-transform: uppercase;
+    line-height: 0.95;
     letter-spacing: -0.01em;
-    margin-bottom: 18px;
+    margin-bottom: 20px;
     color: var(--fg);
+  }
+  h1::after {
+    content: attr(data-ghost);
+    position: absolute;
+    left: 0; right: 0; top: 0;
+    pointer-events: none;
+    color: transparent;
+    -webkit-text-stroke: 1px rgba(255,255,255,0.2);
+    transform: translate(0.028em, 0.028em);
   }
   p {
     font-size: 15px;
@@ -64,7 +79,7 @@
     line-height: 1.6;
   }
   #countdown {
-    font-family: 'Space Mono', monospace;
+    font-family: var(--font-mono);
     font-weight: 700;
     color: var(--fg);
     font-variant-numeric: tabular-nums;
@@ -89,7 +104,7 @@
 <body>
 
 <div class="message-box">
-  <h1>Oops something's wrong.</h1>
+  <h1 data-ghost="Oops something's wrong.">Oops something's wrong.</h1>
   <p id="redirect-msg">Redirecting in <span id="countdown">5</span> seconds…</p>
 </div>
 

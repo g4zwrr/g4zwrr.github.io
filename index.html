@@ -1,10 +1,10 @@
-<html>
+<html lang="en">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>g4zwr</title>
 <style>
-  @import url('https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Inter:wght@400;500;800&display=swap');
+  @import url('https://fonts.googleapis.com/css2?family=Big+Shoulders+Display:wght@500;700;800;900&family=IBM+Plex+Sans:wght@400;500;600&family=Space+Mono:wght@400;700&display=swap');
 
   :root{
     --bg:#000000;
@@ -22,6 +22,9 @@
     --bg-ctrl:rgba(6,6,6,0.82);
     --bg-nav:rgba(4,4,4,0.97);
     --r:2px;
+    --font-display:'Big Shoulders Display','Arial Narrow',sans-serif;
+    --font-mono:'Space Mono',monospace;
+    --font-sans:'IBM Plex Sans',sans-serif;
   }
 
   *{box-sizing:border-box; -webkit-tap-highlight-color:transparent;}
@@ -33,13 +36,13 @@
     margin:0;
     background:var(--bg);
     color:var(--fg);
-    font-family:'Inter',sans-serif;
+    font-family:var(--font-sans);
     line-height:1.6;
     overflow-x:hidden;
   }
   body:not(.entered){ overflow:hidden; height:100%; }
   ::selection{ background:var(--accent); color:#000000; }
-  h1,h2,.mono{ font-family:'Space Mono',monospace; }
+  h1,h2,.mono{ font-family:var(--font-mono); }
   a{ color:var(--accent); text-decoration:none; }
   a:hover{
     text-decoration:underline;
@@ -123,7 +126,7 @@
     background:var(--bg-ctrl);
     border:1px solid var(--line);
     color:var(--fg-dim);
-    font-family:'Space Mono',monospace;
+    font-family:var(--font-mono);
     font-size:12px;
     padding:9px 14px;
     border-radius:20px;
@@ -159,7 +162,7 @@
     background:var(--bg-ctrl);
     border:1px solid var(--line);
     color:var(--fg-dim);
-    font-family:'Space Mono',monospace;
+    font-family:var(--font-mono);
     font-size:12px;
     padding:9px 16px;
     border-radius:20px;
@@ -172,7 +175,7 @@
   #top-btn.visible{ opacity:1; transform:none; pointer-events:auto; }
   #top-btn:hover{ color:#000000; background:var(--accent); }
 
-  .wrap{ max-width:720px; margin:0 auto; padding:0 24px; }
+  .wrap{ max-width:760px; margin:0 auto; padding:0 24px; }
 
   .hero{
     min-height:100svh;
@@ -183,31 +186,49 @@
     text-align:center;
     padding:60px 24px;
     position:relative;
+    background:radial-gradient(ellipse 72% 52% at 50% 46%, rgba(0,0,0,0.62) 0%, rgba(0,0,0,0.3) 46%, rgba(0,0,0,0) 78%);
   }
   .hero h1{
-    font-family:'Inter',sans-serif;
+    position:relative;
+    font-family:var(--font-display);
     font-weight:800;
-    font-size:clamp(46px,14vw,88px);
-    letter-spacing:-0.01em;
+    font-size:clamp(74px,21vw,172px);
+    letter-spacing:-0.015em;
+    text-transform:uppercase;
     margin:0;
-    line-height:0.95;
+    line-height:0.84;
     color:var(--fg);
+  }
+  .hero h1::after{
+    content:attr(aria-label);
+    position:absolute;
+    left:0; right:0; top:0;
+    display:block;
+    text-align:center;
+    white-space:nowrap;
+    pointer-events:none;
+    color:transparent;
+    -webkit-text-stroke:1px rgba(255,255,255,0.2);
+    transform:translate(0.028em, 0.028em);
   }
   .hero h1 .ch{
     display:inline-block;
     opacity:0;
-    transform:translateY(0.35em) scale(0.92);
+    transform:translateY(0.3em) scale(0.94);
     filter:blur(10px);
+    clip-path:inset(0% 0% 100% 0%);
     transition:
-      opacity 0.8s ease,
-      transform 1.1s cubic-bezier(0.16,1,0.3,1),
-      filter 0.9s ease;
+    opacity 0.8s ease,
+    transform 1.1s cubic-bezier(0.16,1,0.3,1),
+    filter 0.9s ease,
+    clip-path 0.7s cubic-bezier(0.16,1,0.3,1);
     transition-delay:calc(var(--i) * 80ms + 350ms);
   }
   body.entered .hero h1 .ch{
     opacity:1;
     transform:none;
     filter:none;
+    clip-path:inset(0% 0% 0% 0%);
   }
   .hero h1.settled .ch{ transition-delay:0s; }
   .hero h1 .ch.glitch{ animation: glitch 0.28s steps(2) 1; }
@@ -220,7 +241,7 @@
   }
 
   .aka{
-    font-family:'Space Mono',monospace;
+    font-family:var(--font-mono);
     color:var(--fg-dim2);
     letter-spacing:0.25em;
     font-size:clamp(12px,3vw,15px);
@@ -256,12 +277,14 @@
   .caret.gone{ opacity:0; }
 
   .tagline{
-    margin-top:26px;
-    font-size:clamp(20px,4.4vw,30px);
+    margin-top:22px;
+    font-family:var(--font-display);
     font-weight:700;
+    font-size:clamp(28px,6vw,46px);
+    text-transform:uppercase;
+    letter-spacing:0.05em;
+    line-height:1;
     color:var(--fg);
-    font-family:'Space Mono',monospace;
-    letter-spacing:-0.02em;
     opacity:0;
     transform:translateY(8px);
     transition: opacity 1.2s ease 3.4s, transform 1.2s cubic-bezier(0.16,1,0.3,1) 3.4s;
@@ -280,7 +303,7 @@
   body.entered .scroll-cue{ opacity:1; transition-delay:4s; }
   body.entered .scroll-cue.gone{ opacity:0; transition-delay:0s; transition-duration:0.4s; }
   .scroll-cue .label{
-    font-family:'Space Mono',monospace;
+    font-family:var(--font-mono);
     font-size:11px;
     letter-spacing:0.3em;
     color:var(--fg-dim2);
@@ -305,7 +328,7 @@
     bottom:20px;
     left:50%;
     transform:translateX(-50%);
-    font-family:'Space Mono',monospace;
+    font-family:var(--font-mono);
     font-size:12px;
     color:var(--fg-dim2);
     opacity:0;
@@ -324,14 +347,25 @@
   }
   .reveal.show{ opacity:1; transform:translateY(0); filter:none; }
 
-  section{ padding:64px 0; border-top:1px solid var(--line); }
+  section{ padding:88px 0; border-top:1px solid var(--line); }
   .wrap > section:first-child{ border-top:none; padding-top:0; }
   h2{
-    font-size:15px;
+    display:flex;
+    align-items:center;
+    gap:14px;
+    font-size:14px;
     font-weight:400;
-    color:var(--fg);
-    letter-spacing:0.12em;
-    margin:0 0 28px;
+    color:var(--fg-dim);
+    letter-spacing:0.2em;
+    text-transform:uppercase;
+    margin:0 0 30px;
+  }
+  h2::before{
+    content:'';
+    flex:none;
+    width:34px;
+    height:1px;
+    background:var(--line-strong);
   }
 
   .stack-grid{
@@ -347,7 +381,7 @@
     transition: border-color 0.3s ease, background 0.3s ease, transform 0.3s ease;
   }
   .stack-item:hover{ border-color:var(--line-strong); background:var(--bg-panel-hover); transform:translateY(-2px); }
-  .stack-item .name{ font-family:'Space Mono',monospace; font-size:14px; display:block; margin-bottom:4px; color:var(--fg); }
+  .stack-item .name{ font-family:var(--font-mono); font-size:14px; display:block; margin-bottom:4px; color:var(--fg); }
   .stack-item .role{ font-size:12.5px; color:var(--fg-dim2); }
 
   .now-list{ list-style:none; padding:0; margin:0; display:flex; flex-direction:column; gap:10px; }
@@ -389,15 +423,16 @@
     top:0; left:0; right:0;
     height:2px;
     background:var(--accent);
-    opacity:0;
-    transition:opacity 0.3s ease;
+    transform:scaleX(0);
+    transform-origin:0 50%;
+    transition:transform 0.4s cubic-bezier(0.16,1,0.3,1);
   }
   .repo-card:hover{
     border-color:var(--line-strong);
     background:var(--bg-panel-hover);
     transform:translateY(-3px);
   }
-  .repo-card:hover::before{ opacity:1; }
+  .repo-card:hover::before{ transform:scaleX(1); }
 
   .stack-item.reveal, .repo-card.reveal{
     transition:
@@ -440,9 +475,9 @@
   }
   .carousel.nojump > *, .carousel.nojump > *::before{ transition:none !important; }
   .carousel > .repo-card:hover{ transform:scale(calc(1.12 - var(--t, 1) * 0.24)); }
-  .carousel > .repo-card:not(.active):hover::before{ opacity:0; }
+  .carousel > .repo-card:not(.active):hover::before{ transform:scaleX(0); }
   .repo-card.active{ border-color:var(--line-active); background:var(--bg-panel-active); }
-  .repo-card.active::before{ opacity:1; }
+  .repo-card.active::before{ transform:scaleX(1); }
 
   #links{ --cw:180px; }
   .link-card{
@@ -455,7 +490,7 @@
     border:1px solid var(--line);
     background:var(--bg-panel);
     border-radius:var(--r);
-    font-family:'Space Mono',monospace;
+    font-family:var(--font-mono);
     font-size:15px;
     color:var(--fg);
     text-decoration:none;
@@ -468,12 +503,13 @@
     text-decoration:none;
   }
   .link-card:hover{ background:var(--bg-panel-hover); border-color:var(--line-strong); }
-  .link-card svg{ width:22px; height:22px; fill:currentColor; }
+  .link-card svg{ width:22px; height:22px; fill:currentColor; transition:transform 0.4s cubic-bezier(0.16,1,0.3,1); }
+  .link-card:hover svg{ transform:translateY(-3px) scale(1.06); }
   .link-card.active{ color:#000000; background:var(--accent); }
 
   .repo-top{ display:flex; align-items:center; justify-content:space-between; gap:10px; }
   .repo-name{
-    font-family:'Space Mono',monospace;
+    font-family:var(--font-mono);
     font-size:14.5px;
     color:var(--fg);
     word-break:break-word;
@@ -489,7 +525,7 @@
     display:flex;
     gap:14px;
     flex-wrap:wrap;
-    font-family:'Space Mono',monospace;
+    font-family:var(--font-mono);
     font-size:11.5px;
     color:var(--fg-dim2);
     font-variant-numeric:tabular-nums;
@@ -502,7 +538,7 @@
     display:inline-block;
   }
   .repo-status{
-    font-family:'Space Mono',monospace;
+    font-family:var(--font-mono);
     font-size:12.5px;
     color:var(--fg-dim2);
     text-align:center;
@@ -512,7 +548,7 @@
   .repo-status .blink{ animation: blink 1.2s steps(2) infinite; }
   @keyframes blink{ 50%{ opacity:0.2; } }
 
-  footer.site-footer{ padding:40px 0 80px; color:var(--fg-dim2); font-size:13px; font-family:'Space Mono',monospace; }
+  footer.site-footer{ padding:40px 0 80px; color:var(--fg-dim2); font-size:13px; font-family:var(--font-mono); }
   footer.site-footer .copyright{ margin-top:8px; font-size:11.5px; }
 
 
@@ -547,7 +583,7 @@
   #sidebar.open{ transform:none; }
   #sidebar a{
     position:relative;
-    font-family:'Space Mono',monospace; font-size:15px; color:var(--fg-dim);
+    font-family:var(--font-mono); font-size:15px; color:var(--fg-dim);
     letter-spacing:0.05em; text-decoration:none;
     padding:10px 0 10px 24px;
     transform:translateX(-6px);
@@ -579,14 +615,15 @@
     max-width:680px; margin:0 auto;
   }
   .fake-page h1{
-    font-family:'Inter',sans-serif; font-weight:800;
-    font-size:clamp(30px,8vw,44px); letter-spacing:-0.01em;
+    font-family:var(--font-display); font-weight:800;
+    font-size:clamp(52px,13vw,96px); line-height:0.9;
+    letter-spacing:-0.01em; text-transform:uppercase;
     margin:0 0 18px;
   }
   .fake-page p{ color:var(--fg-dim); font-size:15.5px; max-width:52ch; }
   .fake-page .back-link{
     display:inline-flex; align-items:center; gap:6px;
-    margin-top:38px; font-family:'Space Mono',monospace;
+    margin-top:38px; font-family:var(--font-mono);
     font-size:13px; color:var(--fg-dim2);
     transition:color 0.25s ease, gap 0.25s ease;
   }
@@ -595,11 +632,22 @@
   .about-lead{ max-width:none; }
   .about-section{ margin-top:36px; }
   .about-h2{
-    font-family:'Space Mono',monospace;
+    display:flex;
+    align-items:center;
+    gap:14px;
+    font-family:var(--font-mono);
     font-size:13px;
-    letter-spacing:0.12em;
-    color:var(--fg);
+    letter-spacing:0.2em;
+    text-transform:uppercase;
+    color:var(--fg-dim);
     margin:0 0 16px;
+  }
+  .about-h2::before{
+    content:'';
+    flex:none;
+    width:26px;
+    height:1px;
+    background:var(--line-strong);
   }
   .about-section p{ max-width:none; }
   .about-section a{ color:var(--accent); }
@@ -626,7 +674,7 @@
   }
   .contact-row svg{ width:24px; height:24px; fill:currentColor; flex:none; }
   .contact-row-text{ display:flex; flex-direction:column; gap:4px; }
-  .contact-row-name{ font-family:'Space Mono',monospace; font-size:14.5px; }
+  .contact-row-name{ font-family:var(--font-mono); font-size:14.5px; }
   .contact-row-desc{ font-size:13px; color:var(--fg-dim); max-width:46ch; }
 
   .projects-list{ display:flex; flex-direction:column; gap:16px; margin-top:28px; }
@@ -639,11 +687,11 @@
   }
   .proj-card:hover{ border-color:var(--line-strong); background:var(--bg-panel-hover); }
   .proj-top{ display:flex; align-items:center; justify-content:space-between; gap:12px; flex-wrap:wrap; }
-  .proj-name{ font-family:'Space Mono',monospace; font-size:16px; }
+  .proj-name{ font-family:var(--font-mono); font-size:16px; }
   .proj-name a{ color:var(--fg); }
   .proj-name a:hover{ color:var(--accent); text-decoration:none; }
   .license-badge{
-    font-family:'Space Mono',monospace;
+    font-family:var(--font-mono);
     font-size:11px;
     border:1px solid var(--line);
     border-radius:20px;
@@ -654,7 +702,7 @@
   .proj-desc{ font-size:14px; color:var(--fg-dim); margin-top:10px; max-width:none; }
   .proj-topics{ display:flex; flex-wrap:wrap; gap:6px; margin-top:12px; }
   .topic-pill{
-    font-family:'Space Mono',monospace;
+    font-family:var(--font-mono);
     font-size:11px;
     border:1px solid var(--line);
     border-radius:20px;
@@ -670,26 +718,26 @@
     background:var(--bg-panel);
   }
   .proj-readme-label{
-    font-family:'Space Mono',monospace;
+    font-family:var(--font-mono);
     font-size:11px;
     letter-spacing:0.15em;
     color:var(--fg-dim2);
     margin-bottom:10px;
   }
   .proj-readme-body{
-    font-family:'Space Mono',monospace;
+    font-family:var(--font-mono);
     font-size:12.5px;
     line-height:1.6;
     color:var(--fg-dim);
     white-space:pre-line;
   }
   .proj-links{ margin-top:16px; display:flex; gap:18px; }
-  .proj-links a{ font-family:'Space Mono',monospace; font-size:12.5px; color:var(--fg-dim2); }
+  .proj-links a{ font-family:var(--font-mono); font-size:12.5px; color:var(--fg-dim2); }
   .proj-links a:hover{ color:var(--accent); text-decoration:none; }
 
   @media (prefers-reduced-motion: reduce){
     .reveal, .hero h1 .ch, .aka, .tagline, .scroll-cue, .made-with{
-      opacity:1; transform:none; filter:none; transition:none; letter-spacing:inherit;
+      opacity:1; transform:none; filter:none; transition:none; letter-spacing:inherit; clip-path:none;
     }
     .aka{ letter-spacing:0.25em; }
     .scroll-cue{ transform:translateX(-50%); }
@@ -1024,7 +1072,20 @@
   setupVisualizerCanvas();
   window.addEventListener('resize', setupVisualizerCanvas);
 
-  let audioCtx, analyser, dataArray, bufferLength, sourceNode, gainNode, limiter;
+  let audioCtx, analyser, dataArray, bufferLength, sourceNode, gainNode, toneNode, limiter;
+
+  const GAIN_MAX = 3;
+  const FADE_IN_SEC = 2.6;
+  const FADE_OUT_SEC = 5;
+  const MUTE_FADE_SEC = 0.9;
+  const TONE_OPEN_HZ = 20000;
+  const TONE_CLOSED_HZ = 600;
+  let lastMediaTime = 0;
+  let fadeStart = 0;
+  let fadeFrom = 0;
+  let fadingIn = true;
+  let muting = false;
+  let muted = false;
 
   function setupAudioAnalyser(){
     if (audioCtx) return;
@@ -1046,18 +1107,17 @@
     limiter.attack.value = 0.003;
     limiter.release.value = 0.15;
 
+    toneNode = audioCtx.createBiquadFilter();
+    toneNode.type = 'lowpass';
+    toneNode.frequency.value = TONE_OPEN_HZ;
+    toneNode.Q.value = 0.7;
+
     sourceNode.connect(analyser);
     analyser.connect(gainNode);
-    gainNode.connect(limiter);
+    gainNode.connect(toneNode);
+    toneNode.connect(limiter);
     limiter.connect(audioCtx.destination);
   }
-
-  const GAIN_MAX = 3;
-  const FADE_IN_SEC = 2.6;
-  const FADE_OUT_SEC = 5;
-  let lastMediaTime = 0;
-  let fadeStart = 0;
-  let fadingIn = true;
 
   function gainCeiling(){ return gainNode ? GAIN_MAX : 1; }
 
@@ -1066,30 +1126,72 @@
     else audio.volume = Math.min(1, v);
   }
 
-  function beginFadeIn(){
+  function setTone(hz){
+    if (toneNode) toneNode.frequency.value = hz;
+  }
+
+  function currentLevel(){
+    const max = gainCeiling();
+    if (!max) return 0;
+    const raw = gainNode ? gainNode.gain.value : audio.volume;
+    return Math.max(0, Math.min(1, raw / max));
+  }
+
+  function beginFadeIn(fromZero){
+    fadeFrom = fromZero ? 0 : currentLevel();
     fadeStart = performance.now();
     fadingIn = true;
+    muting = false;
+    muted = false;
+  }
+
+  function beginMute(){
+    fadeFrom = currentLevel();
+    fadeStart = performance.now();
+    fadingIn = false;
+    muting = true;
+  }
+
+  function finishMute(){
+    muting = false;
+    muted = true;
+    audio.pause();
+    lastMediaTime = 0;
+    setGain(0);
+    setTone(TONE_CLOSED_HZ);
   }
 
   function controlGain(){
     if (audio.paused) return;
     const t = audio.currentTime;
     const d = audio.duration;
-    if (t < lastMediaTime) beginFadeIn();
+    if (t < lastMediaTime && !muting) beginFadeIn();
     lastMediaTime = t;
 
     const max = gainCeiling();
     const remaining = d - t;
-    if (isFinite(d) && d > FADE_OUT_SEC && remaining < FADE_OUT_SEC){
+    const nearEnd = isFinite(d) && d > FADE_OUT_SEC && remaining < FADE_OUT_SEC;
+    let level;
+
+    if (muting){
+      if (fadeFrom <= 0.001){ finishMute(); return; }
+      const p = Math.min(1, (performance.now() - fadeStart) / (MUTE_FADE_SEC * 1000));
+      level = max * fadeFrom * (1 - p);
+      if (p >= 1) finishMute();
+    } else if (nearEnd){
       fadingIn = false;
-      setGain(max * (remaining / FADE_OUT_SEC));
+      level = max * Math.max(0, remaining / FADE_OUT_SEC);
     } else if (fadingIn){
       const p = Math.min(1, (performance.now() - fadeStart) / (FADE_IN_SEC * 1000));
-      setGain(max * p);
+      level = max * (fadeFrom + (1 - fadeFrom) * p);
       if (p >= 1) fadingIn = false;
     } else {
-      setGain(max);
+      level = max;
     }
+
+    setGain(level);
+    const openness = max > 0 ? level / max : 1;
+    setTone(TONE_CLOSED_HZ + (TONE_OPEN_HZ - TONE_CLOSED_HZ) * openness);
   }
 
   function drawVisualizer(){
@@ -1240,7 +1342,6 @@
     if(entered || entering) return;
     entering = true;
 
-    audio.volume = 1;
     lastMediaTime = 0;
     try{
       setupAudioAnalyser();
@@ -1249,7 +1350,9 @@
       console.warn('analyser failed, playing audio without visualizer', e);
     }
 
-    beginFadeIn();
+    setGain(0);
+    setTone(TONE_CLOSED_HZ);
+    beginFadeIn(true);
 
     try{
       await audio.play();
@@ -1286,12 +1389,14 @@
   });
 
   soundToggle.addEventListener('click', () => {
-    if (audio.paused) {
+    if (muting || muted){
+      if (audioCtx && audioCtx.state === 'suspended') audioCtx.resume().catch(() => {});
       audio.play().catch(() => {});
+      beginFadeIn();
       soundToggle.classList.remove('paused');
       soundLabel.textContent = 'sound on';
     } else {
-      audio.pause();
+      beginMute();
       soundToggle.classList.add('paused');
       soundLabel.textContent = 'sound off';
     }
