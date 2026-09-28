@@ -155,7 +155,14 @@
   const isCuteDeepLink = firstSegment === "cute" && KNOWN_ROUTES.includes(segments[1]);
   const isMainDeepLink = KNOWN_ROUTES.includes(firstSegment);
 
-  if (isCuteDeepLink) {
+  // Pages serves cute.html at /cute but has no cute/index.html, so a typed
+  // /cute/ (or any /cute/ that fell through above) is a miss. Send it to the
+  // real entry point instead of letting the countdown drop them on the main site.
+  const isCuteBare = firstSegment === "cute" && segments.length === 1;
+
+  if (isCuteBare) {
+    window.location.replace("/cute");
+  } else if (isCuteDeepLink) {
     const preserved = location.pathname + location.search + location.hash;
     document.getElementById("redirect-msg").textContent = "Loading requested page...";
     window.location.replace("/cute?p=" + encodeURIComponent(preserved));

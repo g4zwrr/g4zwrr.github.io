@@ -2441,7 +2441,7 @@
       currentRoute = route;
       setActiveLink(route);
       if(route === 'projects') renderProjectsPage();
-      if(push) history.pushState({ route }, '', route === 'home' ? BASE + '/' : BASE + '/' + route);
+      if(push) history.pushState({ route }, '', route === 'home' ? BASE : BASE + '/' + route);
       closeSidebar();
     }
 
