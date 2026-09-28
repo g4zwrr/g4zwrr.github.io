@@ -1682,8 +1682,8 @@
     gl.bufferData(gl.ARRAY_BUFFER, rainAlpha, gl.DYNAMIC_DRAW);
     let rainPrev = null;
     function stepRain(now, move){
-      // Rain advances on wall time, not frame count, so the 30fps cap and a
-      // dropped frame slow nothing down. Alpha is recomputed every frame,
+      // Rain advances on wall time, not frame count, so a slower display or a
+      // dropped frame slows nothing down. Alpha is recomputed every frame,
       // including the seeding frame, so the first paint and the static
       // reduced-motion scatter are both visible.
       const step = rainPrev === null ? 0 : Math.min((now - rainPrev) / 1000, 0.1);
@@ -1773,9 +1773,17 @@
     resize();
     window.addEventListener('resize', resize);
 
-    let t0 = 0, running = false, lost = false, revealed = false;
-    let lastY = window.scrollY, leadX = 0, leadY = 0, frame = 0;
-    const FRAME_MS = 1000 / 30;
+    let running = false, lost = false, revealed = false;
+    let lastY = window.scrollY, leadX = 0, leadY = 0, frame = 0, lastT = 0;
+    // The scroll lead relaxes at a fixed rate in wall time rather than per
+    // frame, so the parallax settles identically on a 30, 60 or 120Hz display.
+    // LEAD_DECAY is the fraction remaining after one 1/60s step.
+    const LEAD_DECAY = 0.94, LEAD_REF = 60;
+    // Moon spin in rad/s about its own Y axis. The shader culls on the carried
+    // normal's vNz, and for a sphere turning about its own centre that cap has
+    // axis R^T z and projects to a constant radius, so the limb stays a clean
+    // circle and only the maria and the terminator travel.
+    const MOON_SPIN = 0.03;
 
     window.addEventListener('scroll', () => {
       const y = window.scrollY;
@@ -1787,10 +1795,13 @@
 
     function render(now){
       if(!running) return;
-      if(!reduceMotion && now - t0 < FRAME_MS){ requestAnimationFrame(render); return; }
-      t0 = now;
-      if(document.hidden) return;
-      leadY *= 0.94; leadX *= 0.94;
+      if(document.hidden){ lastT = now; return; }
+      // Delta time drives the lead decay so the motion is frame-rate independent.
+      // Clamped so a backgrounded tab or a long stall cannot jump the scene.
+      const dt = Math.min(Math.max((now - lastT) / 1000, 0), 0.1);
+      lastT = now;
+      const relax = Math.pow(LEAD_DECAY, dt * LEAD_REF);
+      leadY *= relax; leadX *= relax;
 
       const doc = document.documentElement;
       const max = Math.max(1, doc.scrollHeight - window.innerHeight);
@@ -1806,7 +1817,7 @@
       // camera ~89 degrees and threw the moon off screen on the first scroll.
       const camX = leadX, camY = leadY + bob;
       lookAt(V, [camX, camY, camZ], [camX, camY, camZ - 1], [0, 1, 0]);
-      trs(M, MOON[0], MOON[1], MOON[2], tt * 0.02, 1);
+      trs(M, MOON[0], MOON[1], MOON[2], tt * MOON_SPIN, 1);
       nrm3(N, M);
 
       gl.clearColor(0, 0, 0, 0);
@@ -1878,8 +1889,8 @@
     }
     function start(){
       if(running || lost) return;
-      running = true; t0 = 0; rainPrev = null;
-      if(reduceMotion){ render(performance.now() + FRAME_MS); return; }
+      running = true; lastT = performance.now(); rainPrev = null;
+      if(reduceMotion){ render(performance.now()); return; }
       requestAnimationFrame(loop);
     }
     function stop(){ running = false; }
