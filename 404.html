@@ -146,8 +146,20 @@
   if (!reduceMotion) requestAnimationFrame(move);
 
   const KNOWN_ROUTES = ["projects", "about", "contact"];
-  const firstSegment = location.pathname.replace(/^\/+|\/+$/g, "").split("/")[0];
-  if (KNOWN_ROUTES.includes(firstSegment)) {
+  const segments = location.pathname.replace(/^\/+|\/+$/g, "").split("/");
+  const firstSegment = segments[0];
+
+  // The cute build lives at /cute, so a deep link like /cute/contact misses on
+  // Pages and lands here. Hand it to /cute with the path preserved, exactly as
+  // the main site hands /contact to /, and let the target restore the clean URL.
+  const isCuteDeepLink = firstSegment === "cute" && KNOWN_ROUTES.includes(segments[1]);
+  const isMainDeepLink = KNOWN_ROUTES.includes(firstSegment);
+
+  if (isCuteDeepLink) {
+    const preserved = location.pathname + location.search + location.hash;
+    document.getElementById("redirect-msg").textContent = "Loading requested page...";
+    window.location.replace("/cute?p=" + encodeURIComponent(preserved));
+  } else if (isMainDeepLink) {
     const preserved = location.pathname + location.search + location.hash;
     document.getElementById("redirect-msg").textContent = "Loading requested page...";
     window.location.replace("/?p=" + encodeURIComponent(preserved));

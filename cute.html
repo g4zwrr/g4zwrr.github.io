@@ -1,491 +1,2483 @@
-<!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>g4zwr ♡ cute</title>
-<meta name="description" content="the soft pink side of g4zwr">
-<meta property="og:title" content="g4zwr ♡ cute">
-<meta property="og:description" content="the soft pink side of g4zwr">
+<title>g4zwr ✿</title>
 <style>
-  @import url('https://fonts.googleapis.com/css2?family=Caveat:wght@400;500;600;700&family=Quicksand:wght@400;500;600;700&display=swap');
+  @import url('https://fonts.googleapis.com/css2?family=Gloria+Hallelujah&family=Patrick+Hand&display=swap');
 
   :root{
-    --cream:#fff7f4;
-    --paper:#fffaf8;
-    --pink:#ffc2d1;
-    --pink-soft:#ffe3ea;
-    --pink-deep:#f7a8c0;
-    --rose:#e5899f;
-    --brown:#8d6a5c;
-    --brown-deep:#6b4e43;
-    --brown-light:#b99a8b;
-    --ink:#5b4038;
+    --bg:#fff4f0;
+    --fg:#6d4c41;
+    --fg-dim:rgba(109,76,65,0.76);
+    --fg-dim2:rgba(109,76,65,0.56);
+    --fg-faint:rgba(109,76,65,0.36);
+    --accent:#ff8fab;
+    --accent-deep:#d1466f;
+    --line:rgba(160,110,95,0.16);
+    --line-strong:rgba(160,110,95,0.3);
+    --line-active:rgba(160,110,95,0.48);
+    --bg-panel:rgba(255,255,255,0.55);
+    --bg-panel-hover:rgba(255,255,255,0.8);
+    --bg-panel-active:rgba(255,220,229,0.7);
+    --bg-ctrl:rgba(255,250,247,0.9);
+    --bg-nav:rgba(255,247,243,0.97);
     --r:16px;
-    --font-scribble:'Caveat','Segoe Script',cursive;
-    --font-body:'Quicksand',system-ui,sans-serif;
-    --shadow:0 10px 30px rgba(139,106,92,0.18);
+    --font-display:'Gloria Hallelujah','Comic Sans MS',cursive;
+    --font-mono:'Patrick Hand','Comic Sans MS',cursive;
+    --font-sans:'Patrick Hand','Comic Sans MS',cursive;
   }
+
+  /* The doodle boil: a fractal-noise displacement re-rolled on a discrete
+     0.2s clock. calcMode="discrete" is what makes it boil -- a continuous
+     filter would just shimmer, whereas stepping the noise 5x a second redraws
+     the wobble like an animator flipping rough frames. */
+  .boil{ filter:url(#boil); }
+
+  /* Headings, labels and controls are the text a reader actually looks at, so
+     they carry the boil. Body paragraphs stay unfiltered: a displacement
+     filter per paragraph is the single most expensive thing on the page, and
+     a doodle reads as a doodle from the type alone. */
+  .hero h1, .view h2, h1, h2, .mono, .nav-brand, #sound-toggle, #top-btn, .tagline{
+    filter:url(#boil);
+  }
+  /* Preserve legibility where the stroke ghost sits directly under real glyphs:
+     the doubled outline amplifies the wobble into a smudge. */
+  .hero h1::after{ filter:none; }
+  .boil-sm{ filter:url(#boil-sm); }
+  .view p, .hero p, .view li, .view a{ filter:none; }
 
   *{box-sizing:border-box; -webkit-tap-highlight-color:transparent;}
-  html{scroll-behavior:smooth;}
+  html{
+    scroll-behavior:smooth;
+    scrollbar-color:rgba(160,110,95,0.45) #fff4f0;
+  }
   body{
     margin:0;
-    min-height:100dvh;
-    font-family:var(--font-body);
-    color:var(--ink);
-    background:
-      radial-gradient(1200px 700px at 78% 8%,  rgba(255,194,209,0.55), transparent 60%),
-      radial-gradient(900px 600px at 12% 90%, rgba(255,227,234,0.75), transparent 60%),
-      linear-gradient(180deg, var(--cream) 0%, var(--pink-soft) 100%);
-    background-attachment:fixed;
+    background:var(--bg);
+    color:var(--fg);
+    font-family:var(--font-sans);
+    line-height:1.6;
     overflow-x:hidden;
   }
-  ::selection{ background:var(--pink-deep); color:#fff; }
-  a{ color:var(--brown-deep); }
-  a:focus-visible, button:focus-visible{ outline:2.5px solid var(--rose); outline-offset:3px; border-radius:8px; }
-
-  /* soft drifting light behind everything */
-  #glow{
-    position:fixed; inset:0; pointer-events:none; z-index:0;
-    background:radial-gradient(420px 420px at var(--gx,70%) var(--gy,25%), rgba(255,194,209,0.35), transparent 70%);
-    transition:background 0.4s ease;
+  body:not(.entered){ overflow:hidden; height:100%; }
+  ::selection{ background:var(--accent); color:#4a332c; }
+  h1,h2,.mono{ font-family:var(--font-mono); }
+  a{ color:var(--accent); text-decoration:none; }
+  a:hover{
+    text-decoration:underline;
+    text-decoration-thickness:1px;
+    text-underline-offset:3px;
+    text-decoration-color:rgba(209,70,111,0.5);
   }
-  #petals{ position:fixed; inset:0; width:100%; height:100%; pointer-events:none; z-index:1; }
+  a:focus-visible, button:focus-visible{ outline:2px solid var(--accent); outline-offset:3px; }
 
-  .wrap{ position:relative; z-index:2; }
+  #sky{
+    position:fixed;
+    inset:0;
+    z-index:-2;
+    pointer-events:none;
+    opacity:0;
+    transition:opacity 3.2s ease 0.9s;
+  }
+  #sky.on{ opacity:1; }
+  #sky.gone{ opacity:0; transition:opacity 1.1s ease; }
 
-  header{
-    display:flex; align-items:center; gap:14px; flex-wrap:wrap;
-    padding:22px clamp(18px,5vw,54px);
-  }
-  .brand{
-    display:inline-flex; align-items:center; gap:9px;
-    font-family:var(--font-scribble); font-size:30px; font-weight:700;
-    color:var(--brown-deep); text-decoration:none;
-  }
-  .brand .dot{ width:11px; height:11px; border-radius:50%; background:var(--pink-deep); box-shadow:0 0 0 5px rgba(247,168,192,0.25); }
-  .back{
-    margin-left:auto; display:inline-flex; align-items:center; gap:8px;
-    padding:10px 18px; border-radius:999px; text-decoration:none;
-    background:rgba(255,255,255,0.6); border:1.5px solid rgba(185,154,139,0.5);
-    color:var(--brown-deep); font-weight:600; font-size:15px;
-    transition:transform 0.2s ease, background 0.2s ease, box-shadow 0.2s ease;
-  }
-  .back:hover{ background:#fff; transform:translateY(-2px); box-shadow:var(--shadow); }
-
-  main{ display:grid; gap:clamp(30px,6vw,60px); padding:clamp(8px,3vw,20px) clamp(18px,5vw,54px) 40px; }
-
-  /* ── animated scribble headings: draw-on stroke, then a gentle idle wiggle ── */
-  .scribble{ margin:0; }
-  .scribble svg{ display:block; width:100%; height:auto; overflow:visible; }
-  .scribble text{
-    font-family:var(--font-scribble);
-    font-size:150px; line-height:1;
-    fill:var(--brown-deep); fill-opacity:0;
-    stroke:var(--rose); stroke-width:3.5; stroke-linecap:round; stroke-linejoin:round;
-    paint-order:stroke fill;
-    transform-box:fill-box; transform-origin:center;
-    animation:
-      draw 1.5s cubic-bezier(.4,0,.2,1) var(--d,0s) forwards,
-      wiggle 5s ease-in-out calc(var(--d,0s) + 1.5s) infinite;
-  }
-  .scribble.light text{ fill:var(--brown); stroke:var(--pink-deep); }
-  @keyframes draw{ from{ stroke-dashoffset:1; fill-opacity:0; } to{ stroke-dashoffset:0; fill-opacity:1; } }
-  @keyframes wiggle{
-    0%,100%{ transform:rotate(-1.1deg) translateY(0); }
-    50%    { transform:rotate(1.1deg) translateY(-5px); }
+  #matrix-bg{
+    position:fixed;
+    inset:0;
+    z-index:-3;
+    background:linear-gradient(170deg, #fff6f2 0%, #ffeaf0 46%, #ffe2ec 100%);
+    filter:blur(3px);
+    transform:scale(1.05);
   }
 
-  /* ── 2D kawaii moon: scribble draw-on, then a gentle rock ─────────────────
-     Pure SVG, deliberately not the main site's WebGL moon. A round cream moon
-     with a happy closed-eye face, craters, blush and sparkles. Every stroke
-     carries pathLength="1", so a single dasharray value draws them all; the
-     body and face sketch themselves on in sequence, then the whole moon rocks. */
-  .moon{
-    position:relative; width:clamp(180px,32vw,250px); aspect-ratio:1;
-    display:grid; place-items:center; margin:0 auto;
-    animation:rock 6s ease-in-out infinite;
+  #visualizer{
+    position:fixed;
+    top:0;
+    left:0;
+    width:100%;
+    height:140px;
+    z-index:-1;
+    pointer-events:none;
+    filter:blur(3px);
+    opacity:0;
+    transition:opacity 2.4s ease 0.4s;
+    -webkit-mask-image:linear-gradient(to bottom, transparent 0, #000 7px, #000 72%, transparent 100%);
+    mask-image:linear-gradient(to bottom, transparent 0, #000 7px, #000 72%, transparent 100%);
   }
-  .moon svg{ width:100%; height:100%; overflow:visible; filter:drop-shadow(0 14px 28px rgba(139,106,92,0.28)); }
-  .moon .halo{ fill:rgba(255,227,234,0.6); transform-box:fill-box; transform-origin:center; animation:halo 5s ease-in-out infinite; }
-  .moon .body{
-    fill:url(#moonFill); stroke:var(--brown); stroke-width:4; stroke-linecap:round;
-    stroke-dasharray:1; stroke-dashoffset:1; fill-opacity:0;
-    animation:moonDraw 1.8s cubic-bezier(.4,0,.2,1) .1s forwards;
-  }
-  .moon .crater{ fill:rgba(185,154,139,0.4); opacity:0; animation:fadeIn .8s ease .95s forwards; }
-  .moon .face path{ fill:none; stroke:var(--brown-deep); stroke-width:5; stroke-linecap:round; stroke-dasharray:1; stroke-dashoffset:1; }
-  .moon .eye-l{ animation:moonDraw .5s ease 1.7s forwards; }
-  .moon .eye-r{ animation:moonDraw .5s ease 1.85s forwards; }
-  .moon .smile{ animation:moonDraw .5s ease 2s forwards; }
-  .moon .blush{ fill:var(--pink-deep); opacity:0; animation:fadeIn .7s ease 2.1s forwards; }
-  .moon .star{ fill:var(--pink-deep); transform-box:fill-box; transform-origin:center; animation:twinkle 3s ease-in-out infinite; }
-  .moon .star.s2{ animation-delay:.8s; }
-  @keyframes moonDraw{ to{ stroke-dashoffset:0; fill-opacity:1; } }
-  @keyframes fadeIn{ to{ opacity:1; } }
-  @keyframes rock{ 0%,100%{ transform:rotate(-4deg) translateY(0); } 50%{ transform:rotate(4deg) translateY(-10px); } }
-  @keyframes halo{ 0%,100%{ transform:scale(1); opacity:.6; } 50%{ transform:scale(1.07); opacity:.85; } }
-  @keyframes twinkle{ 0%,100%{ opacity:.3; transform:scale(.75); } 50%{ opacity:1; transform:scale(1.15); } }
+  #visualizer.on{ opacity:0.92; }
 
-  .hero{ display:grid; gap:26px; justify-items:center; text-align:center; padding-top:clamp(20px,6vw,70px); }
-  .hero .scribble{ width:min(760px,92vw); }
-  .tagline{
-    font-size:clamp(17px,2.2vw,21px); color:var(--brown); max-width:52ch; margin:0;
+  #progress{
+    position:fixed;
+    top:0; left:0;
+    width:100%;
+    height:2px;
+    background:var(--accent);
+    transform-origin:0 50%;
+    transform:scaleX(0);
+    z-index:600;
+    pointer-events:none;
+  }
+
+  #page{
+    filter: blur(3px);
+  }
+  #page.unblurred{
+    filter: blur(0);
+    transition: filter 2.1s cubic-bezier(0.22,1,0.36,1);
+  }
+
+  #enter-hint{
+    position:fixed;
+    inset:0;
+    z-index:900;
+    cursor:pointer;
+    touch-action:none;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    -webkit-tap-highlight-color:transparent;
+    -webkit-touch-callout:none;
+    -webkit-user-select:none;
+    user-select:none;
+    outline:none;
+  }
+  #enter-hint:focus, #enter-hint:active, #enter-hint *{
+    outline:none;
+    -webkit-tap-highlight-color:transparent;
+    -webkit-user-select:none;
+    user-select:none;
+  }
+  #enter-hint.hidden{ display:none; }
+
+  /* The main site's gate is an empty full-screen div, which works when the
+     pre-entry screen is black on black. On pale paper the cursor alone is an
+     invisible affordance, so the cute build states the action: a wobbly
+     hand-drawn ring, a play triangle and the words "tap to play". */
+  .play-badge{
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    gap:12px;
+    color:var(--fg);
+    animation:badge-float 2.6s ease-in-out infinite;
+  }
+  .play-ring{ width:104px; height:104px; overflow:visible; }
+  .play-ring circle{
+    fill:rgba(255,255,255,0.72);
+    stroke:var(--accent-deep);
+    stroke-width:3;
+    stroke-dasharray:1;
+    stroke-dashoffset:0.06;
+    stroke-linecap:round;
+    animation:ring-boil 0.4s steps(1,end) infinite;
+  }
+  .play-icon{
+    position:absolute;
+    width:34px; height:34px;
+    margin-top:-4px;
+    fill:var(--accent-deep);
+  }
+  .play-label{
+    font-family:var(--font-mono);
+    font-size:19px;
+    letter-spacing:0.02em;
+    color:var(--fg-dim);
+  }
+  @keyframes badge-float{
+    0%,100%{ transform:translateY(0); }
+    50%{ transform:translateY(-9px); }
+  }
+  /* Two offset outlines redrawn in place, in step with the SVG boil. */
+  @keyframes ring-boil{
+    0%{ transform:translate(0,0) rotate(0deg); }
+    25%{ transform:translate(1.5px,-1px) rotate(0.7deg); }
+    50%{ transform:translate(-1px,1.5px) rotate(-0.6deg); }
+    75%{ transform:translate(1px,1px) rotate(0.4deg); }
+  }
+
+  #sound-toggle{
+    position:fixed;
+    bottom:22px;
+    right:22px;
+    z-index:500;
+    background:var(--bg-ctrl);
+    border:1px solid var(--line);
+    color:var(--fg-dim);
+    font-family:var(--font-mono);
+    font-size:12px;
+    padding:9px 14px;
+    border-radius:20px;
+    cursor:pointer;
+    display:flex;
+    align-items:center;
+    gap:8px;
+    opacity:0;
+    transform:translateY(10px);
+    transition:opacity 1s ease 2.5s, transform 1s cubic-bezier(0.16,1,0.3,1) 2.5s, color 0.2s ease, border-color 0.2s ease, background 0.2s ease;
+  }
+  #sound-toggle.visible{ opacity:1; transform:none; }
+  #sound-toggle:hover{ color:#4a332c; background:var(--accent); }
+  #sound-toggle .bar{
+    width:3px; height:10px;
+    background:currentColor;
+    display:inline-block;
+    animation: eq 0.9s ease-in-out infinite;
+  }
+  #sound-toggle .bar:nth-child(2){ animation-delay:0.15s; height:14px; }
+  #sound-toggle .bar:nth-child(3){ animation-delay:0.3s; height:8px; }
+  #sound-toggle.paused .bar{ animation-play-state:paused; opacity:0.4; }
+  @keyframes eq{
+    0%,100%{ transform:scaleY(0.4); }
+    50%{ transform:scaleY(1); }
+  }
+
+  #top-btn{
+    position:fixed;
+    bottom:22px;
+    left:22px;
+    z-index:500;
+    background:var(--bg-ctrl);
+    border:1px solid var(--line);
+    color:var(--fg-dim);
+    font-family:var(--font-mono);
+    font-size:12px;
+    padding:9px 16px;
+    border-radius:20px;
+    cursor:pointer;
+    opacity:0;
+    transform:translateY(10px);
+    pointer-events:none;
+    transition:opacity 0.4s ease, transform 0.5s cubic-bezier(0.16,1,0.3,1), color 0.2s ease, border-color 0.2s ease, background 0.2s ease;
+  }
+  #top-btn.visible{ opacity:1; transform:none; pointer-events:auto; }
+  #top-btn:hover{ color:#4a332c; background:var(--accent); }
+
+  .wrap{ max-width:760px; margin:0 auto; padding:0 24px; }
+
+  .hero{
+    min-height:100svh;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    justify-content:center;
+    text-align:center;
+    padding:60px 24px;
+    position:relative;
+    background:radial-gradient(ellipse 72% 52% at 50% 46%, rgba(255,255,255,0.55) 0%, rgba(255,255,255,0.25) 46%, rgba(255,255,255,0) 78%);
+  }
+  .hero h1{
+    position:relative;
+    font-family:var(--font-display);
+    font-weight:800;
+    font-size:clamp(74px,21vw,172px);
+    letter-spacing:-0.015em;
+    text-transform:uppercase;
+    margin:0;
+    line-height:0.84;
+    color:var(--fg);
+  }
+  .hero h1::after{
+    content:attr(aria-label);
+    position:absolute;
+    left:0; right:0; top:0;
+    display:block;
+    text-align:center;
+    white-space:nowrap;
+    pointer-events:none;
+    color:transparent;
+    -webkit-text-stroke:1px rgba(160,110,95,0.28);
+    transform:translate(0.028em, 0.028em);
+    /* The real glyphs are .ch spans that start at opacity 0, so the stroked
+       ghost is the only thing visible before entry. It has to stay hidden
+       until the letters land, otherwise the blurred page shows a bare
+       "g4zwr" outline with nothing behind it. */
+    opacity:0;
+    transition:opacity 0.9s ease 0.5s;
+  }
+  body.entered .hero h1::after{ opacity:1; }
+  .hero h1 .ch{
+    display:inline-block;
+    opacity:0;
+    transform:translateY(0.3em) scale(0.94);
+    filter:blur(10px);
+    clip-path:inset(0% 0% 100% 0%);
+    transition:
+    opacity 0.8s ease,
+    transform 1.1s cubic-bezier(0.16,1,0.3,1),
+    filter 0.9s ease,
+    clip-path 0.7s cubic-bezier(0.16,1,0.3,1);
+    transition-delay:calc(var(--i) * 80ms + 350ms);
+  }
+  body.entered .hero h1 .ch{
+    opacity:1;
+    transform:none;
+    filter:none;
+    clip-path:inset(0% 0% 0% 0%);
+  }
+  .hero h1.settled .ch{ transition-delay:0s; }
+  .hero h1 .ch.glitch{ animation: glitch 0.28s steps(2) 1; }
+  @keyframes glitch{
+    0%  { transform:translate(0,0); }
+    25% { transform:translate(-4px,1px) skewX(-12deg); opacity:0.5; }
+    50% { transform:translate(3px,-2px) skewX(8deg); }
+    75% { transform:translate(-2px,0); opacity:0.7; }
+    100%{ transform:translate(0,0); }
+  }
+
+  .aka{
+    font-family:var(--font-mono);
+    color:var(--fg-dim2);
+    letter-spacing:0.25em;
+    font-size:clamp(12px,3vw,15px);
+    margin-top:16px;
+    opacity:0;
+    letter-spacing:0.6em;
+    transition: opacity 1.4s ease 1.1s, letter-spacing 2.2s cubic-bezier(0.16,1,0.3,1) 1.1s;
+  }
+  body.entered .aka{ opacity:1; letter-spacing:0.25em; }
+
+  .quote{
+    max-width:56ch;
+    margin:44px auto 0;
+    font-size:16px;
+    color:var(--fg-dim);
+    min-height:3em;
+  }
+  .quote .lead{
+    color:var(--accent);
     font-weight:500;
   }
-  .hero-cta{ display:flex; gap:14px; flex-wrap:wrap; justify-content:center; }
-  .pill{
-    display:inline-flex; align-items:center; gap:10px; padding:13px 26px; border-radius:999px;
-    font-weight:700; font-size:16px; text-decoration:none; cursor:pointer; border:none;
-    background:linear-gradient(180deg,var(--pink-deep),var(--rose)); color:#fff;
-    box-shadow:0 8px 20px rgba(229,137,159,0.4);
-    transition:transform 0.18s ease, box-shadow 0.18s ease;
+  .quote em{ font-style:italic; }
+  .caret{
+    display:inline-block;
+    width:0.55em;
+    height:1em;
+    background:var(--accent);
+    margin-left:3px;
+    vertical-align:-0.15em;
+    animation: blink 1s steps(2) infinite;
+    transition:opacity 0.6s ease;
   }
-  .pill:hover{ transform:translateY(-3px); box-shadow:0 14px 28px rgba(229,137,159,0.5); }
-  .pill.ghost{ background:rgba(255,255,255,0.7); color:var(--brown-deep); border:1.5px solid rgba(185,154,139,0.6); box-shadow:none; }
-  .pill.ghost:hover{ background:#fff; }
+  .caret.gone{ opacity:0; }
 
-  /* ── now playing ── */
-  .now{
-    display:flex; align-items:center; gap:16px; flex-wrap:wrap; justify-content:center;
-    background:rgba(255,255,255,0.65); border:1.5px solid rgba(185,154,139,0.45);
-    border-radius:var(--r); padding:16px 22px; box-shadow:var(--shadow); backdrop-filter:blur(6px);
-    max-width:640px; width:100%;
+  .tagline{
+    margin-top:22px;
+    font-family:var(--font-display);
+    font-weight:700;
+    font-size:clamp(28px,6vw,46px);
+    text-transform:uppercase;
+    letter-spacing:0.05em;
+    line-height:1;
+    color:var(--fg);
+    opacity:0;
+    transform:translateY(8px);
+    transition: opacity 1.2s ease 3.4s, transform 1.2s cubic-bezier(0.16,1,0.3,1) 3.4s;
   }
-  .disc{
-    width:54px; height:54px; border-radius:50%; flex:none;
-    background:radial-gradient(circle at 34% 30%, var(--pink), var(--rose));
-    display:grid; place-items:center; color:#fff; font-size:22px;
-    box-shadow:0 6px 16px rgba(229,137,159,0.45);
-  }
-  .disc.spin{ animation:spin 3.2s linear infinite; }
-  @keyframes spin{ to{ transform:rotate(360deg); } }
-  .np-text{ display:grid; gap:2px; text-align:left; }
-  .np-title{ font-weight:700; font-size:16px; color:var(--brown-deep); }
-  .np-sub{ font-size:14px; color:var(--brown); }
-  .np-btn{
-    margin-left:auto; display:inline-flex; align-items:center; gap:9px;
-    padding:11px 22px; border-radius:999px; border:none; cursor:pointer;
-    background:var(--brown-deep); color:#fff; font-weight:700; font-size:15px; font-family:var(--font-body);
-    transition:transform 0.18s ease, opacity 0.18s ease;
-  }
-  .np-btn:hover{ transform:translateY(-2px); opacity:0.92; }
+  body.entered .tagline{ opacity:1; transform:none; }
 
-  .teto{
-    display:grid; justify-items:center; gap:18px; padding:10px 0 30px;
+  .scroll-cue{
+    position:absolute;
+    bottom:64px;
+    left:50%;
+    transform:translateX(-50%);
+    text-align:center;
+    opacity:0;
+    transition: opacity 1s ease;
   }
-  .teto img{
-    width:clamp(190px,34vw,280px); border-radius:var(--r);
-    box-shadow:var(--shadow); image-rendering:auto;
-    animation:bob 3.4s ease-in-out infinite;
+  body.entered .scroll-cue{ opacity:1; transition-delay:4s; }
+  body.entered .scroll-cue.gone{ opacity:0; transition-delay:0s; transition-duration:0.4s; }
+  .scroll-cue .label{
+    font-family:var(--font-mono);
+    font-size:11px;
+    letter-spacing:0.3em;
+    color:var(--fg-dim2);
+    margin-bottom:6px;
   }
-  @keyframes bob{ 0%,100%{ transform:translateY(0) rotate(-1deg); } 50%{ transform:translateY(-14px) rotate(1.5deg); } }
-  .teto .cap{ font-size:16px; color:var(--brown); font-weight:500; margin:0; }
+  .chevrons span{
+    display:block;
+    width:10px; height:10px;
+    border-right:2px solid var(--fg-faint);
+    border-bottom:2px solid var(--fg-faint);
+    transform:rotate(45deg);
+    margin:0 auto;
+    animation: chevron 1.6s ease-in-out infinite;
+  }
+  .chevrons span:nth-child(2){ animation-delay:0.2s; margin-top:-4px; }
+  @keyframes chevron{
+    0%,100%{ opacity:0.2; }
+    50%{ opacity:1; }
+  }
+  .made-with{
+    position:absolute;
+    bottom:20px;
+    left:50%;
+    transform:translateX(-50%);
+    font-family:var(--font-mono);
+    font-size:12px;
+    color:var(--fg-dim2);
+    opacity:0;
+    transition: opacity 1.2s ease;
+  }
+  body.entered .made-with{ opacity:1; transition-delay:4.4s; }
 
-  footer{
-    padding:26px clamp(18px,5vw,54px) 46px; text-align:center;
-    color:var(--brown-light); font-size:14px; font-weight:600;
+  /* Directional reveal. Each element gets a --rx/--ry offset and a --rr spin
+     assigned by the observer, so sections arrive from a different edge and
+     unwind as they land. Teardown reverses the same vector, which is what makes
+     the motion read as reversible rather than as a one-shot fade. */
+  .reveal{
+    opacity:0;
+    transform:translate3d(var(--rx, 0px), var(--ry, 28px), 0) rotate(var(--rr, 0deg));
+    filter:blur(6px);
+    transition:
+      opacity 1s cubic-bezier(0.16,1,0.3,1),
+      transform 1.05s cubic-bezier(0.16,1,0.3,1),
+      filter 0.9s ease;
   }
-  footer a{ color:var(--brown); }
-
-  /* ── sound toggle (floating, like the main site) ── */
-  #sound-toggle{
-    position:fixed; right:20px; bottom:20px; z-index:5;
-    display:inline-flex; align-items:center; gap:9px; padding:11px 16px; border-radius:999px;
-    background:rgba(255,255,255,0.8); border:1.5px solid rgba(185,154,139,0.55);
-    box-shadow:var(--shadow); cursor:pointer; color:var(--brown-deep);
-    font-family:var(--font-body); font-weight:700; font-size:14px;
-    backdrop-filter:blur(6px); transition:transform 0.2s ease;
+  .reveal.show{
+    opacity:1;
+    transform:translate3d(0, 0, 0) rotate(0deg);
+    filter:none;
   }
-  #sound-toggle:hover{ transform:translateY(-2px); }
-  #sound-toggle .bar{ width:3px; height:16px; border-radius:2px; background:var(--rose); transform-origin:bottom; }
-  #sound-toggle.playing .bar{ animation:eq 0.9s ease-in-out infinite; }
-  #sound-toggle.playing .bar:nth-child(2){ animation-delay:0.15s; }
-  #sound-toggle.playing .bar:nth-child(3){ animation-delay:0.3s; }
-  @keyframes eq{ 0%,100%{ transform:scaleY(0.4); } 50%{ transform:scaleY(1); } }
 
-  .hint{
-    position:fixed; left:50%; bottom:22px; transform:translateX(-50%); z-index:4;
-    background:rgba(255,255,255,0.85); border:1.5px solid rgba(185,154,139,0.5);
-    color:var(--brown); padding:9px 18px; border-radius:999px; font-size:14px; font-weight:600;
-    box-shadow:var(--shadow); animation:hintFloat 3s ease-in-out infinite;
+  section{ padding:88px 0; border-top:1px solid var(--line); }
+  .wrap > section:first-child{ border-top:none; padding-top:0; }
+  h2{
+    display:flex;
+    align-items:center;
+    gap:14px;
+    font-size:14px;
+    font-weight:400;
+    color:var(--fg-dim);
+    letter-spacing:0.2em;
+    text-transform:uppercase;
+    margin:0 0 30px;
   }
-  .hint.hide{ display:none; }
-  @keyframes hintFloat{ 0%,100%{ transform:translateX(-50%) translateY(0); } 50%{ transform:translateX(-50%) translateY(-6px); } }
+  h2::before{
+    content:'';
+    flex:none;
+    width:34px;
+    height:1px;
+    background:var(--line-strong);
+  }
 
-  @media (prefers-reduced-motion:reduce){
-    *,*::before,*::after{ animation-duration:0.01ms !important; animation-iteration-count:1 !important; }
-    .scribble text{ fill-opacity:1; stroke-dashoffset:0; }
+  .stack-grid{
+    display:grid;
+    grid-template-columns:repeat(auto-fit,minmax(160px,1fr));
+    gap:14px;
+  }
+  .stack-item{
+    border:1px solid var(--line);
+    background:var(--bg-panel);
+    padding:14px 16px;
+    border-radius:var(--r);
+    transition: border-color 0.3s ease, background 0.3s ease, transform 0.3s ease;
+  }
+  .stack-item:hover{ border-color:var(--line-strong); background:var(--bg-panel-hover); transform:translateY(-2px); }
+  .stack-item .name{ font-family:var(--font-mono); font-size:14px; display:block; margin-bottom:4px; color:var(--fg); }
+  .stack-item .role{ font-size:12.5px; color:var(--fg-dim2); }
+
+  .now-list{ list-style:none; padding:0; margin:0; display:flex; flex-direction:column; gap:10px; }
+  .now-list li{ display:flex; gap:14px; align-items:baseline; font-size:15px; }
+  .now-list .dot{ width:6px; height:6px; border-radius:50%; background:var(--fg-dim); flex:none; transform:translateY(-2px); }
+
+  .stats-grid{ display:grid; grid-template-columns:1fr 1fr; gap:14px; }
+  .stats-grid .stat-img{
+    width:100%;
+    border:1px solid var(--line);
+    border-radius:var(--r);
+    display:block;
+    background:var(--bg-panel);
+    transition:border-color 0.3s ease, background 0.3s ease;
+  }
+  .stats-grid .stat-img:hover{ border-color:var(--line-strong); background:var(--bg-panel-hover); }
+  .stats-grid .stat-img.full{ grid-column:1 / -1; }
+  @media (max-width:520px){ .stats-grid{ grid-template-columns:1fr; } }
+  .views{ margin-top:16px; }
+  .views img{ display:block; }
+
+  .repo-card{
+    cursor:pointer;
+    border:1px solid var(--line);
+    background:var(--bg-panel);
+    padding:18px 18px 16px;
+    border-radius:var(--r);
+    position:relative;
+    overflow:hidden;
+    transition: border-color 0.3s ease, background 0.3s ease, transform 0.3s ease;
+    display:flex;
+    flex-direction:column;
+    gap:10px;
+    min-height:132px;
+  }
+  .repo-card::before{
+    content:'';
+    position:absolute;
+    top:0; left:0; right:0;
+    height:2px;
+    background:var(--accent);
+    transform:scaleX(0);
+    transform-origin:0 50%;
+    transition:transform 0.4s cubic-bezier(0.16,1,0.3,1);
+  }
+  .repo-card:hover{
+    border-color:var(--line-strong);
+    background:var(--bg-panel-hover);
+    transform:translateY(-3px);
+  }
+  .repo-card:hover::before{ transform:scaleX(1); }
+
+  .stack-item.reveal, .repo-card.reveal{
+    transition:
+      opacity 1s cubic-bezier(0.16,1,0.3,1),
+      transform 1s cubic-bezier(0.16,1,0.3,1),
+      filter 0.9s ease,
+      border-color 0.3s ease;
+  }
+  .stack-item.reveal.settled, .repo-card.reveal.settled{
+    transition: border-color 0.3s ease, transform 0.3s ease;
+  }
+
+  .carousel{
+    --cw:260px;
+    position:relative;
+    display:flex;
+    gap:16px;
+    margin:0 calc(50% - 50vw);
+    padding:24px calc(50vw - var(--cw) / 2);
+    overflow-x:auto;
+    overflow-y:hidden;
+    scroll-snap-type:x mandatory;
+    overscroll-behavior-x:contain;
+    scrollbar-width:none;
+    cursor:grab;
+    user-select:none;
+    -webkit-user-select:none;
+  }
+  .carousel::-webkit-scrollbar{ display:none; }
+  .carousel:empty{ display:none; }
+  .carousel.dragging{ scroll-snap-type:none; cursor:grabbing; }
+  .carousel:focus-visible{ outline:2px solid var(--accent); outline-offset:-6px; }
+  /* --t is distance from the carousel centre, --s is the SIGNED version, so the
+     deck can fan: cards on the right tilt clockwise and sink, cards on the left
+     tilt counter-clockwise. Scroll position therefore drives the rotation
+     continuously rather than snapping between states. */
+  .carousel > *{
+    flex:0 0 var(--cw);
+    width:var(--cw);
+    scroll-snap-align:center;
+    transform:
+      translateY(calc(var(--t, 1) * 10px))
+      rotate(calc(var(--s, 0) * -5deg))
+      scale(calc(1.12 - var(--t, 1) * 0.24));
+    opacity:calc(1 - var(--t, 1) * 0.6);
+    transition:border-color 0.3s ease, background 0.3s ease, color 0.3s ease;
+  }
+  .carousel.nojump > *, .carousel.nojump > *::before{ transition:none !important; }
+  .carousel > .repo-card:hover{
+    transform:
+      translateY(calc(var(--t, 1) * 10px))
+      rotate(calc(var(--s, 0) * -5deg))
+      scale(calc(1.12 - var(--t, 1) * 0.24));
+  }
+  .carousel > .repo-card:not(.active):hover::before{ transform:scaleX(0); }
+  .repo-card.active{ border-color:var(--line-active); background:var(--bg-panel-active); }
+  .repo-card.active::before{ transform:scaleX(1); }
+
+  #links{ --cw:180px; }
+  .link-card{
+    display:flex;
+    flex-direction:column;
+    gap:10px;
+    align-items:center;
+    justify-content:center;
+    height:88px;
+    border:1px solid var(--line);
+    background:var(--bg-panel);
+    border-radius:var(--r);
+    font-family:var(--font-mono);
+    font-size:15px;
+    color:var(--fg);
+    text-decoration:none;
+    -webkit-tap-highlight-color:transparent;
+    cursor:pointer;
+    transition:border-color 0.3s ease, background 0.3s ease;
+  }
+  .link-card, .link-card:link, .link-card:visited, .link-card:active, .link-card:focus, .link-card:hover{
+    color:var(--fg);
+    text-decoration:none;
+  }
+  .link-card:hover{ background:var(--bg-panel-hover); border-color:var(--line-strong); }
+  .link-card svg{ width:22px; height:22px; fill:currentColor; transition:transform 0.4s cubic-bezier(0.16,1,0.3,1); }
+  .link-card:hover svg{ transform:translateY(-3px) scale(1.06); }
+  .link-card.active{ color:#4a332c; background:var(--accent); }
+
+  .repo-top{ display:flex; align-items:center; justify-content:space-between; gap:10px; }
+  .repo-name{
+    font-family:var(--font-mono);
+    font-size:14.5px;
+    color:var(--fg);
+    word-break:break-word;
+  }
+  .repo-name a{ color:inherit; }
+  .repo-name a:hover{ color:var(--accent); text-decoration:none; }
+  .repo-desc{
+    font-size:13px;
+    color:var(--fg-dim);
+    flex:1;
+  }
+  .repo-meta{
+    display:flex;
+    gap:14px;
+    flex-wrap:wrap;
+    font-family:var(--font-mono);
+    font-size:11.5px;
+    color:var(--fg-dim2);
+    font-variant-numeric:tabular-nums;
+  }
+  .repo-meta span{ display:flex; align-items:center; gap:5px; }
+  .repo-meta .lang-dot{
+    width:8px; height:8px;
+    border-radius:50%;
+    background:var(--accent);
+    display:inline-block;
+  }
+  .repo-status{
+    font-family:var(--font-mono);
+    font-size:12.5px;
+    color:var(--fg-dim2);
+    text-align:center;
+    padding:20px 0;
+  }
+  .repo-status.error{ color:var(--accent); }
+  .repo-status .blink{ animation: blink 1.2s steps(2) infinite; }
+  @keyframes blink{ 50%{ opacity:0.2; } }
+
+  footer.site-footer{ padding:40px 0 80px; color:var(--fg-dim2); font-size:13px; font-family:var(--font-mono); }
+  footer.site-footer .copyright{ margin-top:8px; font-size:11.5px; }
+
+
+  #hamburger{
+    position:fixed; top:18px; left:18px; z-index:950;
+    width:40px; height:40px;
+    display:flex; flex-direction:column; align-items:center; justify-content:center; gap:5px;
+    background:var(--bg-ctrl); border:1px solid var(--line); border-radius:50%;
+    cursor:pointer;
+    transition: border-color 0.25s ease, background 0.25s ease, transform 0.25s cubic-bezier(0.16,1,0.3,1);
+  }
+  #hamburger:hover{ border-color:var(--line-strong); transform:scale(1.06); }
+  #hamburger:active{ transform:scale(0.94); }
+  #hamburger span{
+    display:block; width:18px; height:2px; background:var(--accent); border-radius:1px;
+    transform:scaleX(0.89);
+    transition:transform 0.3s cubic-bezier(0.16,1,0.3,1), opacity 0.2s ease;
+  }
+  #hamburger:hover span{ transform:scaleX(1); }
+  #hamburger.open span:nth-child(1){ transform:translateY(7px) rotate(45deg) scaleX(1); }
+  #hamburger.open span:nth-child(2){ opacity:0; transform:scaleX(0); }
+  #hamburger.open span:nth-child(3){ transform:translateY(-7px) rotate(-45deg) scaleX(1); }
+
+  #sidebar{
+    position:fixed; top:0; left:0; bottom:0; width:250px;
+    background:var(--bg-nav); border-right:1px solid var(--line);
+    z-index:940; transform:translateX(-100%);
+    transition:transform 0.4s cubic-bezier(0.19,1,0.22,1);
+    padding:88px 28px 24px;
+    display:flex; flex-direction:column; gap:6px;
+  }
+  #sidebar.open{ transform:none; }
+  #sidebar a{
+    position:relative;
+    font-family:var(--font-mono); font-size:15px; color:var(--fg-dim);
+    letter-spacing:0.05em; text-decoration:none;
+    padding:10px 0 10px 24px;
+    transform:translateX(-6px);
+    transition: color 0.25s ease, transform 0.25s cubic-bezier(0.16,1,0.3,1);
+  }
+  #sidebar a::before{
+    content:'';
+    position:absolute; left:0; top:50%; width:2px; height:100%;
+    background:var(--accent);
+    transform:translateY(-50%) scaleY(0);
+    transition:transform 0.25s cubic-bezier(0.16,1,0.3,1);
+  }
+  #sidebar a:hover{ transform:translateX(0); }
+  #sidebar a:hover::before{ transform:translateY(-50%) scaleY(0.6); }
+  #sidebar a.active-link{ color:var(--fg); transform:translateX(0); }
+  #sidebar a.active-link::before{ transform:translateY(-50%) scaleY(1); }
+
+  #sidebar-overlay{
+    position:fixed; inset:0; background:rgba(109,76,65,0.42); z-index:930;
+    -webkit-backdrop-filter:blur(4px); backdrop-filter:blur(4px);
+    opacity:0; pointer-events:none; transition:opacity 0.35s ease;
+  }
+  #sidebar-overlay.open{ opacity:1; pointer-events:auto; }
+
+  .fake-page{
+    display:none;
+    min-height:100svh;
+    padding:110px 24px 60px;
+    max-width:680px; margin:0 auto;
+  }
+  .fake-page h1{
+    font-family:var(--font-display); font-weight:800;
+    font-size:clamp(52px,13vw,96px); line-height:0.9;
+    letter-spacing:-0.01em; text-transform:uppercase;
+    margin:0 0 18px;
+  }
+  .fake-page p{ color:var(--fg-dim); font-size:15.5px; max-width:52ch; }
+  .fake-page .back-link{
+    display:inline-flex; align-items:center; gap:6px;
+    margin-top:38px; font-family:var(--font-mono);
+    font-size:13px; color:var(--fg-dim2);
+    transition:color 0.25s ease, gap 0.25s ease;
+  }
+  .fake-page .back-link:hover{ color:var(--accent); gap:10px; text-decoration:none; }
+
+  .about-lead{ max-width:none; }
+  .about-section{ margin-top:36px; }
+  .about-h2{
+    display:flex;
+    align-items:center;
+    gap:14px;
+    font-family:var(--font-mono);
+    font-size:13px;
+    letter-spacing:0.2em;
+    text-transform:uppercase;
+    color:var(--fg-dim);
+    margin:0 0 16px;
+  }
+  .about-h2::before{
+    content:'';
+    flex:none;
+    width:26px;
+    height:1px;
+    background:var(--line-strong);
+  }
+  .about-section p{ max-width:none; }
+  .about-section a{ color:var(--accent); }
+  .about-section a:hover{ text-decoration:underline; }
+
+  .contact-list{ display:flex; flex-direction:column; gap:12px; margin-top:28px; }
+  .contact-row{
+    display:flex;
+    align-items:center;
+    gap:16px;
+    border:1px solid var(--line);
+    background:var(--bg-panel);
+    border-radius:var(--r);
+    padding:16px 18px;
+    color:var(--fg);
+    text-decoration:none;
+    transition:border-color 0.3s ease, background 0.3s ease, transform 0.3s ease;
+  }
+  .contact-row:hover{
+    border-color:var(--line-strong);
+    background:var(--bg-panel-hover);
+    transform:translateX(4px);
+    text-decoration:none;
+  }
+  .contact-row svg{ width:24px; height:24px; fill:currentColor; flex:none; }
+  .contact-row-text{ display:flex; flex-direction:column; gap:4px; }
+  .contact-row-name{ font-family:var(--font-mono); font-size:14.5px; }
+  .contact-row-desc{ font-size:13px; color:var(--fg-dim); max-width:46ch; }
+
+  .projects-list{ display:flex; flex-direction:column; gap:16px; margin-top:28px; }
+  .proj-card{
+    border:1px solid var(--line);
+    background:var(--bg-panel);
+    padding:20px;
+    border-radius:var(--r);
+    transition:border-color 0.3s ease, background 0.3s ease;
+  }
+  .proj-card:hover{ border-color:var(--line-strong); background:var(--bg-panel-hover); }
+  .proj-top{ display:flex; align-items:center; justify-content:space-between; gap:12px; flex-wrap:wrap; }
+  .proj-name{ font-family:var(--font-mono); font-size:16px; }
+  .proj-name a{ color:var(--fg); }
+  .proj-name a:hover{ color:var(--accent); text-decoration:none; }
+  .license-badge{
+    font-family:var(--font-mono);
+    font-size:11px;
+    border:1px solid var(--line);
+    border-radius:20px;
+    padding:3px 10px;
+    color:var(--fg-dim2);
+    white-space:nowrap;
+  }
+  .proj-desc{ font-size:14px; color:var(--fg-dim); margin-top:10px; max-width:none; }
+  .proj-topics{ display:flex; flex-wrap:wrap; gap:6px; margin-top:12px; }
+  .topic-pill{
+    font-family:var(--font-mono);
+    font-size:11px;
+    border:1px solid var(--line);
+    border-radius:20px;
+    padding:2px 9px;
+    color:var(--fg-dim2);
+  }
+  .proj-card .repo-meta{ margin-top:14px; }
+  .proj-readme{
+    margin-top:16px;
+    border:1px solid var(--line);
+    border-radius:2px;
+    padding:14px 16px;
+    background:var(--bg-panel);
+  }
+  .proj-readme-label{
+    font-family:var(--font-mono);
+    font-size:11px;
+    letter-spacing:0.15em;
+    color:var(--fg-dim2);
+    margin-bottom:10px;
+  }
+  .proj-readme-body{
+    font-family:var(--font-mono);
+    font-size:12.5px;
+    line-height:1.6;
+    color:var(--fg-dim);
+    white-space:pre-line;
+  }
+  .proj-links{ margin-top:16px; display:flex; gap:18px; }
+  .proj-links a{ font-family:var(--font-mono); font-size:12.5px; color:var(--fg-dim2); }
+  .proj-links a:hover{ color:var(--accent); text-decoration:none; }
+
+  @media (prefers-reduced-motion: reduce){
+    .reveal, .hero h1 .ch, .aka, .tagline, .scroll-cue, .made-with{
+      opacity:1; transform:none; filter:none; transition:none; letter-spacing:inherit; clip-path:none;
+    }
+    .aka{ letter-spacing:0.25em; }
+    .scroll-cue{ transform:translateX(-50%); }
+    .made-with{ transform:translateX(-50%); }
+    #page{ filter:none; }
+    /* the carousel fan is scroll-linked, so dropping the rotation and sink is
+       what reduced-motion needs; the scale/opacity depth cue is kept. */
+    .carousel > *, .carousel > .repo-card:hover{
+      transform:scale(calc(1.12 - var(--t, 1) * 0.24));
+    }
+    .hero h1 .ch.glitch,
+    .chevrons span,
+    .caret,
+    .repo-status .blink,
+    #sound-toggle .bar{
+      animation:none;
+    }
+    /* the boil is a per-glyph turbulence re-roll -- without the filter the
+       text renders plainly, which is the point under reduced motion. */
+    .boil, .boil-sm{ filter:none; }
+    .play-badge, .play-ring circle{ animation:none; }
   }
 </style>
 </head>
 <body>
 
-<div id="glow"></div>
-<canvas id="petals" aria-hidden="true"></canvas>
+<!-- Displacement maps for the doodle boil. boild is a per-glyph re-roll,
+     boil-sm is the gentler variant used on dense text. -->
+<svg width="0" height="0" aria-hidden="true" style="position:absolute">
+  <defs>
+    <filter id="boil" x="-12%" y="-30%" width="124%" height="160%" color-interpolation-filters="sRGB">
+      <feTurbulence type="fractalNoise" baseFrequency="0.028 0.042" numOctaves="2" seed="7" result="n">
+        <animate attributeName="baseFrequency" dur="1s" calcMode="discrete"
+          values="0.028 0.042;0.036 0.033;0.024 0.048;0.033 0.037;0.030 0.044"
+          repeatCount="indefinite"/>
+      </feTurbulence>
+      <feDisplacementMap in="SourceGraphic" in2="n" scale="3.2" xChannelSelector="R" yChannelSelector="G"/>
+    </filter>
+    <filter id="boil-sm" x="-8%" y="-20%" width="116%" height="140%" color-interpolation-filters="sRGB">
+      <feTurbulence type="fractalNoise" baseFrequency="0.05 0.06" numOctaves="1" seed="3" result="n2">
+        <animate attributeName="baseFrequency" dur="1s" calcMode="discrete"
+          values="0.05 0.06;0.058 0.052;0.046 0.064;0.054 0.055;0.049 0.058"
+          repeatCount="indefinite"/>
+      </feTurbulence>
+      <feDisplacementMap in="SourceGraphic" in2="n2" scale="1.4" xChannelSelector="R" yChannelSelector="G"/>
+    </filter>
+  </defs>
+</svg>
 
-<div class="wrap">
-  <header>
-    <a class="brand" href="/cute"><span class="dot"></span>g4zwr ♡</a>
-    <a class="back" href="/">&larr; the serious site</a>
-  </header>
+<canvas id="sky"></canvas>
+<canvas id="matrix-bg"></canvas>
+<canvas id="visualizer"></canvas>
+<div id="progress"></div>
 
-  <main>
-    <section class="hero">
-      <div class="moon">
-        <svg viewBox="0 0 120 120" role="img" aria-label="a cute 2D anime moon with a happy face">
-          <defs>
-            <radialGradient id="moonFill" cx="38%" cy="30%" r="72%">
-              <stop offset="0%"   stop-color="#fffaf1"/>
-              <stop offset="55%"  stop-color="#ffeede"/>
-              <stop offset="100%" stop-color="#ffd9c0"/>
-            </radialGradient>
-          </defs>
-          <circle class="halo"  cx="60" cy="60" r="58"/>
-          <circle class="body"  cx="60" cy="60" r="46" pathLength="1"/>
-          <circle class="crater" cx="46" cy="42" r="5"/>
-          <circle class="crater" cx="76" cy="48" r="4"/>
-          <circle class="crater" cx="54" cy="82" r="3.5"/>
-          <g class="face">
-            <path class="eye-l" pathLength="1" d="M44 60 q5 6 10 0"/>
-            <path class="eye-r" pathLength="1" d="M66 60 q5 6 10 0"/>
-            <path class="smile" pathLength="1" d="M57 70 q3 3.5 6 0"/>
-          </g>
-          <ellipse class="blush" cx="38" cy="70" rx="6" ry="4"/>
-          <ellipse class="blush" cx="82" cy="70" rx="6" ry="4"/>
-          <path class="star"   d="M101 20 l2.6 6.4 6.4 2.6 -6.4 2.6 -2.6 6.4 -2.6-6.4 -6.4-2.6 6.4-2.6z"/>
-          <path class="star s2" d="M17 30 l2 5 5 2 -5 2 -2 5 -2-5 -5-2 5-2z"/>
-        </svg>
-      </div>
-      <h1 class="scribble" data-scribble="hello there"></h1>
-      <p class="tagline">a softer, pinker corner of the internet. same person, fewer stars, better music.</p>
-      <div class="hero-cta">
-        <button class="pill" id="play-cta">&#9835; play the song</button>
-        <a class="pill ghost" href="/">visit the main site</a>
-      </div>
-    </section>
+<button id="hamburger" aria-label="Open menu" aria-expanded="false" aria-controls="sidebar"><span></span><span></span><span></span></button>
+<div id="sidebar-overlay"></div>
+<nav id="sidebar">
+  <a href="/" data-route="home">Home</a>
+  <a href="/projects" data-route="projects">Projects</a>
+  <a href="/about" data-route="about">About</a>
+  <a href="/contact" data-route="contact">Contact</a>
+</nav>
 
-    <section class="now">
-      <div class="disc" id="disc">&#9834;</div>
-      <div class="np-text">
-        <span class="np-title">&#127912;&#65039; ライラック (feat. Kasane Teto)</span>
-        <span class="np-sub">now playing &middot; soft pink hours</span>
-      </div>
-      <button class="np-btn" id="play-btn">play</button>
-    </section>
-
-    <section class="teto">
-      <img src="teto.gif" alt="Kasane Teto bouncing">
-      <p class="cap">she bounces, i hum along.</p>
-    </section>
-  </main>
-
-  <footer>
-    <p>made with too much pink &middot; <a href="/">back to the serious site</a></p>
-  </footer>
+<div id="enter-hint" role="button" aria-label="Enter site, start music">
+  <div class="play-badge" aria-hidden="true">
+    <svg class="play-ring" viewBox="0 0 120 120">
+      <circle cx="60" cy="60" r="56" pathLength="1"/>
+    </svg>
+    <svg class="play-icon" viewBox="0 0 24 24"><path d="M9 6.5v11l9-5.5z"/></svg>
+    <span class="play-label">tap to play</span>
+  </div>
 </div>
 
-<div class="hint" id="hint">&#9834; tap anywhere for music</div>
+<audio id="bg-audio" loop preload="auto" crossorigin="anonymous">
+  <source src="/teto-lairac.mp3" type="audio/mpeg">
+</audio>
 
 <button id="sound-toggle" aria-label="Toggle sound">
   <span class="bar"></span><span class="bar"></span><span class="bar"></span>
-  <span id="sound-label">music</span>
+  <span id="sound-label">sound on</span>
 </button>
 
-<audio id="bg-audio" loop preload="auto">
-  <source src="teto-lairac.mp3" type="audio/mpeg">
-</audio>
+<button id="top-btn">↑ top</button>
+
+<div id="page">
+
+  <div class="hero">
+    <h1>G4ZWR</h1>
+    <div class="aka">AKA GAZE</div>
+    <p class="quote" id="quote"><span class="lead">"yes i see the bug too, im trying to fix it rn"</span></p>
+    <p class="tagline">Gamedev</p>
+    <div class="scroll-cue">
+      <div class="label">SCROLL</div>
+      <div class="chevrons"><span></span><span></span></div>
+    </div>
+    <div class="made-with">Made with ❤</div>
+  </div>
+
+  <div class="wrap">
+
+    <section>
+      <h2 class="reveal">contact me on:</h2>
+      <div class="carousel reveal" id="links" data-start-index="0" tabindex="0" aria-label="contact links">
+        <a class="link-card" href="https://wa.me/qr/g4zwr" target="_blank" rel="noopener">
+          <svg viewBox="0 0 24 24"><path d="M12.04 2C6.58 2 2.13 6.45 2.13 11.91c0 1.75.46 3.45 1.32 4.95L2.05 22l5.25-1.38a9.9 9.9 0 0 0 4.74 1.21h.01c5.46 0 9.91-4.45 9.91-9.91 0-2.65-1.03-5.14-2.9-7.01A9.87 9.87 0 0 0 12.04 2zm0 1.67c2.2 0 4.27.86 5.82 2.42a8.2 8.2 0 0 1 2.42 5.82c0 4.54-3.7 8.23-8.24 8.23a8.2 8.2 0 0 1-4.18-1.15l-.3-.18-3.12.82.83-3.04-.2-.31a8.18 8.18 0 0 1-1.26-4.37c0-4.54 3.7-8.24 8.23-8.24zm-4.56 4.4c-.16 0-.42.06-.64.3-.22.24-.85.83-.85 2.02s.87 2.35.99 2.51c.12.16 1.7 2.7 4.2 3.68 2.07.82 2.49.65 2.94.61.45-.04 1.45-.59 1.66-1.16.2-.57.2-1.06.14-1.16-.06-.1-.22-.16-.46-.28-.24-.12-1.45-.71-1.67-.8-.22-.08-.39-.12-.55.12-.16.24-.63.79-.77.96-.14.16-.28.18-.52.06-.24-.12-1.02-.38-1.94-1.2-.72-.64-1.2-1.43-1.35-1.67-.14-.24-.02-.37.1-.49.11-.11.24-.28.36-.42.12-.14.16-.24.24-.4.08-.16.04-.3-.02-.42-.06-.12-.55-1.34-.76-1.83-.2-.48-.4-.42-.55-.42z"/></svg>
+          WhatsApp
+        </a>
+        <a class="link-card" href="https://www.roblox.com/users/10841765037" target="_blank" rel="noopener">
+          <svg viewBox="0 0 24 24"><path d="M4.16 0 0 19.84 19.84 24 24 4.16 4.16 0zm7.09 8.42 4.33 1.09-1.09 4.33-4.33-1.09 1.09-4.33z"/></svg>
+          Roblox
+        </a>
+        <a class="link-card" href="https://www.youtube.com/@g4zwr" target="_blank" rel="noopener">
+          <svg viewBox="0 0 24 24"><path d="M23.5 6.19a3.02 3.02 0 0 0-2.12-2.14C19.51 3.5 12 3.5 12 3.5s-7.51 0-9.38.55A3.02 3.02 0 0 0 .5 6.19 31.6 31.6 0 0 0 0 12a31.6 31.6 0 0 0 .5 5.81 3.02 3.02 0 0 0 2.12 2.14c1.87.55 9.38.55 9.38.55s7.51 0 9.38-.55a3.02 3.02 0 0 0 2.12-2.14A31.6 31.6 0 0 0 24 12a31.6 31.6 0 0 0-.5-5.81zM9.6 15.6V8.4l6.4 3.6-6.4 3.6z"/></svg>
+          YouTube
+        </a>
+        <a class="link-card" href="https://www.tiktok.com/@g4zwr" target="_blank" rel="noopener">
+          <svg viewBox="0 0 24 24"><path d="M12.525.02c1.31-.02 2.61-.01 3.91-.02.08 1.53.63 3.09 1.75 4.17 1.12 1.11 2.7 1.62 4.24 1.79v4.03c-1.44-.05-2.89-.35-4.2-.97-.57-.26-1.1-.59-1.62-.93-.01 2.92.01 5.84-.02 8.75-.08 1.4-.54 2.79-1.35 3.94-1.31 1.92-3.58 3.17-5.91 3.21-1.43.08-2.86-.31-4.08-1.03-2.02-1.19-3.44-3.37-3.65-5.71-.02-.5-.03-1-.01-1.49.18-1.9 1.12-3.72 2.58-4.96 1.66-1.44 3.98-2.13 6.15-1.72.02 1.48-.04 2.96-.04 4.44-.99-.32-2.15-.23-3.02.37-.63.41-1.11 1.04-1.36 1.75-.21.51-.15 1.07-.14 1.61.24 1.64 1.82 3.02 3.5 2.87 1.12-.01 2.19-.66 2.77-1.61.19-.33.4-.67.41-1.06.1-1.79.06-3.57.07-5.36.01-4.03-.01-8.05.02-12.07z"/></svg>
+          TikTok
+        </a>
+        <a class="link-card" href="https://discord.com/users/1296500534739734530" target="_blank" rel="noopener">
+          <svg viewBox="0 0 24 24"><path d="M20.32 4.37a19.8 19.8 0 0 0-4.9-1.52.07.07 0 0 0-.08.04c-.21.38-.45.86-.61 1.24a18.3 18.3 0 0 0-5.48 0 12.6 12.6 0 0 0-.62-1.24.08.08 0 0 0-.08-.04c-1.7.3-3.35.81-4.9 1.52a.07.07 0 0 0-.03.03C1.07 8.87.34 13.24.7 17.55a.08.08 0 0 0 .03.06c2.06 1.52 4.06 2.44 6.02 3.05a.08.08 0 0 0 .09-.03c.46-.64.88-1.31 1.23-2.02a.08.08 0 0 0-.04-.11 13 13 0 0 1-1.87-.9.08.08 0 0 1 0-.13c.13-.09.25-.19.37-.28a.07.07 0 0 1 .08 0c3.93 1.8 8.18 1.8 12.06 0a.07.07 0 0 1 .08 0c.12.1.24.19.37.28a.08.08 0 0 1 0 .13c-.6.35-1.22.65-1.87.9a.08.08 0 0 0-.04.11c.36.7.78 1.37 1.23 2.02a.08.08 0 0 0 .09.03c1.97-.6 3.97-1.53 6.03-3.05a.08.08 0 0 0 .03-.06c.44-4.98-.74-9.31-3.13-13.15a.06.06 0 0 0-.03-.03zM8.68 14.9c-1.18 0-2.15-1.08-2.15-2.42 0-1.33.95-2.42 2.15-2.42 1.21 0 2.17 1.1 2.15 2.42 0 1.34-.95 2.42-2.15 2.42zm6.66 0c-1.18 0-2.15-1.08-2.15-2.42 0-1.33.95-2.42 2.15-2.42 1.21 0 2.17 1.1 2.15 2.42 0 1.34-.94 2.42-2.15 2.42z"/></svg>
+          Discord
+        </a>
+        <a class="link-card" href="https://www.reddit.com/user/g4zwr" target="_blank" rel="noopener">
+          <svg viewBox="0 0 24 24"><path d="M24 12.09c0-1.23-.98-2.22-2.19-2.22-.59 0-1.13.24-1.52.62-1.5-1.04-3.55-1.71-5.82-1.79l1.19-3.75 3.28.78a1.6 1.6 0 1 0 .16-.78l-3.65-.87a.4.4 0 0 0-.48.28l-1.33 4.18c-2.32.05-4.42.72-5.94 1.77a2.2 2.2 0 0 0-1.51-.61A2.21 2.21 0 0 0 4 12.09c0 .85.47 1.58 1.16 1.97a3.6 3.6 0 0 0-.05.6c0 2.72 3.16 4.93 7.06 4.93s7.06-2.21 7.06-4.93c0-.2-.02-.4-.05-.6A2.2 2.2 0 0 0 24 12.09zM8.28 13.6a1.4 1.4 0 1 1 2.8 0 1.4 1.4 0 0 1-2.8 0zm7.7 3.48c-.85.85-2.47.91-2.98.91s-2.14-.06-2.98-.91a.32.32 0 0 1 .45-.45c.5.5 1.65.68 2.53.68s2.03-.18 2.53-.68a.32.32 0 0 1 .45.45zm-.18-2.08a1.4 1.4 0 1 1 0-2.8 1.4 1.4 0 0 1 0 2.8z"/></svg>
+          Reddit
+        </a>
+        <a class="link-card" href="https://x.com/g4zwr_" target="_blank" rel="noopener">
+          <svg viewBox="0 0 24 24"><path d="M18.901 1.153h3.68l-8.04 9.19L24 22.846h-7.406l-5.8-7.584-6.638 7.584H.474l8.6-9.83L0 1.154h7.594l5.243 6.932ZM17.61 20.644h2.039L6.486 3.24H4.298Z"/></svg>
+          X
+        </a>
+        <a class="link-card" href="mailto:g4zwr@duck.com">
+          <svg viewBox="0 0 24 24"><path d="M2 4h20a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2zm0 2v.51l10 6.25 10-6.25V6H2zm20 2.86-9.47 5.92a1 1 0 0 1-1.06 0L2 8.86V18h20V8.86z"/></svg>
+          Email
+        </a>
+      </div>
+    </section>
+
+    <section>
+      <h2 class="reveal">projects:</h2>
+      <div class="repo-status" id="repo-status"><span class="blink">fetching repos&hellip;</span></div>
+      <div class="carousel reveal" id="repo-grid" tabindex="0" aria-label="projects"></div>
+    </section>
+
+    <section>
+      <h2 class="reveal">currently</h2>
+      <ul class="now-list">
+        <li class="reveal"><span class="dot"></span> Deep in Roblox development, building systems in Luau</li>
+        <li class="reveal"><span class="dot"></span> Producing music on PC and mobile with FL Studio</li>
+        <li class="reveal"><span class="dot"></span> Drawing and animating in 2D and 3D</li>
+      </ul>
+    </section>
+
+    <section>
+      <h2 class="reveal">languages</h2>
+      <div class="stack-grid">
+        <div class="stack-item reveal"><span class="name">Luau</span><span class="role">Roblox scripting</span></div>
+        <div class="stack-item reveal"><span class="name">Python</span><span class="role">tools &amp; scripts</span></div>
+        <div class="stack-item reveal"><span class="name">HTML5</span><span class="role">web</span></div>
+      </div>
+    </section>
+
+    <section>
+      <h2 class="reveal">tools</h2>
+      <div class="stack-grid">
+        <div class="stack-item reveal"><span class="name">Roblox Studio</span><span class="role">game dev</span></div>
+        <div class="stack-item reveal"><span class="name">Prisma 3D</span><span class="role">3D modeling</span></div>
+        <div class="stack-item reveal"><span class="name">APKTool M</span><span class="role">mobile dev</span></div>
+        <div class="stack-item reveal"><span class="name">FL Studio Mobile</span><span class="role">music production</span></div>
+        <div class="stack-item reveal"><span class="name">ibis Paint X</span><span class="role">digital art</span></div>
+        <div class="stack-item reveal"><span class="name">Alight Motion</span><span class="role">animation</span></div>
+      </div>
+    </section>
+
+    <section>
+      <h2 class="reveal">environment</h2>
+      <div class="stack-grid">
+        <div class="stack-item reveal"><span class="name">Windows</span><span class="role">daily driver</span></div>
+        <div class="stack-item reveal"><span class="name">Arch Linux</span><span class="role">secondary</span></div>
+      </div>
+    </section>
+
+    <section>
+      <h2 class="reveal">github stats</h2>
+      <div class="stats-grid">
+        <img class="reveal stat-img" src="https://github-readme-stats-fast.vercel.app/api?username=g4zwr&show_icons=true&count_private=true&hide_border=true&bg_color=00000000&border_color=6d4c41&title_color=6d4c41&text_color=6d4c41&icon_color=d1466f" alt="g4zwr's GitHub stats" loading="lazy">
+        <img class="reveal stat-img" src="https://streak-stats.demolab.com/?user=g4zwr&hide_border=true&background=00000000&border=6d4c41&stroke=6d4c41&ring=6d4c41&fire=d1466f&currStreakLabel=6d4c41&sideLabels=6d4c41&currStreakNum=6d4c41&sideNums=6d4c41&dates=6d4c41" alt="g4zwr's GitHub streak" loading="lazy">
+        <img class="reveal stat-img full" src="https://github-readme-stats-fast.vercel.app/api/top-langs/?username=g4zwr&layout=compact&hide_border=true&bg_color=00000000&border_color=6d4c41&title_color=6d4c41&text_color=6d4c41" alt="g4zwr's top languages" loading="lazy">
+      </div>
+      <div class="views reveal">
+        <img src="https://komarev.com/ghpvc/?username=g4zwr&color=6d4c41&style=flat-square&label=PROFILE+VIEWS" alt="profile views" loading="lazy">
+      </div>
+    </section>
+
+    <footer class="site-footer">
+      g4zwr &middot; <a href="https://github.com/g4zwr">github.com/g4zwr</a>
+      <div class="copyright">&copy; <span id="copyright-year"></span> g4zwr. All rights reserved.</div>
+    </footer>
+
+  </div>
+</div>
+
+<div class="fake-page" id="view-projects">
+  <h1>Projects</h1>
+  <p>Every public repo, pulled live from GitHub — description, license, stats, and a README preview for each.</p>
+  <div class="repo-status" id="projects-status"><span class="blink">fetching repos&hellip;</span></div>
+  <div class="projects-list" id="projects-list"></div>
+  <a class="back-link" href="/" data-route="home">&larr; back home</a>
+</div>
+
+<div class="fake-page" id="view-about">
+  <h1>About</h1>
+  <p class="about-lead">Gamedev, mostly Roblox &amp; Luau. Based wherever the WiFi is decent.</p>
+
+  <div class="about-section">
+    <h2 class="about-h2">what i do</h2>
+    <ul class="now-list">
+      <li><span class="dot"></span> Deep in Roblox development, building systems in Luau</li>
+      <li><span class="dot"></span> Producing music on PC and mobile with FL Studio</li>
+      <li><span class="dot"></span> Drawing and animating in 2D and 3D</li>
+    </ul>
+  </div>
+
+  <div class="about-section">
+    <h2 class="about-h2">stack</h2>
+    <div class="stack-grid">
+      <div class="stack-item"><span class="name">Luau</span><span class="role">Roblox scripting</span></div>
+      <div class="stack-item"><span class="name">Python</span><span class="role">tools &amp; scripts</span></div>
+      <div class="stack-item"><span class="name">Roblox Studio</span><span class="role">game dev</span></div>
+      <div class="stack-item"><span class="name">FL Studio Mobile</span><span class="role">music production</span></div>
+    </div>
+  </div>
+
+  <div class="about-section">
+    <h2 class="about-h2">get in touch</h2>
+    <p>Best way to reach me is Discord or WhatsApp — full breakdown of every contact method on the <a class="route-link" href="/contact" data-route="contact">contact page</a>.</p>
+  </div>
+
+  <a class="back-link" href="/" data-route="home">&larr; back home</a>
+</div>
+
+<div class="fake-page" id="view-contact">
+  <h1>Contact</h1>
+  <p class="about-lead">Pick whatever's easiest — here's what each one's actually good for.</p>
+
+  <div class="contact-list">
+    <a class="contact-row" href="https://wa.me/qr/g4zwr" target="_blank" rel="noopener">
+      <svg viewBox="0 0 24 24"><path d="M12.04 2C6.58 2 2.13 6.45 2.13 11.91c0 1.75.46 3.45 1.32 4.95L2.05 22l5.25-1.38a9.9 9.9 0 0 0 4.74 1.21h.01c5.46 0 9.91-4.45 9.91-9.91 0-2.65-1.03-5.14-2.9-7.01A9.87 9.87 0 0 0 12.04 2zm0 1.67c2.2 0 4.27.86 5.82 2.42a8.2 8.2 0 0 1 2.42 5.82c0 4.54-3.7 8.23-8.24 8.23a8.2 8.2 0 0 1-4.18-1.15l-.3-.18-3.12.82.83-3.04-.2-.31a8.18 8.18 0 0 1-1.26-4.37c0-4.54 3.7-8.24 8.23-8.24zm-4.56 4.4c-.16 0-.42.06-.64.3-.22.24-.85.83-.85 2.02s.87 2.35.99 2.51c.12.16 1.7 2.7 4.2 3.68 2.07.82 2.49.65 2.94.61.45-.04 1.45-.59 1.66-1.16.2-.57.2-1.06.14-1.16-.06-.1-.22-.16-.46-.28-.24-.12-1.45-.71-1.67-.8-.22-.08-.39-.12-.55.12-.16.24-.63.79-.77.96-.14.16-.28.18-.52.06-.24-.12-1.02-.38-1.94-1.2-.72-.64-1.2-1.43-1.35-1.67-.14-.24-.02-.37.1-.49.11-.11.24-.28.36-.42.12-.14.16-.24.24-.4.08-.16.04-.3-.02-.42-.06-.12-.55-1.34-.76-1.83-.2-.48-.4-.42-.55-.42z"/></svg>
+      <div class="contact-row-text">
+        <span class="contact-row-name">WhatsApp</span>
+        <span class="contact-row-desc">Fastest way to reach me — collab requests, commission questions, or just to chat. I check this daily.</span>
+      </div>
+    </a>
+    <a class="contact-row" href="https://discord.com/users/1296500534739734530" target="_blank" rel="noopener">
+      <svg viewBox="0 0 24 24"><path d="M20.32 4.37a19.8 19.8 0 0 0-4.9-1.52.07.07 0 0 0-.08.04c-.21.38-.45.86-.61 1.24a18.3 18.3 0 0 0-5.48 0 12.6 12.6 0 0 0-.62-1.24.08.08 0 0 0-.08-.04c-1.7.3-3.35.81-4.9 1.52a.07.07 0 0 0-.03.03C1.07 8.87.34 13.24.7 17.55a.08.08 0 0 0 .03.06c2.06 1.52 4.06 2.44 6.02 3.05a.08.08 0 0 0 .09-.03c.46-.64.88-1.31 1.23-2.02a.08.08 0 0 0-.04-.11 13 13 0 0 1-1.87-.9.08.08 0 0 1 0-.13c.13-.09.25-.19.37-.28a.07.07 0 0 1 .08 0c3.93 1.8 8.18 1.8 12.06 0a.07.07 0 0 1 .08 0c.12.1.24.19.37.28a.08.08 0 0 1 0 .13c-.6.35-1.22.65-1.87.9a.08.08 0 0 0-.04.11c.36.7.78 1.37 1.23 2.02a.08.08 0 0 0 .09.03c1.97-.6 3.97-1.53 6.03-3.05a.08.08 0 0 0 .03-.06c.44-4.98-.74-9.31-3.13-13.15a.06.06 0 0 0-.03-.03zM8.68 14.9c-1.18 0-2.15-1.08-2.15-2.42 0-1.33.95-2.42 2.15-2.42 1.21 0 2.17 1.1 2.15 2.42 0 1.34-.95 2.42-2.15 2.42zm6.66 0c-1.18 0-2.15-1.08-2.15-2.42 0-1.33.95-2.42 2.15-2.42 1.21 0 2.17 1.1 2.15 2.42 0 1.34-.94 2.42-2.15 2.42z"/></svg>
+      <div class="contact-row-text">
+        <span class="contact-row-name">Discord</span>
+        <span class="contact-row-desc">Add me for game dev talk, playtesting, or hanging out in dev servers.</span>
+      </div>
+    </a>
+    <a class="contact-row" href="https://www.roblox.com/users/10841765037" target="_blank" rel="noopener">
+      <svg viewBox="0 0 24 24"><path d="M4.16 0 0 19.84 19.84 24 24 4.16 4.16 0zm7.09 8.42 4.33 1.09-1.09 4.33-4.33-1.09 1.09-4.33z"/></svg>
+      <div class="contact-row-text">
+        <span class="contact-row-name">Roblox</span>
+        <span class="contact-row-desc">Add me in-game, or come see what I'm currently building.</span>
+      </div>
+    </a>
+    <a class="contact-row" href="mailto:g4zwr@duck.com">
+      <svg viewBox="0 0 24 24"><path d="M2 4h20a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2zm0 2v.51l10 6.25 10-6.25V6H2zm20 2.86-9.47 5.92a1 1 0 0 1-1.06 0L2 8.86V18h20V8.86z"/></svg>
+      <div class="contact-row-text">
+        <span class="contact-row-name">Email</span>
+        <span class="contact-row-desc">For anything longer-form or more formal, like business inquiries.</span>
+      </div>
+    </a>
+    <a class="contact-row" href="https://www.youtube.com/@g4zwr" target="_blank" rel="noopener">
+      <svg viewBox="0 0 24 24"><path d="M23.5 6.19a3.02 3.02 0 0 0-2.12-2.14C19.51 3.5 12 3.5 12 3.5s-7.51 0-9.38.55A3.02 3.02 0 0 0 .5 6.19 31.6 31.6 0 0 0 0 12a31.6 31.6 0 0 0 .5 5.81 3.02 3.02 0 0 0 2.12 2.14c1.87.55 9.38.55 9.38.55s7.51 0 9.38-.55a3.02 3.02 0 0 0 2.12-2.14A31.6 31.6 0 0 0 24 12a31.6 31.6 0 0 0-.5-5.81zM9.6 15.6V8.4l6.4 3.6-6.4 3.6z"/></svg>
+      <div class="contact-row-text">
+        <span class="contact-row-name">YouTube</span>
+        <span class="contact-row-desc">Devlogs, gameplay clips, whatever I've been building lately.</span>
+      </div>
+    </a>
+    <a class="contact-row" href="https://www.tiktok.com/@g4zwr" target="_blank" rel="noopener">
+      <svg viewBox="0 0 24 24"><path d="M12.525.02c1.31-.02 2.61-.01 3.91-.02.08 1.53.63 3.09 1.75 4.17 1.12 1.11 2.7 1.62 4.24 1.79v4.03c-1.44-.05-2.89-.35-4.2-.97-.57-.26-1.1-.59-1.62-.93-.01 2.92.01 5.84-.02 8.75-.08 1.4-.54 2.79-1.35 3.94-1.31 1.92-3.58 3.17-5.91 3.21-1.43.08-2.86-.31-4.08-1.03-2.02-1.19-3.44-3.37-3.65-5.71-.02-.5-.03-1-.01-1.49.18-1.9 1.12-3.72 2.58-4.96 1.66-1.44 3.98-2.13 6.15-1.72.02 1.48-.04 2.96-.04 4.44-.99-.32-2.15-.23-3.02.37-.63.41-1.11 1.04-1.36 1.75-.21.51-.15 1.07-.14 1.61.24 1.64 1.82 3.02 3.5 2.87 1.12-.01 2.19-.66 2.77-1.61.19-.33.4-.67.41-1.06.1-1.79.06-3.57.07-5.36.01-4.03-.01-8.05.02-12.07z"/></svg>
+      <div class="contact-row-text">
+        <span class="contact-row-name">TikTok</span>
+        <span class="contact-row-desc">Short clips and behind-the-scenes stuff.</span>
+      </div>
+    </a>
+    <a class="contact-row" href="https://www.reddit.com/user/g4zwr" target="_blank" rel="noopener">
+      <svg viewBox="0 0 24 24"><path d="M24 12.09c0-1.23-.98-2.22-2.19-2.22-.59 0-1.13.24-1.52.62-1.5-1.04-3.55-1.71-5.82-1.79l1.19-3.75 3.28.78a1.6 1.6 0 1 0 .16-.78l-3.65-.87a.4.4 0 0 0-.48.28l-1.33 4.18c-2.32.05-4.42.72-5.94 1.77a2.2 2.2 0 0 0-1.51-.61A2.21 2.21 0 0 0 4 12.09c0 .85.47 1.58 1.16 1.97a3.6 3.6 0 0 0-.05.6c0 2.72 3.16 4.93 7.06 4.93s7.06-2.21 7.06-4.93c0-.2-.02-.4-.05-.6A2.2 2.2 0 0 0 24 12.09zM8.28 13.6a1.4 1.4 0 1 1 2.8 0 1.4 1.4 0 0 1-2.8 0zm7.7 3.48c-.85.85-2.47.91-2.98.91s-2.14-.06-2.98-.91a.32.32 0 0 1 .45-.45c.5.5 1.65.68 2.53.68s2.03-.18 2.53-.68a.32.32 0 0 1 .45.45zm-.18-2.08a1.4 1.4 0 1 1 0-2.8 1.4 1.4 0 0 1 0 2.8z"/></svg>
+      <div class="contact-row-text">
+        <span class="contact-row-name">Reddit</span>
+        <span class="contact-row-desc">Posting progress and lurking dev communities.</span>
+      </div>
+    </a>
+    <a class="contact-row" href="https://x.com/g4zwr_" target="_blank" rel="noopener">
+      <svg viewBox="0 0 24 24"><path d="M18.901 1.153h3.68l-8.04 9.19L24 22.846h-7.406l-5.8-7.584-6.638 7.584H.474l8.6-9.83L0 1.154h7.594l5.243 6.932ZM17.61 20.644h2.039L6.486 3.24H4.298Z"/></svg>
+      <div class="contact-row-text">
+        <span class="contact-row-name">X</span>
+        <span class="contact-row-desc">Updates and random thoughts.</span>
+      </div>
+    </a>
+  </div>
+
+  <a class="back-link" href="/" data-route="home">&larr; back home</a>
+</div>
 
 <script>
-(() => {
-  'use strict';
+  var DEBUG = false;
+  const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
-  const reduceMotion = matchMedia('(prefers-reduced-motion: reduce)').matches;
-  const audio = document.getElementById('bg-audio');
-  const disc = document.getElementById('disc');
-  const playBtn = document.getElementById('play-btn');
-  const playCta = document.getElementById('play-cta');
-  const soundToggle = document.getElementById('sound-toggle');
-  const soundLabel = document.getElementById('sound-label');
-  const hint = document.getElementById('hint');
-  audio.volume = 0.55;
+  const canvas = document.getElementById('matrix-bg');
+  const ctx = canvas.getContext('2d');
+  let w, h, columns, drops, speeds;
+  let prevW = 0, prevH = 0;
+  const chars = '♡❀✿✦✧♥❁☘️';
 
-  /* ── animated scribble headings ────────────────────────────────────────────
-     Each [data-scribble] becomes an SVG <text> whose stroke is revealed with
-     stroke-dashoffset, so the word "writes itself" in, then a gentle wiggle
-     kicks in. pathLength="1" normalizes any word's length to 1, so one
-     dasharray value draws every heading regardless of its text. */
-  document.querySelectorAll('[data-scribble]').forEach((el, i) => {
-    const text = (el.dataset.scribble || el.textContent).trim();
-    el.textContent = '';
-    const NS = 'http://www.w3.org/2000/svg';
-    const svg = document.createElementNS(NS, 'svg');
-    svg.setAttribute('viewBox', '0 0 1000 200');
-    svg.setAttribute('role', 'img');
-    svg.setAttribute('aria-label', text);
-    const t = document.createElementNS(NS, 'text');
-    t.setAttribute('x', '500');
-    t.setAttribute('y', '152');
-    t.setAttribute('text-anchor', 'middle');
-    t.setAttribute('pathLength', '1');
-    t.setAttribute('stroke-dasharray', '1');
-    t.setAttribute('stroke-dashoffset', '1');
-    t.setAttribute('fill-opacity', '0');
-    t.style.setProperty('--d', (i * 0.2).toFixed(2) + 's');
-    t.textContent = text;
-    svg.appendChild(t);
-    el.appendChild(svg);
+  function setupMatrix(force){
+    const nw = window.innerWidth;
+    const nh = window.innerHeight;
+    if(!force && Math.abs(nw - prevW) < 5 && Math.abs(nh - prevH) < 150) return;
+    prevW = nw;
+    prevH = nh;
+    w = canvas.width = nw;
+    h = canvas.height = nh;
+    const fontSize = 16;
+    columns = Math.floor(w / fontSize);
+    drops = Array.from({length: columns}, () => -Math.floor(Math.random() * 40));
+    speeds = Array.from({length: columns}, () => 0.45 + Math.random() * 0.55);
+  }
+  setupMatrix(true);
+  window.addEventListener('resize', () => setupMatrix(false));
+
+  let lastMatrix = 0;
+  // The petals stay unwritten until the site is entered. The canvas still exists
+  // and is sized, but it is not painted, so the pre-entry screen is just the
+  // paper plate rather than drifting hearts behind the blurred overlay.
+  let matrixRunning = false;
+  function drawMatrix(t){
+    requestAnimationFrame(drawMatrix);
+    if(!matrixRunning) return;
+    if(document.hidden) return;
+    if(t - lastMatrix < 45) return;
+    lastMatrix = t;
+
+    ctx.fillStyle = 'rgba(255,244,240,0.13)';
+    ctx.fillRect(0, 0, w, h);
+    ctx.fillStyle = '#d1466f';
+    ctx.font = '15px \'Comic Sans MS\', cursive';
+    for(let i = 0; i < drops.length; i++){
+      if(Math.random() > speeds[i]) continue;
+      const text = chars[Math.floor(Math.random() * chars.length)];
+      ctx.globalAlpha = Math.random() > 0.93 ? 1 : Math.random() * 0.5 + 0.3;
+      ctx.fillText(text, i * 16, drops[i] * 16);
+      if(drops[i] * 16 > h && Math.random() > 0.975){
+        drops[i] = 0;
+      }
+      drops[i]++;
+    }
+    ctx.globalAlpha = 1;
+  }
+  function startMatrix(){
+    if(reduceMotion || matrixRunning) return;
+    matrixRunning = true;
+    requestAnimationFrame(drawMatrix);
+  }
+
+  const vcanvas = document.getElementById('visualizer');
+  const vctx = vcanvas.getContext('2d');
+  let vPrevW = 0, vPrevH = 0;
+  let vRaf = 0;
+  let burstCooldown = 0;
+  let prevEnergy = 0;
+  let bursts = [];
+
+  const VIS_H = 140;
+
+  function setupVisualizerCanvas(force){
+    const nw = window.innerWidth;
+    if(!force && Math.abs(nw - vPrevW) < 5 && Math.abs(VIS_H - vPrevH) < 1) return;
+    vPrevW = nw;
+    vPrevH = VIS_H;
+    vcanvas.width = nw;
+    vcanvas.height = VIS_H;
+  }
+  setupVisualizerCanvas();
+  window.addEventListener('resize', () => setupVisualizerCanvas(false));
+
+  let audioCtx, analyser, dataArray, bufferLength, sourceNode, gainNode, toneNode, limiter;
+
+  const GAIN_MAX = 3;
+  const FADE_IN_SEC = 2.6;
+  const FADE_OUT_SEC = 5;
+  const MUTE_FADE_SEC = 0.9;
+  const TONE_OPEN_HZ = 20000;
+  const TONE_CLOSED_HZ = 600;
+  let lastMediaTime = 0;
+  let fadeStart = 0;
+  let fadeFrom = 0;
+  let fadingIn = true;
+  let muting = false;
+  let muted = false;
+
+  function setupAudioAnalyser(){
+    if (audioCtx) return;
+    audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    analyser = audioCtx.createAnalyser();
+    analyser.fftSize = 256;
+    analyser.smoothingTimeConstant = 0.78;
+    bufferLength = analyser.frequencyBinCount;
+    dataArray = new Uint8Array(bufferLength);
+    sourceNode = audioCtx.createMediaElementSource(audio);
+
+    gainNode = audioCtx.createGain();
+    gainNode.gain.value = 0;
+
+    limiter = audioCtx.createDynamicsCompressor();
+    limiter.threshold.value = -6;
+    limiter.knee.value = 0;
+    limiter.ratio.value = 20;
+    limiter.attack.value = 0.003;
+    limiter.release.value = 0.15;
+
+    toneNode = audioCtx.createBiquadFilter();
+    toneNode.type = 'lowpass';
+    toneNode.frequency.value = TONE_OPEN_HZ;
+    toneNode.Q.value = 0.7;
+
+    sourceNode.connect(analyser);
+    analyser.connect(gainNode);
+    gainNode.connect(toneNode);
+    toneNode.connect(limiter);
+    limiter.connect(audioCtx.destination);
+  }
+
+  function gainCeiling(){ return gainNode ? GAIN_MAX : 1; }
+
+  function setGain(v){
+    if (gainNode) gainNode.gain.value = v;
+    else audio.volume = Math.min(1, v);
+  }
+
+  function setTone(hz){
+    if (toneNode) toneNode.frequency.value = hz;
+  }
+
+  function currentLevel(){
+    const max = gainCeiling();
+    if (!max) return 0;
+    const raw = gainNode ? gainNode.gain.value : audio.volume;
+    return Math.max(0, Math.min(1, raw / max));
+  }
+
+  function beginFadeIn(fromZero){
+    fadeFrom = fromZero ? 0 : currentLevel();
+    fadeStart = performance.now();
+    fadingIn = true;
+    muting = false;
+    muted = false;
+  }
+
+  function beginMute(){
+    fadeFrom = currentLevel();
+    fadeStart = performance.now();
+    fadingIn = false;
+    muting = true;
+  }
+
+  function finishMute(){
+    muting = false;
+    muted = true;
+    audio.pause();
+    lastMediaTime = 0;
+    setGain(0);
+    setTone(TONE_CLOSED_HZ);
+  }
+
+  function controlGain(){
+    if (audio.paused) return;
+    const t = audio.currentTime;
+    const d = audio.duration;
+    if (t < lastMediaTime && !muting) beginFadeIn();
+    lastMediaTime = t;
+
+    const max = gainCeiling();
+    const remaining = d - t;
+    const nearEnd = isFinite(d) && d > FADE_OUT_SEC && remaining < FADE_OUT_SEC;
+    let level;
+
+    if (muting){
+      if (fadeFrom <= 0.001){ finishMute(); return; }
+      const p = Math.min(1, (performance.now() - fadeStart) / (MUTE_FADE_SEC * 1000));
+      level = max * fadeFrom * (1 - p);
+      if (p >= 1) finishMute();
+    } else if (nearEnd){
+      fadingIn = false;
+      level = max * Math.max(0, remaining / FADE_OUT_SEC);
+    } else if (fadingIn){
+      const p = Math.min(1, (performance.now() - fadeStart) / (FADE_IN_SEC * 1000));
+      level = max * (fadeFrom + (1 - fadeFrom) * p);
+      if (p >= 1) fadingIn = false;
+    } else {
+      level = max;
+    }
+
+    setGain(level);
+    const openness = max > 0 ? level / max : 1;
+    setTone(TONE_CLOSED_HZ + (TONE_OPEN_HZ - TONE_CLOSED_HZ) * openness);
+  }
+
+  function drawVisualizer(){
+    vRaf = requestAnimationFrame(drawVisualizer);
+    if(document.hidden) return;
+    vctx.clearRect(0, 0, vcanvas.width, vcanvas.height);
+    if(!analyser) return;
+    analyser.getByteFrequencyData(dataArray);
+
+    const fontSize = 14;
+    const minColWidth = fontSize + 4;
+    const totalBars = Math.max(24, Math.floor(vcanvas.width / minColWidth));
+    const colWidth = vcanvas.width / totalBars;
+    vctx.font = fontSize + 'px monospace';
+    vctx.textAlign = 'center';
+
+    let sumEnergy = 0;
+    for(let b = 0; b < bufferLength; b++) sumEnergy += dataArray[b];
+    const avgEnergy = sumEnergy / bufferLength / 255;
+    if(burstCooldown > 0) burstCooldown--;
+    if(avgEnergy - prevEnergy > 0.12 && burstCooldown <= 0){
+      bursts.push({ col: Math.floor(Math.random() * totalBars), life: 14 });
+      burstCooldown = 8;
+    }
+    prevEnergy = prevEnergy * 0.7 + avgEnergy * 0.3;
+
+    for(let i = 0; i < totalBars; i++){
+      const t0 = i / totalBars;
+      const t1 = (i + 1) / totalBars;
+      const startBin = Math.floor(Math.pow(t0, 1.8) * bufferLength);
+      const endBin = Math.max(startBin + 1, Math.floor(Math.pow(t1, 1.8) * bufferLength));
+
+      let peak = 0;
+      for(let b = startBin; b < endBin && b < bufferLength; b++){
+        if(dataArray[b] > peak) peak = dataArray[b];
+      }
+      const normalized = peak / 255;
+      const boosted = Math.pow(normalized, 0.55);
+      const jitter = 0.85 + Math.random() * 0.3;
+      const maxRows = Math.max(1, Math.floor(vcanvas.height / fontSize));
+      const charCount = Math.max(1, Math.min(maxRows, Math.round(boosted * jitter * maxRows)));
+
+      const x = i * colWidth + colWidth / 2;
+      for(let c = 0; c < charCount; c++){
+        const y = c * fontSize + fontSize;
+        const fade = 1 - (c / Math.max(charCount, 1));
+        const ch = chars[Math.floor(Math.random() * chars.length)];
+        vctx.globalAlpha = Math.max(fade * (0.35 + boosted * 0.65), 0.05);
+        vctx.fillStyle = '#e07a9a';
+        vctx.fillText(ch, x, y);
+      }
+    }
+
+    for(let i = bursts.length - 1; i >= 0; i--){
+      const burst = bursts[i];
+      const x = burst.col * colWidth + colWidth / 2;
+      const charCount = Math.round((burst.life / 14) * maxRows);
+      for(let c = 0; c < charCount; c++){
+        const y = c * fontSize + fontSize;
+        const fade = 1 - (c / Math.max(charCount, 1));
+        const ch = chars[Math.floor(Math.random() * chars.length)];
+        vctx.globalAlpha = Math.max(fade, 0.1);
+        vctx.fillStyle = '#e07a9a';
+        vctx.fillText(ch, x, y);
+      }
+      burst.life--;
+      if(burst.life <= 0) bursts.splice(i, 1);
+    }
+
+    vctx.globalAlpha = 1;
+  }
+  requestAnimationFrame(drawVisualizer);
+
+  // A background tab gets its AudioContext throttled, so the analyser returns
+  // stale or zeroed bins and no resize event fires while hidden. On return:
+  // re-measure the backing store, clear the transient burst state so the first
+  // frame is not a false spike, and resume a suspended context.
+  document.addEventListener('visibilitychange', () => {
+    if(document.hidden) return;
+    setupVisualizerCanvas(true);
+    prevEnergy = 0;
+    bursts.length = 0;
+    burstCooldown = 0;
+    lastMediaTime = 0;
+    if(audioCtx && audioCtx.state === 'suspended') audioCtx.resume();
   });
 
-  /* ── audio: gentle graph + reactive petals ──────────────────────────────── */
-  let ctx, analyser, dataArray, src, gain, comp, started = false, ready = false;
-  function initAudio() {
-    if (ctx) return;
-    try {
-      ctx = new (window.AudioContext || window.webkitAudioContext)();
-      analyser = ctx.createAnalyser();
-      analyser.fftSize = 64;
-      gain = ctx.createGain();
-      gain.gain.value = 0.55;
-      comp = ctx.createDynamicsCompressor();     // keep the cute theme from clipping
-      src = ctx.createMediaElementSource(audio);
-      src.connect(analyser);
-      analyser.connect(gain);
-      gain.connect(comp);
-      comp.connect(ctx.destination);
-      dataArray = new Uint8Array(analyser.frequencyBinCount);
-      ready = true;
-    } catch (e) { ready = false; }
-  }
-  function level() {
-    if (!ready) return 0;
-    analyser.getByteFrequencyData(dataArray);
-    let s = 0; for (let i = 0; i < 12; i++) s += dataArray[i];
-    return Math.min(1, s / (12 * 255));
+  const page = document.getElementById('page');
+  const matrixBg = document.getElementById('matrix-bg');
+  const enterHint = document.getElementById('enter-hint');
+  const audio = document.getElementById('bg-audio');
+  const soundToggle = document.getElementById('sound-toggle');
+  const soundLabel = document.getElementById('sound-label');
+  const topBtn = document.getElementById('top-btn');
+
+  (function gainLoop(){
+    controlGain();
+    requestAnimationFrame(gainLoop);
+  })();
+  const progress = document.getElementById('progress');
+  const scrollCue = document.querySelector('.scroll-cue');
+  document.getElementById('copyright-year').textContent = new Date().getFullYear();
+
+  const heroTitle = document.querySelector('.hero h1');
+  const heroText = heroTitle.textContent;
+  heroTitle.setAttribute('aria-label', heroText);
+  heroTitle.textContent = '';
+  [...heroText].forEach((c, i) => {
+    const s = document.createElement('span');
+    s.className = 'ch';
+    s.textContent = c;
+    s.style.setProperty('--i', i);
+    s.setAttribute('aria-hidden', 'true');
+    heroTitle.appendChild(s);
+  });
+  const letters = heroTitle.querySelectorAll('.ch');
+
+  const leadEl = document.querySelector('#quote .lead');
+  const fullQuote = leadEl.textContent;
+  const caret = document.createElement('span');
+  caret.className = 'caret';
+  if(!reduceMotion){
+    leadEl.textContent = '';
+    leadEl.after(caret);
   }
 
-  function updateUI() {
-    disc.classList.toggle('spin', started);
-    soundToggle.classList.toggle('playing', started);
-    soundLabel.textContent = started ? 'playing' : 'music';
-    playBtn.textContent = started ? 'pause' : 'play';
-    playCta.innerHTML = started ? '&#9835; playing &mdash; pause' : '&#9835; play the song';
-    hint.classList.toggle('hide', started);
+  function typeQuote(){
+    if(reduceMotion){ return; }
+    let n = 0;
+    (function step(){
+      leadEl.textContent = fullQuote.slice(0, ++n);
+      if(n < fullQuote.length){
+        const ch = fullQuote[n - 1];
+        const wait = ch === ',' ? 260 : ch === ' ' ? 55 : 28 + Math.random() * 45;
+        setTimeout(step, wait);
+      } else {
+        setTimeout(() => caret.classList.add('gone'), 2400);
+      }
+    })();
   }
-  async function play() {
-    initAudio();
-    if (ctx && ctx.state === 'suspended') { try { await ctx.resume(); } catch (e) {} }
-    try { await audio.play(); }
-    catch (e) { started = false; updateUI(); return; }  // autoplay still blocked: stay honest
-    started = true;
-    updateUI();
-  }
-  function pause() {
-    audio.pause();
-    started = false;
-    updateUI();
-  }
-  function toggle() { started ? pause() : play(); }
 
-  playBtn.addEventListener('click', toggle);
-  playCta.addEventListener('click', toggle);
-  soundToggle.addEventListener('click', toggle);
-
-  // browsers block autoplay until a gesture, so the first tap elsewhere starts it. a tap that
-  // lands on a control is left to that control's own handler, otherwise this pointerdown would
-  // start playback and the click that follows would immediately pause it again.
-  function firstGesture(e) {
-    if (started) return;
-    const t = e.target;
-    if (t && t.closest && t.closest('button, a')) return;
-    removeEventListener('pointerdown', firstGesture);
-    removeEventListener('keydown', firstGesture);
-    play();
+  function glitchLoop(){
+    if(reduceMotion) return;
+    setInterval(() => {
+      if(document.hidden || window.scrollY > window.innerHeight * 0.5) return;
+      const l = letters[Math.floor(Math.random() * letters.length)];
+      l.classList.add('glitch');
+      l.addEventListener('animationend', () => l.classList.remove('glitch'), { once: true });
+    }, 4200);
   }
-  addEventListener('pointerdown', firstGesture);
-  addEventListener('keydown', firstGesture);
-  updateUI();
 
-  /* ── petals + sparkles drifting behind the moon ─────────────────────────── */
-  const cv = document.getElementById('petals');
-  const cx = cv.getContext('2d');
-  const glow = document.getElementById('glow');
-  let W, H, dpr, petals = [], sparks = [];
+  function unblurPage(){
+    requestAnimationFrame(() => {
+      requestAnimationFrame(() => {
+        page.classList.add('unblurred');
+      });
+    });
+  }
 
-  function resize() {
-    dpr = Math.min(2, devicePixelRatio || 1);
-    W = cv.width = innerWidth * dpr;
-    H = cv.height = innerHeight * dpr;
-    cv.style.width = innerWidth + 'px';
-    cv.style.height = innerHeight + 'px';
-  }
-  function seed() {
-    const n = reduceMotion ? 0 : Math.round(Math.min(46, innerWidth / 30));
-    petals = Array.from({ length: n }, () => ({
-      x: Math.random() * W, y: Math.random() * H,
-      r: (7 + Math.random() * 9) * dpr,
-      vy: (0.25 + Math.random() * 0.6) * dpr,
-      sway: 0.6 + Math.random() * 1.1,
-      phase: Math.random() * Math.PI * 2,
-      rot: Math.random() * Math.PI * 2,
-      vr: (Math.random() - 0.5) * 0.02,
-      hue: Math.random() < 0.5 ? '247,168,192' : '229,137,159'
-    }));
-    sparks = Array.from({ length: reduceMotion ? 0 : 40 }, () => ({
-      x: Math.random() * W, y: Math.random() * H,
-      r: (1 + Math.random() * 1.6) * dpr,
-      a: Math.random()
-    }));
-  }
-  function petal(ctx2, p, boost) {
-    ctx2.save();
-    ctx2.translate(p.x, p.y);
-    ctx2.rotate(p.rot);
-    ctx2.globalAlpha = 0.75 * (0.7 + boost * 0.6);
-    ctx2.fillStyle = 'rgba(' + p.hue + ',1)';
-    ctx2.beginPath();                       // a simple teardrop petal
-    ctx2.moveTo(0, -p.r);
-    ctx2.bezierCurveTo(p.r, -p.r * 0.2, p.r * 0.7, p.r, 0, p.r);
-    ctx2.bezierCurveTo(-p.r * 0.7, p.r, -p.r, -p.r * 0.2, 0, -p.r);
-    ctx2.fill();
-    ctx2.restore();
-  }
-  let t = 0;
-  function frame() {
-    t += 0.016;
-    cx.clearRect(0, 0, W, H);
-    const lv = level();
+  let entered = false;
+  let entering = false;
 
-    for (const s of sparks) {
-      s.a = 0.5 + 0.5 * Math.sin(t * 2 + s.x * 0.01);
-      cx.globalAlpha = 0.10 + s.a * (0.18 + lv * 0.5);
-      cx.fillStyle = '#fff';
-      cx.beginPath(); cx.arc(s.x, s.y, s.r * (1 + lv * 0.5), 0, 6.283); cx.fill();
+  async function enterSite(){
+    if(entered || entering) return;
+    entering = true;
+
+    lastMediaTime = 0;
+    try{
+      setupAudioAnalyser();
+      if(audioCtx.state === 'suspended') await audioCtx.resume();
+    }catch(e){
+      console.warn('analyser failed, playing audio without visualizer', e);
     }
-    for (const p of petals) {
-      p.y += p.vy * (1 + lv * 0.9);         // music gently lifts the petals
-      p.x += Math.sin(t * p.sway + p.phase) * 0.5 * dpr;
-      p.rot += p.vr;
-      if (p.y - p.r > H) { p.y = -p.r; p.x = Math.random() * W; }
-      petal(cx, p, lv);
+
+    setGain(0);
+    setTone(TONE_CLOSED_HZ);
+    beginFadeIn(true);
+
+    try{
+      await audio.play();
+    }catch(err){
+      console.warn('audio play failed', err);
+      if(err && err.name === 'NotAllowedError'){
+        entering = false;
+        return;
+      }
     }
-    cx.globalAlpha = 1;
 
-    // the ambient glow breathes with the track
-    glow.style.setProperty('--gx', (68 + Math.sin(t * 0.4) * 8) + '%');
-    glow.style.setProperty('--gy', (24 + Math.cos(t * 0.33) * 6 + lv * 8) + '%');
+    entered = true;
+    if(DEBUG) console.log('[gaze] entered', Date.now());
 
-    requestAnimationFrame(frame);
+    document.body.classList.add('entered');
+    enterHint.classList.add('hidden');
+    vcanvas.classList.add('on');
+    startMatrix();
+    if(sky) sky.reveal();
+    soundToggle.classList.add('visible');
+
+    unblurPage();
+
+    setTimeout(typeQuote, 1500);
+    setTimeout(() => { heroTitle.classList.add('settled'); glitchLoop(); }, 3200);
   }
-  addEventListener('resize', () => { resize(); seed(); });
-  resize(); seed();
-  if (!reduceMotion) requestAnimationFrame(frame);
 
-  // start the track as soon as the browser allows it (works on some autoplay policies)
-  initAudio();
-  play();
-})();
+  enterHint.addEventListener('click', enterSite);
+  window.addEventListener('keydown', (e) => {
+    // Escape joins Enter and Space here so the gate is dismissible by keyboard.
+    // Until the site is entered it owns Escape, because the page is still
+    // blurred and scroll-locked and a menu would open behind the overlay.
+    if(e.key === 'Enter' || e.key === ' ' || e.key === 'Escape') enterSite();
+  });
+
+  page.addEventListener('transitionend', (e) => {
+    if (e.target !== page || e.propertyName !== 'filter') return;
+    if (page.classList.contains('unblurred')) page.style.filter = 'none';
+  });
+
+  soundToggle.addEventListener('click', () => {
+    if (muting || muted){
+      if (audioCtx && audioCtx.state === 'suspended') audioCtx.resume().catch(() => {});
+      audio.play().catch(() => {});
+      beginFadeIn();
+      soundToggle.classList.remove('paused');
+      soundLabel.textContent = 'sound on';
+    } else {
+      beginMute();
+      soundToggle.classList.add('paused');
+      soundLabel.textContent = 'sound off';
+    }
+  });
+
+  /* ── 2D kawaii sky: scroll-parallaxed moon, stars and petals (2D canvas) ────
+     The main site flies a WebGL starfield and a shader-shaded sphere. The cute
+     theme keeps the same #sky layer, the same reveal() handshake and the same
+     scroll-coupled drift, but paints a flat 2D moon with a face instead of a
+     lit 3D one, so it stays readable as a drawing rather than as a render. */
+  const sky = (function(){
+    const cv = document.getElementById('sky');
+    if(!cv) return null;
+    const c = cv.getContext('2d');
+    if(!c) return null;
+
+    const clamp = (v,a,b) => v < a ? a : v > b ? b : v;
+    const TAU = Math.PI * 2;
+    const MOON_HI = '#fffaf1', MOON_LO = '#ffd9c0', MOON_LINE = '#5c4033';
+    const BLUSH = 'rgba(255,157,177,0.55)', STAR = '#fff2cf', PETAL = '#ffbcd0';
+
+    let W = 0, H = 0, dpr = 1;
+    let stars = [], petals = [];
+
+    function seed(){
+      const narrow = W < 760;
+      const starN = narrow ? 46 : 96;
+      stars = new Array(starN);
+      for(let i = 0; i < starN; i++){
+        stars[i] = {
+          x: Math.random() * W,
+          y: Math.random() * H,
+          r: 0.8 + Math.random() * 1.9,
+          ph: Math.random() * TAU,
+          sp: 0.4 + Math.random() * 1.5,
+          deep: 0.25 + Math.random() * 0.75
+        };
+      }
+      const petalN = narrow ? 14 : 30;
+      petals = new Array(petalN);
+      for(let i = 0; i < petalN; i++){
+        petals[i] = {
+          x: Math.random() * W,
+          y: Math.random() * H,
+          r: 4 + Math.random() * 6,
+          vy: 9 + Math.random() * 22,
+          vx: (Math.random() - 0.5) * 15,
+          rot: Math.random() * TAU,
+          vr: (Math.random() - 0.5) * 1.7,
+          sw: Math.random() * TAU,
+          deep: 0.4 + Math.random() * 0.6,
+          heart: Math.random() > 0.45
+        };
+      }
+    }
+
+    function resize(){
+      dpr = Math.min(window.devicePixelRatio || 1, 2);
+      W = window.innerWidth;
+      H = window.innerHeight;
+      cv.width = Math.round(W * dpr);
+      cv.height = Math.round(H * dpr);
+      c.setTransform(dpr, 0, 0, dpr, 0, 0);
+      seed();
+    }
+    resize();
+    window.addEventListener('resize', resize);
+
+    // A four-point sparkle: two crossed lens flares, drawn as a single path so it
+    // stays crisp at any radius instead of blurring into a dot when it shrinks.
+    function sparkle(x, y, r, alpha, rot){
+      c.save();
+      c.translate(x, y);
+      c.rotate(rot);
+      c.globalAlpha = alpha;
+      c.fillStyle = STAR;
+      c.beginPath();
+      c.moveTo(0, -r);
+      c.quadraticCurveTo(r * 0.16, -r * 0.16, r, 0);
+      c.quadraticCurveTo(r * 0.16, r * 0.16, 0, r);
+      c.quadraticCurveTo(-r * 0.16, r * 0.16, -r, 0);
+      c.quadraticCurveTo(-r * 0.16, -r * 0.16, 0, -r);
+      c.closePath();
+      c.fill();
+      c.restore();
+    }
+
+    function heart(x, y, r, alpha, rot){
+      c.save();
+      c.translate(x, y);
+      c.rotate(rot);
+      c.globalAlpha = alpha;
+      c.fillStyle = PETAL;
+      c.beginPath();
+      c.moveTo(0, r * 0.72);
+      c.bezierCurveTo(-r * 1.32, -r * 0.12, -r * 0.56, -r * 1.05, 0, -r * 0.34);
+      c.bezierCurveTo(r * 0.56, -r * 1.05, r * 1.32, -r * 0.12, 0, r * 0.72);
+      c.closePath();
+      c.fill();
+      c.restore();
+    }
+
+    /* The moon is drawn at a fixed design size and scaled, so the face keeps its
+       proportions at any viewport and never needs its own breakpoint. */
+    const MOON_R = 78;
+    function drawMoon(cx, cy, R, tilt, bob, drawPhase){
+      const s = R / MOON_R;
+      c.save();
+      c.translate(cx, cy + bob);
+      c.rotate(tilt);
+
+      // halo
+      c.globalAlpha = 0.5;
+      c.fillStyle = 'rgba(255,226,236,0.75)';
+      c.beginPath();
+      c.arc(0, 0, R * 1.3, 0, TAU);
+      c.fill();
+
+      // body
+      const g = c.createRadialGradient(-R * 0.3, -R * 0.36, R * 0.1, 0, 0, R);
+      g.addColorStop(0, MOON_HI);
+      g.addColorStop(0.55, MOON_LO);
+      g.addColorStop(1, '#ffcfae');
+      c.globalAlpha = 1;
+      c.fillStyle = g;
+      c.beginPath();
+      c.arc(0, 0, R, 0, TAU);
+      c.fill();
+
+      c.globalAlpha = 0.4;
+      c.fillStyle = '#b99a8b';
+      c.beginPath(); c.arc(-R * 0.3, -R * 0.36, R * 0.11, 0, TAU); c.fill();
+      c.beginPath(); c.arc(R * 0.34, -R * 0.2, R * 0.09, 0, TAU); c.fill();
+      c.beginPath(); c.arc(-R * 0.12, R * 0.5, R * 0.075, 0, TAU); c.fill();
+
+      // face: closed happy eyes and a small smile, drawn as strokes
+      c.globalAlpha = 1;
+      c.strokeStyle = MOON_LINE;
+      c.lineWidth = 4.4 * s;
+      c.lineCap = 'round';
+      c.lineJoin = 'round';
+      c.beginPath();
+      c.moveTo(-R * 0.42, -R * 0.06); c.quadraticCurveTo(-R * 0.28, R * 0.1, -R * 0.14, -R * 0.06);
+      c.stroke();
+      c.beginPath();
+      c.moveTo(R * 0.14, -R * 0.06); c.quadraticCurveTo(R * 0.28, R * 0.1, R * 0.42, -R * 0.06);
+      c.stroke();
+      c.lineWidth = 3.6 * s;
+      c.beginPath();
+      c.moveTo(-R * 0.13, R * 0.28); c.quadraticCurveTo(0, R * 0.44, R * 0.13, R * 0.28);
+      c.stroke();
+
+      c.globalAlpha = 1;
+      c.fillStyle = BLUSH;
+      c.beginPath(); c.ellipse(-R * 0.5, R * 0.18, R * 0.13, R * 0.085, 0, 0, TAU); c.fill();
+      c.beginPath(); c.ellipse(R * 0.5, R * 0.18, R * 0.13, R * 0.085, 0, 0, TAU); c.fill();
+
+      c.restore();
+      void s; void drawPhase;
+    }
+
+    let running = false, revealed = false;
+    let followX = 0, followY = 0, lastT = 0;
+    // Same framing constants as the main site: the camera eases toward the real
+    // scroll position on a fixed-clock follow, so it can neither overshoot the
+    // wheel nor creep back once the reader stops.
+    const FOLLOW = 0.98, FOLLOW_REF = 60, PARALLAX_X = 46, PARALLAX_Y = 150;
+    const STAR_TRAVEL = 120, PETAL_TRAVEL = 70;
+
+    function render(now){
+      if(!running) return;
+      if(document.hidden){ lastT = now; return; }
+      const dt = Math.min(Math.max((now - lastT) / 1000, 0), 0.1);
+      lastT = now;
+
+      const doc = document.documentElement;
+      const max = Math.max(1, doc.scrollHeight - window.innerHeight);
+      const p = clamp(window.scrollY / max, 0, 1);
+      const tt = now * 0.001;
+      const bob = reduceMotion ? 0 : Math.sin(tt * 0.5) * 6;
+
+      const k = 1 - Math.pow(FOLLOW, dt * FOLLOW_REF);
+      followY += (p * PARALLAX_Y - followY) * k;
+      followX += (p * PARALLAX_X - followX) * k;
+
+      c.clearRect(0, 0, W, H);
+
+      for(let i = 0; i < stars.length; i++){
+        const s = stars[i];
+        const y = ((s.y - followY * s.deep) % (H + 40) + (H + 40)) % (H + 40) - 20;
+        const x = s.x - followX * s.deep;
+        const tw = reduceMotion ? 0.72 : 0.6 + 0.4 * Math.sin(tt * s.sp + s.ph);
+        sparkle(x, y, s.r * 1.9, tw, s.ph);
+      }
+
+      for(let i = 0; i < petals.length; i++){
+        const q = petals[i];
+        if(!reduceMotion){
+          q.y += q.vy * dt;
+          q.x += q.vx * dt + Math.sin(tt * 0.6 + q.sw) * 0.35;
+          q.rot += q.vr * dt;
+          if(q.y - q.r > H + 20){ q.y = -20; q.x = Math.random() * W; }
+          if(q.x < -20) q.x = W + 20;
+          if(q.x > W + 20) q.x = -20;
+        }
+        const y = ((q.y - followY * q.deep) % (H + 60) + (H + 60)) % (H + 60) - 30;
+        if(q.heart) heart(q.x, y, q.r, 0.5, q.rot);
+        else sparkle(q.x, y, q.r * 1.2, 0.5, q.rot);
+      }
+
+      // The moon sits high and slightly off-centre, then rises and drifts as the
+      // page scrolls, matching the main site's travel direction.
+      const mx = W * (W < 760 ? 0.5 : 0.72) + followX;
+      const my = H * (W < 760 ? 0.3 : 0.26) - followY * 0.9 + (W < 760 ? p * STAR_TRAVEL : p * STAR_TRAVEL);
+      const mr = Math.min(W, H) * (W < 760 ? 0.17 : 0.15);
+      const tilt = reduceMotion ? 0 : Math.sin(tt * 0.34) * 0.07;
+      drawMoon(mx, my, mr, tilt, bob, 1);
+
+      requestAnimationFrame(render);
+    }
+
+    function start(){ if(running) return; running = true; lastT = performance.now(); requestAnimationFrame(render); }
+    function stop(){ running = false; }
+
+    // The sky must not start painting behind the blurred pre-entry screen, so a
+    // tab switch or a driver reset that fires before entry is ignored.
+    document.addEventListener('visibilitychange', () => {
+      if(document.hidden) stop(); else if(revealed) start();
+    });
+
+    return {
+      reveal(){
+        if(revealed) return;
+        revealed = true;
+        cv.classList.add('on');
+        // Reduced motion still gets a moon, just a still one: paint exactly one
+        // frame. render() bails unless `running` is already true, so the flag has
+        // to be set first or the frame is dropped and the sky stays blank.
+        if(reduceMotion){ running = true; lastT = performance.now(); render(lastT); return; }
+        start();
+      }
+    };
+  })();
+
+
+  let scrollTick = false;
+  function onScroll(){
+    const y = window.scrollY;
+    topBtn.classList.toggle('visible', y > window.innerHeight * 0.6);
+    scrollCue.classList.toggle('gone', y > 40);
+    const max = document.documentElement.scrollHeight - window.innerHeight;
+    progress.style.transform = 'scaleX(' + (max > 0 ? y / max : 0) + ')';
+    scrollTick = false;
+  }
+  window.addEventListener('scroll', () => {
+    if(scrollTick) return;
+    scrollTick = true;
+    requestAnimationFrame(onScroll);
+  }, { passive: true });
+  topBtn.addEventListener('click', () => window.scrollTo({ top: 0, behavior: 'smooth' }));
+
+  const revealEls = document.querySelectorAll('.reveal');
+
+  // Where a reveal enters from: the side it sits on (left/right columns) or the
+  // scroll direction for full-width blocks. A stable per-element seed keeps the
+  // axis from flip-flopping on every re-entry, which reads as jitter.
+  const revealSeed = new WeakMap();
+  revealEls.forEach((el, i) => revealSeed.set(el, i));
+  let revealScrollDir = 1;
+  let revealLastY = window.scrollY;
+  window.addEventListener('scroll', () => {
+    const y = window.scrollY;
+    if (y !== revealLastY) revealScrollDir = y > revealLastY ? 1 : -1;
+    revealLastY = y;
+  }, { passive: true });
+
+  const DIRS = {
+    left:  { rx: '-46px', ry: '0px',   rr: '-2.4deg' },
+    right: { rx: '46px',  ry: '0px',   rr: '2.4deg' },
+    down:  { rx: '0px',   ry: '34px',  rr: '0deg' },
+    up:    { rx: '0px',   ry: '-34px', rr: '0deg' },
+  };
+  function pickDir(el, seed){
+    const wide = el.offsetWidth > window.innerWidth * 0.7;
+    if (wide) return revealScrollDir > 0 ? 'down' : 'up';
+    // alternate columns, but follow the scroll axis for anything centred
+    return seed % 2 === 0 ? 'left' : 'right';
+  }
+
+  const io = new IntersectionObserver((entries) => {
+    let n = 0;
+    entries.forEach((entry) => {
+      const el = entry.target;
+      if (entry.intersectionRatio >= 0.15) {
+        if (el.classList.contains('show') || el._rt) return;
+        const d = DIRS[pickDir(el, revealSeed.get(el))];
+        el.style.setProperty('--rx', d.rx);
+        el.style.setProperty('--ry', d.ry);
+        el.style.setProperty('--rr', d.rr);
+        el._rt = setTimeout(() => {
+          el._rt = 0;
+          el.classList.add('show');
+          el._st = setTimeout(() => el.classList.add('settled'), 1100);
+        }, Math.min(n++, 8) * 90);
+      } else {
+        // Only tear down once the element has fully left the viewport, in either
+        // direction. Testing `top` alone left sections stuck in the revealed
+        // state when scrolling back up, because their top goes negative.
+        const r = entry.boundingClientRect;
+        const gone = r.bottom < 0 || r.top > window.innerHeight;
+        if (!gone) return;
+        clearTimeout(el._rt);
+        clearTimeout(el._st);
+        el._rt = 0;
+        el.classList.remove('show', 'settled');
+      }
+    });
+  }, { threshold: 0.15, rootMargin: '0px 0px -6% 0px' });
+  revealEls.forEach(el => io.observe(el));
+
+  function setupCarousel(c){
+    let raf = 0, dragging = false, moved = false, suppress = false, sx = 0, sl = 0;
+    let baseCount = 0, looping = false, guard = false;
+    let touching = false, idleT = 0, lastW = window.innerWidth;
+
+    function items(){ return [...c.children]; }
+
+    function update(){
+      raf = 0;
+      const els = items();
+      if(!els.length) return;
+      const step = els.length > 1 ? els[1].offsetLeft - els[0].offsetLeft : els[0].offsetWidth;
+      const mid = c.scrollLeft + c.clientWidth / 2;
+      let best = els[0], bestD = Infinity;
+      els.forEach(el => {
+        const signed = (el.offsetLeft + el.offsetWidth / 2 - mid) / step;
+        const d = Math.abs(signed) * step;
+        el.style.setProperty('--t', Math.min(d / step, 1).toFixed(3));
+        el.style.setProperty('--s', Math.max(-1, Math.min(1, signed)).toFixed(3));
+        if(d < bestD){ bestD = d; best = el; }
+      });
+      els.forEach(el => el.classList.toggle('active', el === best));
+    }
+
+    function centerOn(el, smooth){
+      c.scrollTo({
+        left: el.offsetLeft + el.offsetWidth / 2 - c.clientWidth / 2,
+        behavior: smooth && !reduceMotion ? 'smooth' : 'auto'
+      });
+    }
+
+    const COPIES = 5, MID = 2;
+    function buildLoop(){
+      const els = items();
+      baseCount = els.length;
+      if(baseCount < 4) return;
+      const firstOrig = els[0];
+      for(let k = 0; k < MID; k++){
+        els.forEach(el => c.insertBefore(el.cloneNode(true), firstOrig));
+      }
+      for(let k = 0; k < COPIES - MID - 1; k++){
+        els.forEach(el => c.appendChild(el.cloneNode(true)));
+      }
+      looping = true;
+    }
+
+    function hop(newX){
+      guard = true;
+      c.classList.add('nojump');
+      c.scrollLeft = newX;
+      update();
+      void c.offsetWidth;
+      c.classList.remove('nojump');
+      guard = false;
+    }
+
+    function checkLoopBounds(force){
+      if(guard || dragging) return;
+      if(touching && !force) return;
+      const els = items();
+      if(els.length < baseCount * COPIES) return;
+      const step = els[1].offsetLeft - els[0].offsetLeft;
+      const setWidth = step * baseCount;
+      const x = c.scrollLeft;
+      const k = Math.floor((x + step * 0.5) / setWidth) - MID;
+      if(k !== 0) hop(x - k * setWidth);
+    }
+
+    function init(){
+      buildLoop();
+      const els = items();
+      if(!els.length) return;
+      let startIdx = 0;
+      if (c.dataset.start === 'middle') startIdx = Math.floor((baseCount - 1) / 2);
+      if (c.dataset.startIndex !== undefined) startIdx = parseInt(c.dataset.startIndex, 10);
+      const targetIdx = looping ? baseCount * MID + startIdx : startIdx;
+      centerOn(els[targetIdx], false);
+      update();
+    }
+
+    c.addEventListener('scroll', () => {
+      if(!raf) raf = requestAnimationFrame(update);
+      if(looping){
+        const max = c.scrollWidth - c.clientWidth;
+        const x = c.scrollLeft;
+        if(!guard && (x < 220 || x > max - 220)){ checkLoopBounds(true); return; }
+        clearTimeout(idleT);
+        idleT = setTimeout(checkLoopBounds, 90);
+      }
+    }, { passive: true });
+
+    c.addEventListener('touchstart', () => { touching = true; }, { passive: true });
+    const touchDone = () => {
+      touching = false;
+      if(looping){ clearTimeout(idleT); idleT = setTimeout(checkLoopBounds, 120); }
+    };
+    c.addEventListener('touchend', touchDone, { passive: true });
+    c.addEventListener('touchcancel', touchDone, { passive: true });
+
+    window.addEventListener('resize', () => {
+      if(Math.abs(window.innerWidth - lastW) < 5) return;
+      lastW = window.innerWidth;
+      const a = c.querySelector('.active');
+      if(a) centerOn(a, false);
+      update();
+    });
+
+    c.addEventListener('pointerdown', (e) => {
+      if(e.pointerType !== 'mouse' || e.button !== 0) return;
+      dragging = true;
+      moved = false;
+      sx = e.clientX;
+      sl = c.scrollLeft;
+      c.classList.add('dragging');
+    });
+
+    window.addEventListener('pointermove', (e) => {
+      if(!dragging) return;
+      const dx = e.clientX - sx;
+      if(Math.abs(dx) > 5) moved = true;
+      if(moved) c.scrollLeft = sl - dx;
+    });
+
+    window.addEventListener('pointerup', () => {
+      if(!dragging) return;
+      dragging = false;
+      c.classList.remove('dragging');
+      if(!moved) return;
+      suppress = true;
+      setTimeout(() => { suppress = false; }, 0);
+      update();
+      const a = c.querySelector('.active');
+      if(a) centerOn(a, true);
+    });
+
+    c.addEventListener('dragstart', (e) => e.preventDefault());
+
+    c.addEventListener('click', (e) => {
+      if(suppress){
+        e.preventDefault();
+        e.stopPropagation();
+        return;
+      }
+      const item = items().find(el => el.contains(e.target));
+      if(item && !item.classList.contains('active')){
+        e.preventDefault();
+        e.stopPropagation();
+        centerOn(item, true);
+      }
+    }, true);
+
+    c.addEventListener('keydown', (e) => {
+      if(e.key !== 'ArrowRight' && e.key !== 'ArrowLeft') return;
+      const els = items();
+      const i = els.findIndex(el => el.classList.contains('active'));
+      const next = els[i + (e.key === 'ArrowRight' ? 1 : -1)];
+      if(next){
+        e.preventDefault();
+        centerOn(next, true);
+      }
+    });
+
+    return { init };
+  }
+
+  const linksCarousel = setupCarousel(document.getElementById('links'));
+  const repoCarousel = setupCarousel(document.getElementById('repo-grid'));
+  linksCarousel.init();
+
+  const REPO_USER = 'g4zwr';
+  const EXCLUDED_REPOS = ['g4zwr', 'g4zwr.github.io'];
+  let allRepos = null;
+  let projectsRendered = false;
+
+  function escapeHTML(str){
+    const d = document.createElement('div');
+    d.textContent = str;
+    return d.innerHTML;
+  }
+
+  function timeAgo(dateStr){
+    const diff = Date.now() - new Date(dateStr).getTime();
+    const days = Math.floor(diff / 86400000);
+    if (days < 1) return 'today';
+    if (days === 1) return 'yesterday';
+    if (days < 30) return days + 'd ago';
+    const months = Math.floor(days / 30);
+    if (months < 12) return months + 'mo ago';
+    return Math.floor(months / 12) + 'y ago';
+  }
+
+  function licenseLabel(repo){
+    return repo.license && repo.license.name ? repo.license.name : 'no license';
+  }
+
+  function topicsHTML(repo){
+    const topics = repo.topics || [];
+    if(!topics.length) return '';
+    return `<div class="proj-topics">${topics.map(t => `<span class="topic-pill">${escapeHTML(t)}</span>`).join('')}</div>`;
+  }
+
+  function stripMarkdown(md){
+    return md
+      .replace(/```[\s\S]*?```/g, '')
+      .replace(/`([^`]+)`/g, '$1')
+      .replace(/!\[.*?\]\([^)]*\)/g, '')
+      .replace(/\[([^\]]+)\]\([^)]*\)/g, '$1')
+      .replace(/^#{1,6}\s+/gm, '')
+      .replace(/(\*\*|__)(.*?)\1/g, '$2')
+      .replace(/(\*|_)(.*?)\1/g, '$2')
+      .replace(/^>\s?/gm, '')
+      .replace(/^\s*[-*]{3,}\s*$/gm, '')
+      .replace(/\r/g, '')
+      .split('\n')
+      .filter(line => line.trim().length)
+      .join('\n')
+      .trim();
+  }
+
+  async function fetchReadmePreview(repoName, targetEl){
+    try{
+      const metaRes = await fetch(`https://api.github.com/repos/${REPO_USER}/${repoName}/readme`);
+      if(!metaRes.ok) throw new Error('no readme');
+      const meta = await metaRes.json();
+      const rawRes = await fetch(meta.download_url);
+      const raw = await rawRes.text();
+      const clean = stripMarkdown(raw);
+      if(!clean.length){
+        targetEl.textContent = 'README has no readable content.';
+        return;
+      }
+      const preview = clean.slice(0, 420);
+      targetEl.textContent = preview + (clean.length > 420 ? '…' : '');
+    }catch(err){
+      targetEl.textContent = 'no README found for this repo.';
+    }
+  }
+
+  function renderProjectsPage(){
+    const status = document.getElementById('projects-status');
+    const list = document.getElementById('projects-list');
+    if(projectsRendered) return;
+    if(allRepos === null){
+      status.hidden = false;
+      status.classList.remove('error');
+      status.innerHTML = '<span class="blink">fetching repos&hellip;</span>';
+      return;
+    }
+    if(allRepos === 'error'){
+      status.hidden = false;
+      status.classList.add('error');
+      status.textContent = 'could not load repos — rate limited or offline';
+      return;
+    }
+    if(!allRepos.length){
+      status.hidden = false;
+      status.classList.remove('error');
+      status.textContent = 'no public repos to show';
+      return;
+    }
+    status.hidden = true;
+    list.innerHTML = '';
+    projectsRendered = true;
+    allRepos.forEach((r, i) => {
+      const card = document.createElement('div');
+      card.className = 'proj-card';
+
+      const desc = r.description ? escapeHTML(r.description) : 'no description yet.';
+      const lang = r.language ? `<span><span class="lang-dot"></span>${escapeHTML(r.language)}</span>` : '';
+      const stars = r.stargazers_count ? `<span>★ ${r.stargazers_count}</span>` : '';
+      const forks = r.forks_count ? `<span>⑂ ${r.forks_count}</span>` : '';
+      const issues = r.open_issues_count ? `<span>◆ ${r.open_issues_count} open</span>` : '';
+      const size = r.size ? `<span>${(r.size / 1024).toFixed(1)}MB</span>` : '';
+      const updated = `<span>${timeAgo(r.updated_at)}</span>`;
+      const readmeId = `readme-body-${i}`;
+
+      card.innerHTML = `
+        <div class="proj-top">
+          <span class="proj-name"><a href="${r.html_url}" target="_blank" rel="noopener">${escapeHTML(r.name)}</a></span>
+          <span class="license-badge">${escapeHTML(licenseLabel(r))}</span>
+        </div>
+        <div class="proj-desc">${desc}</div>
+        ${topicsHTML(r)}
+        <div class="repo-meta">${lang}${stars}${forks}${issues}${size}${updated}</div>
+        <div class="proj-readme">
+          <div class="proj-readme-label">readme</div>
+          <div class="proj-readme-body" id="${readmeId}">loading readme&hellip;</div>
+        </div>
+        <div class="proj-links">
+          <a href="${r.html_url}" target="_blank" rel="noopener">view repo &rarr;</a>
+        </div>
+      `;
+      list.appendChild(card);
+      fetchReadmePreview(r.name, card.querySelector('#' + readmeId));
+    });
+  }
+
+  async function loadRepos(){
+    const grid = document.getElementById('repo-grid');
+    const status = document.getElementById('repo-status');
+    try{
+      const res = await fetch(`https://api.github.com/users/${REPO_USER}/repos?per_page=100&sort=updated`, {
+        headers: { 'Accept': 'application/vnd.github+json' }
+      });
+      if(!res.ok) throw new Error('GitHub API ' + res.status);
+      let repos = await res.json();
+
+      repos = repos
+        .filter(r => !r.fork)
+        .filter(r => !EXCLUDED_REPOS.includes(r.name.toLowerCase()))
+        .sort((a,b) => (b.stargazers_count - a.stargazers_count) || (new Date(b.updated_at) - new Date(a.updated_at)));
+
+      allRepos = repos;
+
+      if(!repos.length){
+        status.textContent = 'no public repos to show';
+        status.classList.remove('error');
+        renderProjectsPage();
+        return;
+      }
+
+      grid.innerHTML = '';
+      repos.forEach((r, i) => {
+        const card = document.createElement('div');
+        card.className = 'repo-card';
+        card.dataset.href = r.html_url;
+
+        const desc = r.description ? escapeHTML(r.description) : 'no description yet.';
+        const lang = r.language ? `<span><span class="lang-dot"></span>${escapeHTML(r.language)}</span>` : '';
+        const stars = r.stargazers_count ? `<span>★ ${r.stargazers_count}</span>` : '';
+        const forks = r.forks_count ? `<span>⑂ ${r.forks_count}</span>` : '';
+        const updated = `<span>${timeAgo(r.updated_at)}</span>`;
+
+        card.innerHTML = `
+          <div class="repo-top">
+            <span class="repo-name"><a href="${r.html_url}" target="_blank" rel="noopener">${escapeHTML(r.name)}</a></span>
+          </div>
+          <div class="repo-desc">${desc}</div>
+          <div class="repo-meta">${lang}${stars}${forks}${updated}</div>
+        `;
+        grid.appendChild(card);
+      });
+      status.hidden = true;
+      repoCarousel.init();
+      renderProjectsPage();
+    }catch(err){
+      status.classList.add('error');
+      status.textContent = 'could not load repos — rate limited or offline';
+      console.error(err);
+      allRepos = 'error';
+      renderProjectsPage();
+    }
+  }
+  loadRepos();
+
+  document.getElementById('repo-grid').addEventListener('click', (e) => {
+    if(e.target.closest('a')) return;
+    const card = e.target.closest('.repo-card');
+    if(!card || !card.dataset.href) return;
+    window.open(card.dataset.href, '_blank', 'noopener');
+  });
+
+  (function(){
+    const hamburger = document.getElementById('hamburger');
+    const sidebar = document.getElementById('sidebar');
+    const overlay = document.getElementById('sidebar-overlay');
+    const pageHome = document.getElementById('page');
+    const navEls = document.querySelectorAll('#sidebar a, .back-link, .route-link');
+    const DUR = 420;
+
+    try{
+      const redirectedPath = new URLSearchParams(location.search).get('p');
+      if(redirectedPath){
+        const redirectedURL = new URL(redirectedPath, location.origin);
+        history.replaceState(null, '', redirectedURL.pathname + redirectedURL.search + redirectedURL.hash);
+      }
+    }catch(err){ console.error(err); }
+
+    const ROUTES = ['projects', 'about', 'contact'];
+    const BASE = '/cute';
+    function pathToRoute(pathname){
+      // Strip the /cute prefix before matching, so the page resolves a route
+      // from /cute/contact exactly as it does from /contact. A bare /cute or a
+      // stray /cute/anything-unknown falls through to home, same as /.
+      let segs = pathname.replace(/^\/+|\/+$/g, '').split('/');
+      if(segs[0] === 'cute') segs = segs.slice(1);
+      const seg = segs[0] || '';
+      return ROUTES.includes(seg) ? seg : 'home';
+    }
+    function viewFor(route){
+      return route === 'home' ? pageHome : document.getElementById('view-' + route);
+    }
+
+    // aria-expanded tracks the state for the hamburger, which is now only one of
+    // three ways in (click, Escape, edge swipe) rather than the single one.
+    function openSidebar(){ sidebar.classList.add('open'); overlay.classList.add('open'); hamburger.classList.add('open'); hamburger.setAttribute('aria-expanded','true'); }
+    function closeSidebar(){ sidebar.classList.remove('open'); overlay.classList.remove('open'); hamburger.classList.remove('open'); hamburger.setAttribute('aria-expanded','false'); }
+    closeSidebar();
+
+    hamburger.addEventListener('click', () => {
+      sidebar.classList.contains('open') ? closeSidebar() : openSidebar();
+    });
+    overlay.addEventListener('click', closeSidebar);
+    window.addEventListener('keydown', (e) => {
+      if(e.key !== 'Escape') return;
+      // Escape toggles rather than only opening: it has to stay a way out of the
+      // drawer, otherwise a keyboard user opens it once and can never close it.
+      if(!document.body.classList.contains('entered')) return;   // the gate owns Escape until then
+      sidebar.classList.contains('open') ? closeSidebar() : openSidebar();
+    });
+
+    // Swipe right from the left edge to open, mirroring the drawer. The gesture
+    // is edge-constrained instead of screen-wide on purpose: the projects and
+    // contact carousels are full-bleed (margin: 0 calc(50% - 50vw)) with
+    // scrollable padding that reaches x=0, so a screen-wide swipe would fight
+    // them and text selection. Those strips are excluded explicitly. Opening
+    // only, in the direction the drawer travels; the overlay and the hamburger
+    // stay the way out.
+    const EDGE = 44, SWIPE_MIN = 48, SWIPE_MAX_MS = 900;
+    let sx = 0, sy = 0, st = 0, tracking = false;
+    window.addEventListener('touchstart', (e) => {
+      if(sidebar.classList.contains('open') || e.touches.length !== 1) { tracking = false; return; }
+      const t = e.touches[0];
+      if(t.clientX > EDGE) { tracking = false; return; }
+      if(e.target.closest && e.target.closest('.carousel')) { tracking = false; return; }
+      tracking = true; sx = t.clientX; sy = t.clientY; st = e.timeStamp;
+    }, { passive: true });
+    window.addEventListener('touchend', (e) => {
+      if(!tracking) return;
+      tracking = false;
+      if(e.timeStamp - st > SWIPE_MAX_MS) return;                 // a slow drag is not a swipe
+      const t = e.changedTouches[0];
+      if(!t) return;
+      const dx = t.clientX - sx, dy = t.clientY - sy;
+      if(dx > SWIPE_MIN && Math.abs(dy) < Math.abs(dx) * 0.7) openSidebar();
+    }, { passive: true });
+    window.addEventListener('touchcancel', () => { tracking = false; }, { passive: true });
+
+    let currentView = pageHome;
+    let currentRoute = 'home';
+    let animating = false;
+
+    function setActiveLink(route){
+      document.querySelectorAll('#sidebar a').forEach(a => {
+        a.classList.toggle('active-link', a.dataset.route === route);
+      });
+    }
+
+    // Views slide along the sidebar's reading order: moving forward pushes the
+    // old view left and brings the new one in from the right, and going back does
+    // the reverse. The rotation is small and opposite on each side, which is what
+    // sells the depth without tipping into a 3D card flip. A view that is wider
+    // than the viewport slides fully off-frame; a narrow one (or a phone) slides
+    // part of the way so its content stays readable part-way through the swap.
+    const ROUTE_ORDER = ['home', 'projects', 'about', 'contact'];
+    const narrowViewport = () => window.innerWidth < 720;
+    const travelFor = (el) => {
+      const far = Math.max(96, Math.min(window.innerWidth * 0.32, 340));
+      const isWide = el.offsetWidth > window.innerWidth * 0.92;
+      return (isWide || narrowViewport()) ? far : Math.min(far, 150);
+    };
+    const viewStyle = (dx, rot) =>
+      `translate3d(${dx}px, 0, 0) rotate(${rot}deg)`;
+    const viewTransition = `opacity ${DUR}ms cubic-bezier(0.16,1,0.3,1), transform ${DUR}ms cubic-bezier(0.16,1,0.3,1), filter ${DUR}ms cubic-bezier(0.16,1,0.3,1)`;
+
+    function crossFade(nextView, toRoute){
+      if(!nextView || nextView === currentView || animating) return;
+      animating = true;
+      const prevView = currentView;
+
+      // toRoute is passed in rather than read from currentRoute, because callers
+      // that assign currentRoute first (popstate) would otherwise always compare
+      // the destination against itself and fall back to "backward".
+      const from = ROUTE_ORDER.indexOf(currentRoute);
+      const to = ROUTE_ORDER.indexOf(toRoute);
+      const forward = from < 0 || to < 0 ? true : to > from;
+      const dir = forward ? 1 : -1;
+      // Incoming and outgoing views are almost always different widths, so the
+      // farther of the two distances is used; that way a narrow view sliding out
+      // is not left stranded mid-screen when a wide one is sliding in.
+      const travel = Math.max(travelFor(prevView), travelFor(nextView));
+      const outX = -dir * travel;
+      const inX = dir * travel;
+      const outRot = -dir * 1.6;
+      const inRot = dir * 1.6;
+
+      if(reduceMotion){
+        // A previous animated swap leaves an inline transition on both views, so
+        // it is cleared here too; otherwise opacity would still ease in.
+        prevView.style.transition = 'none';
+        prevView.style.opacity = '0';
+        nextView.style.transition = 'none';
+        setTimeout(() => {
+          prevView.style.display = 'none';
+          nextView.style.display = 'block';
+          nextView.style.opacity = '1';
+          nextView.style.transform = 'none';
+          nextView.style.filter = 'none';
+          nextView.style.pointerEvents = '';
+          currentView = nextView;
+          animating = false;
+          window.scrollTo(0, 0);
+        }, DUR);
+        return;
+      }
+
+      prevView.style.transition = viewTransition;
+      prevView.style.opacity = '0';
+      prevView.style.transform = viewStyle(outX, outRot);
+      prevView.style.filter = 'blur(10px)';
+      prevView.style.pointerEvents = 'none';
+
+      setTimeout(() => {
+        prevView.style.display = 'none';
+
+        nextView.style.display = 'block';
+        nextView.style.opacity = '0';
+        nextView.style.transform = viewStyle(inX, inRot);
+        nextView.style.filter = 'blur(10px)';
+        nextView.style.transition = 'none';
+        void nextView.offsetWidth;
+        nextView.style.transition = viewTransition;
+
+        requestAnimationFrame(() => requestAnimationFrame(() => {
+          nextView.style.opacity = '1';
+          nextView.style.transform = 'none';
+          nextView.style.filter = 'none';
+          nextView.style.pointerEvents = '';
+          animating = false;
+        }));
+
+        currentView = nextView;
+        window.scrollTo(0, 0);
+      }, DUR);
+    }
+
+    function showRoute(route, push){
+      const target = viewFor(route);
+      if(!target) return;
+      crossFade(target, route);
+      currentRoute = route;
+      setActiveLink(route);
+      if(route === 'projects') renderProjectsPage();
+      if(push) history.pushState({ route }, '', route === 'home' ? BASE + '/' : BASE + '/' + route);
+      closeSidebar();
+    }
+
+    navEls.forEach(a => {
+      a.addEventListener('click', (e) => {
+        e.preventDefault();
+        if(a.dataset.route === currentRoute){ closeSidebar(); return; }
+        showRoute(a.dataset.route, true);
+      });
+    });
+
+    window.addEventListener('popstate', (e) => {
+      const route = (e.state && e.state.route) || pathToRoute(location.pathname);
+      if(route === currentRoute) return;
+      crossFade(viewFor(route), route);
+      currentRoute = route;
+      setActiveLink(route);
+      if(route === 'projects') renderProjectsPage();
+    });
+
+    const initialRoute = pathToRoute(location.pathname);
+    if(initialRoute !== 'home'){
+      const target = viewFor(initialRoute);
+      if(target){
+        pageHome.style.display = 'none';
+        target.style.display = 'block';
+        target.style.opacity = '1';
+        target.style.transform = 'none';
+        currentView = target;
+        currentRoute = initialRoute;
+        setActiveLink(initialRoute);
+        if(initialRoute === 'projects') renderProjectsPage();
+      }
+    }
+  })();
 </script>
+
 </body>
 </html>
