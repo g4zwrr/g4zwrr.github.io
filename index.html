@@ -52,10 +52,21 @@
   }
   a:focus-visible, button:focus-visible{ outline:2px solid var(--accent); outline-offset:3px; }
 
-  #matrix-bg{
+  #sky{
     position:fixed;
     inset:0;
     z-index:-2;
+    pointer-events:none;
+    opacity:0;
+    transition:opacity 3.2s ease 0.9s;
+  }
+  #sky.on{ opacity:1; }
+  #sky.gone{ opacity:0; transition:opacity 1.1s ease; }
+
+  #matrix-bg{
+    position:fixed;
+    inset:0;
+    z-index:-3;
     background:#000000;
     filter:blur(3px);
     transform:scale(1.05);
@@ -72,6 +83,8 @@
     filter:blur(3px);
     opacity:0;
     transition:opacity 2.4s ease 0.4s;
+    -webkit-mask-image:linear-gradient(to bottom, transparent 0, #000 7px, #000 72%, transparent 100%);
+    mask-image:linear-gradient(to bottom, transparent 0, #000 7px, #000 72%, transparent 100%);
   }
   #visualizer.on{ opacity:0.92; }
 
@@ -210,7 +223,14 @@
     color:transparent;
     -webkit-text-stroke:1px rgba(255,255,255,0.2);
     transform:translate(0.028em, 0.028em);
+    /* The real glyphs are .ch spans that start at opacity 0, so the stroked
+       ghost is the only thing visible before entry. It has to stay hidden
+       until the letters land, otherwise the blurred page shows a bare
+       "g4zwr" outline with nothing behind it. */
+    opacity:0;
+    transition:opacity 0.9s ease 0.5s;
   }
+  body.entered .hero h1::after{ opacity:1; }
   .hero h1 .ch{
     display:inline-block;
     opacity:0;
@@ -336,16 +356,24 @@
   }
   body.entered .made-with{ opacity:1; transition-delay:4.4s; }
 
+  /* Directional reveal. Each element gets a --rx/--ry offset and a --rr spin
+     assigned by the observer, so sections arrive from a different edge and
+     unwind as they land. Teardown reverses the same vector, which is what makes
+     the motion read as reversible rather than as a one-shot fade. */
   .reveal{
     opacity:0;
-    transform:translateY(28px);
+    transform:translate3d(var(--rx, 0px), var(--ry, 28px), 0) rotate(var(--rr, 0deg));
     filter:blur(6px);
     transition:
       opacity 1s cubic-bezier(0.16,1,0.3,1),
-      transform 1s cubic-bezier(0.16,1,0.3,1),
+      transform 1.05s cubic-bezier(0.16,1,0.3,1),
       filter 0.9s ease;
   }
-  .reveal.show{ opacity:1; transform:translateY(0); filter:none; }
+  .reveal.show{
+    opacity:1;
+    transform:translate3d(0, 0, 0) rotate(0deg);
+    filter:none;
+  }
 
   section{ padding:88px 0; border-top:1px solid var(--line); }
   .wrap > section:first-child{ border-top:none; padding-top:0; }
@@ -465,16 +493,28 @@
   .carousel:empty{ display:none; }
   .carousel.dragging{ scroll-snap-type:none; cursor:grabbing; }
   .carousel:focus-visible{ outline:2px solid var(--accent); outline-offset:-6px; }
+  /* --t is distance from the carousel centre, --s is the SIGNED version, so the
+     deck can fan: cards on the right tilt clockwise and sink, cards on the left
+     tilt counter-clockwise. Scroll position therefore drives the rotation
+     continuously rather than snapping between states. */
   .carousel > *{
     flex:0 0 var(--cw);
     width:var(--cw);
     scroll-snap-align:center;
-    transform:scale(calc(1.12 - var(--t, 1) * 0.24));
+    transform:
+      translateY(calc(var(--t, 1) * 10px))
+      rotate(calc(var(--s, 0) * -5deg))
+      scale(calc(1.12 - var(--t, 1) * 0.24));
     opacity:calc(1 - var(--t, 1) * 0.6);
     transition:border-color 0.3s ease, background 0.3s ease, color 0.3s ease;
   }
   .carousel.nojump > *, .carousel.nojump > *::before{ transition:none !important; }
-  .carousel > .repo-card:hover{ transform:scale(calc(1.12 - var(--t, 1) * 0.24)); }
+  .carousel > .repo-card:hover{
+    transform:
+      translateY(calc(var(--t, 1) * 10px))
+      rotate(calc(var(--s, 0) * -5deg))
+      scale(calc(1.12 - var(--t, 1) * 0.24));
+  }
   .carousel > .repo-card:not(.active):hover::before{ transform:scaleX(0); }
   .repo-card.active{ border-color:var(--line-active); background:var(--bg-panel-active); }
   .repo-card.active::before{ transform:scaleX(1); }
@@ -743,6 +783,11 @@
     .scroll-cue{ transform:translateX(-50%); }
     .made-with{ transform:translateX(-50%); }
     #page{ filter:none; }
+    /* the carousel fan is scroll-linked, so dropping the rotation and sink is
+       what reduced-motion needs; the scale/opacity depth cue is kept. */
+    .carousel > *, .carousel > .repo-card:hover{
+      transform:scale(calc(1.12 - var(--t, 1) * 0.24));
+    }
     .hero h1 .ch.glitch,
     .chevrons span,
     .caret,
@@ -755,6 +800,7 @@
 </head>
 <body>
 
+<canvas id="sky"></canvas>
 <canvas id="matrix-bg"></canvas>
 <canvas id="visualizer"></canvas>
 <div id="progress"></div>
@@ -1031,8 +1077,13 @@
   window.addEventListener('resize', () => setupMatrix(false));
 
   let lastMatrix = 0;
+  // The rain stays black until the site is entered. The canvas still exists and
+  // is sized, but it is not painted, so the pre-entry screen is just the black
+  // plate rather than moving characters behind the blurred overlay.
+  let matrixRunning = false;
   function drawMatrix(t){
     requestAnimationFrame(drawMatrix);
+    if(!matrixRunning) return;
     if(document.hidden) return;
     if(t - lastMatrix < 45) return;
     lastMatrix = t;
@@ -1053,24 +1104,32 @@
     }
     ctx.globalAlpha = 1;
   }
-  if(!reduceMotion) requestAnimationFrame(drawMatrix);
+  function startMatrix(){
+    if(reduceMotion || matrixRunning) return;
+    matrixRunning = true;
+    requestAnimationFrame(drawMatrix);
+  }
 
   const vcanvas = document.getElementById('visualizer');
   const vctx = vcanvas.getContext('2d');
-  let vPrevW = 0;
+  let vPrevW = 0, vPrevH = 0;
+  let vRaf = 0;
   let burstCooldown = 0;
   let prevEnergy = 0;
   let bursts = [];
 
-  function setupVisualizerCanvas(){
+  const VIS_H = 140;
+
+  function setupVisualizerCanvas(force){
     const nw = window.innerWidth;
-    if(Math.abs(nw - vPrevW) < 5) return;
+    if(!force && Math.abs(nw - vPrevW) < 5 && Math.abs(VIS_H - vPrevH) < 1) return;
     vPrevW = nw;
+    vPrevH = VIS_H;
     vcanvas.width = nw;
-    vcanvas.height = 140;
+    vcanvas.height = VIS_H;
   }
   setupVisualizerCanvas();
-  window.addEventListener('resize', setupVisualizerCanvas);
+  window.addEventListener('resize', () => setupVisualizerCanvas(false));
 
   let audioCtx, analyser, dataArray, bufferLength, sourceNode, gainNode, toneNode, limiter;
 
@@ -1195,9 +1254,10 @@
   }
 
   function drawVisualizer(){
-    requestAnimationFrame(drawVisualizer);
+    vRaf = requestAnimationFrame(drawVisualizer);
+    if(document.hidden) return;
     vctx.clearRect(0, 0, vcanvas.width, vcanvas.height);
-    if(!analyser || document.hidden) return;
+    if(!analyser) return;
     analyser.getByteFrequencyData(dataArray);
 
     const fontSize = 14;
@@ -1230,7 +1290,8 @@
       const normalized = peak / 255;
       const boosted = Math.pow(normalized, 0.55);
       const jitter = 0.85 + Math.random() * 0.3;
-      const charCount = Math.round(boosted * jitter * (vcanvas.height / fontSize));
+      const maxRows = Math.max(1, Math.floor(vcanvas.height / fontSize));
+      const charCount = Math.max(1, Math.min(maxRows, Math.round(boosted * jitter * maxRows)));
 
       const x = i * colWidth + colWidth / 2;
       for(let c = 0; c < charCount; c++){
@@ -1246,7 +1307,7 @@
     for(let i = bursts.length - 1; i >= 0; i--){
       const burst = bursts[i];
       const x = burst.col * colWidth + colWidth / 2;
-      const charCount = Math.round((burst.life / 14) * (vcanvas.height / fontSize));
+      const charCount = Math.round((burst.life / 14) * maxRows);
       for(let c = 0; c < charCount; c++){
         const y = c * fontSize + fontSize;
         const fade = 1 - (c / Math.max(charCount, 1));
@@ -1262,6 +1323,20 @@
     vctx.globalAlpha = 1;
   }
   requestAnimationFrame(drawVisualizer);
+
+  // A background tab gets its AudioContext throttled, so the analyser returns
+  // stale or zeroed bins and no resize event fires while hidden. On return:
+  // re-measure the backing store, clear the transient burst state so the first
+  // frame is not a false spike, and resume a suspended context.
+  document.addEventListener('visibilitychange', () => {
+    if(document.hidden) return;
+    setupVisualizerCanvas(true);
+    prevEnergy = 0;
+    bursts.length = 0;
+    burstCooldown = 0;
+    lastMediaTime = 0;
+    if(audioCtx && audioCtx.state === 'suspended') audioCtx.resume();
+  });
 
   const page = document.getElementById('page');
   const matrixBg = document.getElementById('matrix-bg');
@@ -1370,6 +1445,8 @@
     document.body.classList.add('entered');
     enterHint.classList.add('hidden');
     vcanvas.classList.add('on');
+    startMatrix();
+    if(sky) sky.reveal();
     soundToggle.classList.add('visible');
 
     unblurPage();
@@ -1402,6 +1479,328 @@
     }
   });
 
+  /* ── 3D sky: scroll-driven starfield + moon (raw WebGL, no deps) ─────────── */
+  const sky = (function(){
+    const cv = document.getElementById('sky');
+    if(!cv) return null;
+    let gl = null;
+    try{
+      gl = cv.getContext('webgl', { alpha:true, antialias:false, depth:true, powerPreference:'low-power' })
+       || cv.getContext('experimental-webgl');
+    }catch(e){ gl = null; }
+    if(!gl) return null;
+
+    const clamp = (v,a,b) => v < a ? a : v > b ? b : v;
+
+    function sh(type, src){
+      const s = gl.createShader(type);
+      gl.shaderSource(s, src);
+      gl.compileShader(s);
+      if(!gl.getShaderParameter(s, gl.COMPILE_STATUS)){
+        console.warn('[sky] shader:', gl.getShaderInfoLog(s));
+        return null;
+      }
+      return s;
+    }
+    function build(vsSrc, fsSrc){
+      const v = sh(gl.VERTEX_SHADER, vsSrc), f = sh(gl.FRAGMENT_SHADER, fsSrc);
+      if(!v || !f) return null;
+      const p = gl.createProgram();
+      gl.attachShader(p, v); gl.attachShader(p, f);
+      gl.linkProgram(p);
+      gl.deleteShader(v); gl.deleteShader(f);
+      if(!gl.getProgramParameter(p, gl.LINK_STATUS)){
+        console.warn('[sky] link:', gl.getProgramInfoLog(p));
+        return null;
+      }
+      const u = {};
+      const n = gl.getProgramParameter(p, gl.ACTIVE_UNIFORMS);
+      for(let i=0;i<n;i++){
+        const info = gl.getActiveUniform(p, i);
+        u[info.name.replace('[0]','')] = gl.getUniformLocation(p, info.name);
+      }
+      return { p, u };
+    }
+
+    const starProg = build(
+      'attribute vec3 aPos;attribute float aSize;attribute float aPhase;'+
+      'uniform mat4 uProj,uView;uniform float uTime,uPix;varying float vA;'+
+      'void main(){'+
+      'vec4 vp=uView*vec4(aPos,1.0);gl_Position=uProj*vp;'+
+      'float d=max(-vp.z,1.0);'+
+      'gl_PointSize=min(3.4*uPix,aSize*(250.0/d));'+
+      'float tw=0.66+0.34*sin(uTime*(0.45+fract(aPhase)*1.6)+aPhase*6.2831);'+
+      'float fog=1.0-smoothstep(900.0,3900.0,d);'+
+      'vA=tw*fog;}',
+
+      'precision mediump float;varying float vA;'+
+      'void main(){float r=length(gl_PointCoord-0.5);'+
+      'float a=smoothstep(0.5,0.04,r);'+
+      'if(a*vA<0.004)discard;gl_FragColor=vec4(vec3(1.0),a*vA);}'
+    );
+
+    const moonProg = build(
+      'attribute vec3 aPos;attribute vec3 aNorm;'+
+      'uniform mat4 uProj,uView,uModel;uniform mat3 uNrm;'+
+      'varying vec3 vN;varying float vNz;'+
+      'void main(){vec4 wp=uModel*vec4(aPos,1.0);vec4 vp=uView*wp;'+
+      'vN=uNrm*aNorm;vNz=vN.z;gl_Position=uProj*vp;}',
+
+      'precision mediump float;varying vec3 vN;varying float vNz;uniform vec3 uLight;'+
+      'float h31(vec3 p){return fract(sin(dot(p,vec3(127.1,311.7,74.7)))*43758.5453);}'+
+      'float vnoise(vec3 p){vec3 i=floor(p),f=fract(p);f=f*f*(3.0-2.0*f);'+
+      'return mix(mix(mix(h31(i),h31(i+vec3(1,0,0)),f.x),mix(h31(i+vec3(0,1,0)),h31(i+vec3(1,1,0)),f.x),f.y),'+
+      'mix(mix(h31(i+vec3(0,0,1)),h31(i+vec3(1,0,1)),f.x),mix(h31(i+vec3(0,1,1)),h31(i+vec3(1,1,1)),f.x),f.y),f.z);}'+
+      'void main(){vec3 n=normalize(vN);'+
+      'float lam=max(dot(n,normalize(uLight)),0.0);'+
+      'float lit=smoothstep(-0.05,0.44,lam);'+
+      'float limb=pow(max(vNz,0.0),0.30);'+
+      'float m=vnoise(n*6.0)*0.55+vnoise(n*17.0)*0.28+vnoise(n*41.0)*0.14;'+
+      'float albedo=0.80+(m-0.5)*0.44;'+
+      'vec3 col=vec3(1.0)*lit*albedo*(0.40+0.60*limb);'+
+      'col+=vec3(0.052,0.057,0.068)*(1.0-lit);'+
+      'gl_FragColor=vec4(col,smoothstep(0.0,0.085,vNz));}'
+    );
+    if(!starProg || !moonProg){ return null; }
+
+    /* geometry */
+    const NARROW = window.innerWidth < 760;
+    const STAR_N = NARROW ? 520 : 1150;
+    const BANDF = 0.27;
+    const starPos = new Float32Array(STAR_N*3);
+    const starSize = new Float32Array(STAR_N);
+    const starPhase = new Float32Array(STAR_N);
+    let gaussSpare = null;
+    function gauss(){
+      if(gaussSpare !== null){ const g = gaussSpare; gaussSpare = null; return g; }
+      let u = 0, v = 0;
+      while(u === 0) u = Math.random();
+      while(v === 0) v = Math.random();
+      const m = Math.sqrt(-2*Math.log(u));
+      gaussSpare = m * Math.sin(2*Math.PI*v);
+      return m * Math.cos(2*Math.PI*v);
+    }
+    for(let i=0;i<STAR_N;i++){
+      const z = -120 - Math.pow(Math.random(), 0.72) * 3880;
+      let x, y;
+      if(i % 4 === 0){                       // galactic band, gives the sky structure
+        x = (Math.random()*2-1) * 1500;
+        y = x * BANDF + gauss() * 290;
+      }else{
+        x = (Math.random()*2-1) * 1500;
+        y = (Math.random()*2-1) * 880;
+      }
+      starPos[i*3] = x; starPos[i*3+1] = y; starPos[i*3+2] = z;
+      const bright = Math.pow(Math.random(), 3.1);   // few bright, many faint
+      starSize[i] = 0.9 + bright * 3.4;
+      starPhase[i] = Math.random();
+    }
+    const starBuf = gl.createBuffer();
+    gl.bindBuffer(gl.ARRAY_BUFFER, starBuf);
+    gl.bufferData(gl.ARRAY_BUFFER, starPos, gl.STATIC_DRAW);
+
+    const LAT = 26, LON = 40, MOON_R = 262;
+    const mPos = [], mNrm = [], mIdx = [];
+    for(let i=0;i<=LAT;i++){
+      const phi = (i/LAT) * Math.PI, sp = Math.sin(phi), cp = Math.cos(phi);
+      for(let j=0;j<=LON;j++){
+        const th = (j/LON) * Math.PI * 2;
+        const x = sp*Math.cos(th), y = cp, z = sp*Math.sin(th);
+        mPos.push(x*MOON_R, y*MOON_R, z*MOON_R);
+        mNrm.push(x, y, z);
+      }
+    }
+    for(let i=0;i<LAT;i++) for(let j=0;j<LON;j++){
+      const a = i*(LON+1)+j, b = a+LON+1;
+      mIdx.push(a,b,a+1, a+1,b,b+1);
+    }
+    const moonBuf = gl.createBuffer();
+    gl.bindBuffer(gl.ARRAY_BUFFER, moonBuf);
+    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(mPos), gl.STATIC_DRAW);
+    const moonNrm = gl.createBuffer();
+    gl.bindBuffer(gl.ARRAY_BUFFER, moonNrm);
+    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(mNrm), gl.STATIC_DRAW);
+    const moonIdx = gl.createBuffer();
+    gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, moonIdx);
+    gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, new Uint16Array(mIdx), gl.STATIC_DRAW);
+    const MOON_COUNT = mIdx.length;
+
+    const sSize = gl.createBuffer();
+    gl.bindBuffer(gl.ARRAY_BUFFER, sSize);
+    gl.bufferData(gl.ARRAY_BUFFER, starSize, gl.STATIC_DRAW);
+    const sPhase = gl.createBuffer();
+    gl.bindBuffer(gl.ARRAY_BUFFER, sPhase);
+    gl.bufferData(gl.ARRAY_BUFFER, starPhase, gl.STATIC_DRAW);
+
+    /* mat4 */
+    const m4 = () => new Float32Array(16);
+    function persp(o, fovy, asp, n, f){
+      const t = 1/Math.tan(fovy/2), nf = 1/(n-f);
+      o.fill(0);
+      o[0]=t/asp; o[5]=t; o[10]=(f+n)*nf; o[11]=-1; o[14]=2*f*n*nf;
+      return o;
+    }
+    function lookAt(o, e, c, up){
+      let zx=e[0]-c[0], zy=e[1]-c[1], zz=e[2]-c[2];
+      let l=1/(Math.hypot(zx,zy,zz)||1); zx*=l; zy*=l; zz*=l;
+      let xx=up[1]*zz-up[2]*zy, xy=up[2]*zx-up[0]*zz, xz=up[0]*zy-up[1]*zx;
+      l=Math.hypot(xx,xy,xz); l=l?1/l:0; xx*=l; xy*=l; xz*=l;
+      const yx=zy*xz-zz*xy, yy=zz*xx-zx*xz, yz=zx*xy-zy*xx;
+      o[0]=xx; o[1]=yx; o[2]=zx; o[3]=0;
+      o[4]=xy; o[5]=yy; o[6]=zy; o[7]=0;
+      o[8]=xz; o[9]=yz; o[10]=zz; o[11]=0;
+      o[12]=-(xx*e[0]+xy*e[1]+xz*e[2]);
+      o[13]=-(yx*e[0]+yy*e[1]+yz*e[2]);
+      o[14]=-(zx*e[0]+zy*e[1]+zz*e[2]);
+      o[15]=1;
+      return o;
+    }
+    function trs(o, tx, ty, tz, ry, s){
+      const c=Math.cos(ry), n=Math.sin(ry);
+      o[0]=c*s; o[1]=0; o[2]=-n*s; o[3]=0;
+      o[4]=0; o[5]=s; o[6]=0; o[7]=0;
+      o[8]=n*s; o[9]=0; o[10]=c*s; o[11]=0;
+      o[12]=tx; o[13]=ty; o[14]=tz; o[15]=1;
+      return o;
+    }
+    function nrm3(o, m){
+      o[0]=m[0]; o[1]=m[1]; o[2]=m[2];
+      o[3]=m[4]; o[4]=m[5]; o[5]=m[6];
+      o[6]=m[8]; o[7]=m[9]; o[8]=m[10];
+      return o;
+    }
+    const P = m4(), V = m4(), M = m4(), N = new Float32Array(9);
+    const MOON_Z = -2200;
+    // The moon is authored in NDC and converted to world space on resize, so it
+    // keeps the same screen position on any aspect ratio. The camera's forward
+    // travel then supplies the parallax, drifting it inward as you scroll.
+    const MOON = [0, 0, MOON_Z];
+    const TRAVEL = 520;
+    const FOV = Math.PI / 3;
+    const LIGHT = new Float32Array([-0.42, 0.34, 0.84]);
+
+    let W = 0, H = 0, DPR = 1;
+    function resize(){
+      DPR = Math.min(window.devicePixelRatio || 1, 1.5);
+      W = Math.max(1, Math.round(window.innerWidth  * DPR));
+      H = Math.max(1, Math.round(window.innerHeight * DPR));
+      if(cv.width !== W || cv.height !== H){ cv.width = W; cv.height = H; }
+      gl.viewport(0, 0, W, H);
+      const asp = window.innerWidth / Math.max(1, window.innerHeight);
+      const narrow = asp < 1.1;
+      const t = 1 / Math.tan(FOV / 2);
+      const dist = -MOON_Z;                     // camera at z=0, the widest case
+      MOON[0] = (narrow ? 0.46 : 0.40) * dist * asp / t;
+      MOON[1] = (narrow ? 0.50 : 0.41) * dist / t;
+    }
+    resize();
+    window.addEventListener('resize', resize);
+
+    let t0 = 0, running = false, lost = false, revealed = false;
+    let lastY = window.scrollY, leadX = 0, leadY = 0, frame = 0;
+    const FRAME_MS = 1000 / 30;
+
+    window.addEventListener('scroll', () => {
+      const y = window.scrollY;
+      const dy = y - lastY;
+      lastY = y;
+      leadY = clamp(leadY + dy * 0.55, -95, 95);
+      leadX = clamp(leadX + dy * 0.20, -70, 70);
+    }, { passive: true });
+
+    function render(now){
+      if(!running) return;
+      if(!reduceMotion && now - t0 < FRAME_MS){ requestAnimationFrame(render); return; }
+      t0 = now;
+      if(document.hidden) return;
+      leadY *= 0.94; leadX *= 0.94;
+
+      const doc = document.documentElement;
+      const max = Math.max(1, doc.scrollHeight - window.innerHeight);
+      const p = clamp(window.scrollY / max, 0, 1);
+      const camZ = p * TRAVEL;
+      const tt = now * 0.001;
+      const bob = reduceMotion ? 0 : Math.sin(tt * 0.14) * 14;
+
+      persp(P, FOV, W / H, 1, 12000);
+      lookAt(V, [leadX * 0.5, leadY * 0.5 + bob, camZ], [leadX, leadY + bob, camZ - 1], [0, 1, 0]);
+      trs(M, MOON[0], MOON[1], MOON[2], tt * 0.02, 1);
+      nrm3(N, M);
+
+      gl.clearColor(0, 0, 0, 0);
+      gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
+      gl.enable(gl.DEPTH_TEST);
+      gl.depthFunc(gl.LEQUAL);
+      gl.disable(gl.CULL_FACE);
+
+      /* moon: opaque-ish, writes depth so stars behind it are occulted */
+      gl.useProgram(moonProg.p);
+      gl.uniformMatrix4fv(moonProg.u.uProj, false, P);
+      gl.uniformMatrix4fv(moonProg.u.uView, false, V);
+      gl.uniformMatrix4fv(moonProg.u.uModel, false, M);
+      gl.uniformMatrix3fv(moonProg.u.uNrm, false, N);
+      gl.uniform3fv(moonProg.u.uLight, LIGHT);
+      gl.enable(gl.BLEND);
+      gl.blendFuncSeparate(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA, gl.ONE, gl.ONE_MINUS_SRC_ALPHA);
+      gl.depthMask(true);
+      gl.bindBuffer(gl.ARRAY_BUFFER, moonBuf);
+      gl.enableVertexAttribArray(0); gl.vertexAttribPointer(0, 3, gl.FLOAT, false, 0, 0);
+      gl.bindBuffer(gl.ARRAY_BUFFER, moonNrm);
+      gl.enableVertexAttribArray(1); gl.vertexAttribPointer(1, 3, gl.FLOAT, false, 0, 0);
+      gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, moonIdx);
+      gl.drawElements(gl.TRIANGLES, MOON_COUNT, gl.UNSIGNED_SHORT, 0);
+
+      /* stars: additive, depth-tested but not depth-writing */
+      gl.useProgram(starProg.p);
+      gl.uniformMatrix4fv(starProg.u.uProj, false, P);
+      gl.uniformMatrix4fv(starProg.u.uView, false, V);
+      gl.uniform1f(starProg.u.uTime, tt);
+      gl.uniform1f(starProg.u.uPix, DPR);
+      gl.blendFunc(gl.SRC_ALPHA, gl.ONE);
+      gl.depthMask(false);
+      gl.bindBuffer(gl.ARRAY_BUFFER, starBuf);
+      gl.enableVertexAttribArray(0); gl.vertexAttribPointer(0, 3, gl.FLOAT, false, 0, 0);
+      gl.bindBuffer(gl.ARRAY_BUFFER, sSize);
+      gl.enableVertexAttribArray(1); gl.vertexAttribPointer(1, 1, gl.FLOAT, false, 0, 0);
+      gl.bindBuffer(gl.ARRAY_BUFFER, sPhase);
+      gl.enableVertexAttribArray(2); gl.vertexAttribPointer(2, 1, gl.FLOAT, false, 0, 0);
+      gl.drawArrays(gl.POINTS, 0, STAR_N);
+      gl.depthMask(true);
+      gl.disable(gl.BLEND);
+    }
+
+    function loop(now){
+      if(!running) return;
+      render(now);
+      if(!reduceMotion) requestAnimationFrame(loop);
+    }
+    function start(){
+      if(running || lost) return;
+      running = true; t0 = 0;
+      if(reduceMotion){ render(performance.now() + FRAME_MS); return; }
+      requestAnimationFrame(loop);
+    }
+    function stop(){ running = false; }
+
+    // Both resumers below can fire before the site is entered (a tab switch, a
+    // driver reset), so they check `revealed` first. Otherwise the sky would
+    // start rendering behind the blurred pre-entry screen.
+    document.addEventListener('visibilitychange', () => {
+      if(document.hidden) stop(); else if(revealed) start();
+    });
+    cv.addEventListener('webglcontextlost', e => { e.preventDefault(); lost = true; stop(); });
+    cv.addEventListener('webglcontextrestored', () => { lost = false; if(revealed) start(); });
+
+    return {
+      reveal(){
+        if(revealed) return;
+        revealed = true;
+        cv.classList.add('on');
+        start();
+      }
+    };
+  })();
+
   let scrollTick = false;
   function onScroll(){
     const y = window.scrollY;
@@ -1419,18 +1818,55 @@
   topBtn.addEventListener('click', () => window.scrollTo({ top: 0, behavior: 'smooth' }));
 
   const revealEls = document.querySelectorAll('.reveal');
+
+  // Where a reveal enters from: the side it sits on (left/right columns) or the
+  // scroll direction for full-width blocks. A stable per-element seed keeps the
+  // axis from flip-flopping on every re-entry, which reads as jitter.
+  const revealSeed = new WeakMap();
+  revealEls.forEach((el, i) => revealSeed.set(el, i));
+  let revealScrollDir = 1;
+  let revealLastY = window.scrollY;
+  window.addEventListener('scroll', () => {
+    const y = window.scrollY;
+    if (y !== revealLastY) revealScrollDir = y > revealLastY ? 1 : -1;
+    revealLastY = y;
+  }, { passive: true });
+
+  const DIRS = {
+    left:  { rx: '-46px', ry: '0px',   rr: '-2.4deg' },
+    right: { rx: '46px',  ry: '0px',   rr: '2.4deg' },
+    down:  { rx: '0px',   ry: '34px',  rr: '0deg' },
+    up:    { rx: '0px',   ry: '-34px', rr: '0deg' },
+  };
+  function pickDir(el, seed){
+    const wide = el.offsetWidth > window.innerWidth * 0.7;
+    if (wide) return revealScrollDir > 0 ? 'down' : 'up';
+    // alternate columns, but follow the scroll axis for anything centred
+    return seed % 2 === 0 ? 'left' : 'right';
+  }
+
   const io = new IntersectionObserver((entries) => {
     let n = 0;
     entries.forEach((entry) => {
       const el = entry.target;
       if (entry.intersectionRatio >= 0.15) {
         if (el.classList.contains('show') || el._rt) return;
+        const d = DIRS[pickDir(el, revealSeed.get(el))];
+        el.style.setProperty('--rx', d.rx);
+        el.style.setProperty('--ry', d.ry);
+        el.style.setProperty('--rr', d.rr);
         el._rt = setTimeout(() => {
           el._rt = 0;
           el.classList.add('show');
           el._st = setTimeout(() => el.classList.add('settled'), 1100);
         }, Math.min(n++, 8) * 90);
-      } else if (entry.boundingClientRect.top > window.innerHeight / 2) {
+      } else {
+        // Only tear down once the element has fully left the viewport, in either
+        // direction. Testing `top` alone left sections stuck in the revealed
+        // state when scrolling back up, because their top goes negative.
+        const r = entry.boundingClientRect;
+        const gone = r.bottom < 0 || r.top > window.innerHeight;
+        if (!gone) return;
         clearTimeout(el._rt);
         clearTimeout(el._st);
         el._rt = 0;
@@ -1455,8 +1891,10 @@
       const mid = c.scrollLeft + c.clientWidth / 2;
       let best = els[0], bestD = Infinity;
       els.forEach(el => {
-        const d = Math.abs(el.offsetLeft + el.offsetWidth / 2 - mid);
+        const signed = (el.offsetLeft + el.offsetWidth / 2 - mid) / step;
+        const d = Math.abs(signed) * step;
         el.style.setProperty('--t', Math.min(d / step, 1).toFixed(3));
+        el.style.setProperty('--s', Math.max(-1, Math.min(1, signed)).toFixed(3));
         if(d < bestD){ bestD = d; best = el; }
       });
       els.forEach(el => el.classList.toggle('active', el === best));
@@ -1846,14 +2284,67 @@
       });
     }
 
-    function crossFade(nextView){
+    // Views slide along the sidebar's reading order: moving forward pushes the
+    // old view left and brings the new one in from the right, and going back does
+    // the reverse. The rotation is small and opposite on each side, which is what
+    // sells the depth without tipping into a 3D card flip. A view that is wider
+    // than the viewport slides fully off-frame; a narrow one (or a phone) slides
+    // part of the way so its content stays readable part-way through the swap.
+    const ROUTE_ORDER = ['home', 'projects', 'about', 'contact'];
+    const narrowViewport = () => window.innerWidth < 720;
+    const travelFor = (el) => {
+      const far = Math.max(96, Math.min(window.innerWidth * 0.32, 340));
+      const isWide = el.offsetWidth > window.innerWidth * 0.92;
+      return (isWide || narrowViewport()) ? far : Math.min(far, 150);
+    };
+    const viewStyle = (dx, rot) =>
+      `translate3d(${dx}px, 0, 0) rotate(${rot}deg)`;
+    const viewTransition = `opacity ${DUR}ms cubic-bezier(0.16,1,0.3,1), transform ${DUR}ms cubic-bezier(0.16,1,0.3,1), filter ${DUR}ms cubic-bezier(0.16,1,0.3,1)`;
+
+    function crossFade(nextView, toRoute){
       if(!nextView || nextView === currentView || animating) return;
       animating = true;
       const prevView = currentView;
 
-      prevView.style.transition = `opacity ${DUR}ms cubic-bezier(0.16,1,0.3,1), transform ${DUR}ms cubic-bezier(0.16,1,0.3,1), filter ${DUR}ms cubic-bezier(0.16,1,0.3,1)`;
+      // toRoute is passed in rather than read from currentRoute, because callers
+      // that assign currentRoute first (popstate) would otherwise always compare
+      // the destination against itself and fall back to "backward".
+      const from = ROUTE_ORDER.indexOf(currentRoute);
+      const to = ROUTE_ORDER.indexOf(toRoute);
+      const forward = from < 0 || to < 0 ? true : to > from;
+      const dir = forward ? 1 : -1;
+      // Incoming and outgoing views are almost always different widths, so the
+      // farther of the two distances is used; that way a narrow view sliding out
+      // is not left stranded mid-screen when a wide one is sliding in.
+      const travel = Math.max(travelFor(prevView), travelFor(nextView));
+      const outX = -dir * travel;
+      const inX = dir * travel;
+      const outRot = -dir * 1.6;
+      const inRot = dir * 1.6;
+
+      if(reduceMotion){
+        // A previous animated swap leaves an inline transition on both views, so
+        // it is cleared here too; otherwise opacity would still ease in.
+        prevView.style.transition = 'none';
+        prevView.style.opacity = '0';
+        nextView.style.transition = 'none';
+        setTimeout(() => {
+          prevView.style.display = 'none';
+          nextView.style.display = 'block';
+          nextView.style.opacity = '1';
+          nextView.style.transform = 'none';
+          nextView.style.filter = 'none';
+          nextView.style.pointerEvents = '';
+          currentView = nextView;
+          animating = false;
+          window.scrollTo(0, 0);
+        }, DUR);
+        return;
+      }
+
+      prevView.style.transition = viewTransition;
       prevView.style.opacity = '0';
-      prevView.style.transform = 'translateY(-14px)';
+      prevView.style.transform = viewStyle(outX, outRot);
       prevView.style.filter = 'blur(10px)';
       prevView.style.pointerEvents = 'none';
 
@@ -1862,11 +2353,11 @@
 
         nextView.style.display = 'block';
         nextView.style.opacity = '0';
-        nextView.style.transform = 'translateY(14px)';
+        nextView.style.transform = viewStyle(inX, inRot);
         nextView.style.filter = 'blur(10px)';
         nextView.style.transition = 'none';
         void nextView.offsetWidth;
-        nextView.style.transition = `opacity ${DUR}ms cubic-bezier(0.16,1,0.3,1), transform ${DUR}ms cubic-bezier(0.16,1,0.3,1), filter ${DUR}ms cubic-bezier(0.16,1,0.3,1)`;
+        nextView.style.transition = viewTransition;
 
         requestAnimationFrame(() => requestAnimationFrame(() => {
           nextView.style.opacity = '1';
@@ -1884,7 +2375,7 @@
     function showRoute(route, push){
       const target = viewFor(route);
       if(!target) return;
-      crossFade(target);
+      crossFade(target, route);
       currentRoute = route;
       setActiveLink(route);
       if(route === 'projects') renderProjectsPage();
@@ -1903,8 +2394,8 @@
     window.addEventListener('popstate', (e) => {
       const route = (e.state && e.state.route) || pathToRoute(location.pathname);
       if(route === currentRoute) return;
+      crossFade(viewFor(route), route);
       currentRoute = route;
-      crossFade(viewFor(route));
       setActiveLink(route);
       if(route === 'projects') renderProjectsPage();
     });
