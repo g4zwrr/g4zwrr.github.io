@@ -1542,11 +1542,11 @@
     const moonProg = build(
       'attribute vec3 aPos;attribute vec3 aNorm;'+
       'uniform mat4 uProj,uView,uModel;uniform mat3 uNrm;'+
-      'varying vec3 vN;varying float vNz;'+
+      'varying vec3 vN;varying float vNz;varying vec3 vM;'+
       'void main(){vec4 wp=uModel*vec4(aPos,1.0);vec4 vp=uView*wp;'+
-      'vN=uNrm*aNorm;vNz=vN.z;gl_Position=uProj*vp;}',
+      'vN=uNrm*aNorm;vM=aNorm;vNz=vN.z;gl_Position=uProj*vp;}',
 
-      'precision mediump float;varying vec3 vN;varying float vNz;uniform vec3 uLight;'+
+      'precision mediump float;varying vec3 vN;varying float vNz;varying vec3 vM;uniform vec3 uLight;'+
       'float h31(vec3 p){return fract(sin(dot(p,vec3(127.1,311.7,74.7)))*43758.5453);}'+
       'float vnoise(vec3 p){vec3 i=floor(p),f=fract(p);f=f*f*(3.0-2.0*f);'+
       'return mix(mix(mix(h31(i),h31(i+vec3(1,0,0)),f.x),mix(h31(i+vec3(0,1,0)),h31(i+vec3(1,1,0)),f.x),f.y),'+
@@ -1555,7 +1555,7 @@
       'float lam=max(dot(n,normalize(uLight)),0.0);'+
       'float lit=smoothstep(-0.05,0.44,lam);'+
       'float limb=pow(max(vNz,0.0),0.30);'+
-      'float m=vnoise(n*6.0)*0.55+vnoise(n*17.0)*0.28+vnoise(n*41.0)*0.14;'+
+      'float m=vnoise(vM*6.0)*0.55+vnoise(vM*17.0)*0.28+vnoise(vM*41.0)*0.14;'+
       'float albedo=0.80+(m-0.5)*0.44;'+
       'vec3 col=vec3(1.0)*lit*albedo*(0.40+0.60*limb);'+
       'col+=vec3(0.052,0.057,0.068)*(1.0-lit);'+
@@ -1577,7 +1577,18 @@
       'if(a<0.01)discard;'+
       'gl_FragColor=vec4(vec3(1.0),a);}'
     );
-    if(!starProg || !moonProg || !rainProg){ return null; }
+    /* A meteor trail is a ribbon rather than gl.LINES: line widths above 1px are
+       not portable, so each segment is emitted as a quad and drawn additively.
+       Positions are already in eye space, so the only varying needed is alpha. */
+    const meteorProg = build(
+      'attribute vec3 aPos;attribute float aAlpha;'+
+      'uniform mat4 uProj,uView;varying float vA;'+
+      'void main(){vec4 vp=uView*vec4(aPos,1.0);gl_Position=uProj*vp;vA=aAlpha;}',
+
+      'precision mediump float;varying float vA;'+
+      'void main(){if(vA<0.004)discard;gl_FragColor=vec4(vec3(1.0),vA);}'
+    );
+    if(!starProg || !moonProg || !rainProg || !meteorProg){ return null; }
 
     /* geometry */
     const NARROW = window.innerWidth < 760;
@@ -1709,6 +1720,121 @@
     }
     stepRain(performance.now(), false);
 
+    /* Meteors: a sparse shower of short-lived streaks. The trail is sampled on a
+       fixed clock instead of once per frame, so a 120Hz display lays down the same
+       world-length streak and the same spawn cadence as 60Hz; sampling per frame
+       would halve the streak at 120Hz. */
+    const METEOR_MAX = 4, METEOR_SEG = 18, METEOR_SAMPLE = 1/72;
+    const METEOR_VERTS = METEOR_MAX * (METEOR_SEG - 1) * 6;
+    const meteorPos = new Float32Array(METEOR_VERTS * 3);
+    const meteorAlpha = new Float32Array(METEOR_VERTS);
+    const mBuf = gl.createBuffer();
+    gl.bindBuffer(gl.ARRAY_BUFFER, mBuf);
+    gl.bufferData(gl.ARRAY_BUFFER, meteorPos.byteLength, gl.DYNAMIC_DRAW);
+    const mAlpha = gl.createBuffer();
+    gl.bindBuffer(gl.ARRAY_BUFFER, mAlpha);
+    gl.bufferData(gl.ARRAY_BUFFER, meteorAlpha.byteLength, gl.DYNAMIC_DRAW);
+    const meteors = [];
+    for(let i=0;i<METEOR_MAX;i++){
+      meteors.push({ live:false, x:0, y:0, z:0, dx:0, dy:0, dz:0,
+                     speed:0, life:0, max:1, width:0, acc:0, trail:[] });
+    }
+    let meteorNext = 0.9;
+
+    function spawnMeteor(m){
+      // High and far, angled down: a meteor should read as something falling into
+      // the scene rather than sliding across it.
+      m.x = (Math.random()*2-1) * 1300;
+      m.y = 240 + Math.random() * 620;
+      m.z = -1600 + Math.random() * 1100;
+      const dx = (Math.random()*2-1), dy = -(0.35 + Math.random()*0.75), dz = (Math.random()-0.5)*0.5;
+      const l = Math.hypot(dx, dy, dz) || 1;
+      m.dx = dx/l; m.dy = dy/l; m.dz = dz/l;
+      m.speed = 1000 + Math.random() * 900;
+      m.max = 0.85 + Math.random() * 0.75;
+      m.life = m.max;
+      m.width = 2.0 + Math.random() * 2.4;
+      m.acc = 0;
+      m.trail.length = 0;
+      m.live = true;
+    }
+
+    function stepMeteors(dt, animate){
+      if(!animate){
+        // reduced motion: nothing falls, and no frozen streak is left hanging
+        for(const m of meteors){ m.live = false; m.trail.length = 0; }
+        meteorPos.fill(0); meteorAlpha.fill(0);
+        return 0;
+      }
+      meteorNext -= dt;
+      // Spawn one at a time, outside the per-meteor loop. The gap (2.6-10s) is much
+      // longer than a lifetime (0.85-1.6s), so every slot is idle by the time the
+      // next meteor is due; spawning inside the loop lit all four up in the same
+      // frame as a burst.
+      if(meteorNext <= 0){
+        const idle = meteors.find(m => !m.live);
+        if(idle){ spawnMeteor(idle); meteorNext = 2.6 + Math.random()*7.5; }
+        else meteorNext = 0.4;   // every slot busy, look again shortly
+      }
+      for(const m of meteors){
+        if(!m.live) continue;
+        m.life -= dt;
+        if(m.life <= 0){ m.live = false; m.trail.length = 0; continue; }
+        m.x += m.dx * m.speed * dt;
+        m.y += m.dy * m.speed * dt;
+        m.z += m.dz * m.speed * dt;
+        m.acc += dt;
+        while(m.acc >= METEOR_SAMPLE && m.trail.length < METEOR_SEG*3){
+          m.acc -= METEOR_SAMPLE;
+          m.trail.push(m.x, m.y, m.z);
+        }
+        if(m.trail.length === 0) m.trail.push(m.x, m.y, m.z);
+      }
+      // One quad per segment, width cubed and alpha ramped so the head stays
+      // bright and compact while the tail thins to a faint thread.
+      let v = 0;
+      for(const m of meteors){
+        if(!m.live || m.trail.length < 6) continue;
+        const p = 1 - m.life / m.max;
+        // quick ignition, slow dissolve, so it reads as a flash that streaks away
+        const env = Math.min(1, p / 0.10) * Math.min(1, (1 - p) / 0.45);
+        if(env <= 0) continue;
+        const n = m.trail.length / 3;
+        for(let i=0;i<n-1 && v+6 <= METEOR_VERTS;i++){
+          const ax=m.trail[i*3], ay=m.trail[i*3+1], az=m.trail[i*3+2];
+          const bx=m.trail[i*3+3], by=m.trail[i*3+4], bz=m.trail[i*3+5];
+          // perpendicular to the segment, in the plane the camera looks at
+          let px = by-ay, py = -(bx-ax);
+          const pl = Math.hypot(px, py);
+          if(pl < 1e-4){ px = 1; py = 0; } else { px /= pl; py /= pl; }
+          const t0 = (i+1)/n, t1 = (i+2)/n;
+          const w0 = m.width*t0*t0*t0, w1 = m.width*t1*t1*t1;
+          const a0 = env*(0.22+0.78*t0), a1 = env*(0.22+0.78*t1);
+          const q = [
+            ax-px*w0, ay-py*w0, az, a0,
+            ax+px*w0, ay+py*w0, az, a0,
+            bx-px*w1, by-py*w1, bz, a1,
+            ax+px*w0, ay+py*w0, az, a0,
+            bx+px*w1, by+py*w1, bz, a1,
+            bx-px*w1, by-py*w1, bz, a1
+          ];
+          for(let k=0;k<6;k++){
+            meteorPos[v*3] = q[k*4];
+            meteorPos[v*3+1] = q[k*4+1];
+            meteorPos[v*3+2] = q[k*4+2];
+            meteorAlpha[v] = q[k*4+3];
+            v++;
+          }
+        }
+      }
+      // Clear the unused tail, otherwise vertices left by a longer previous
+      // streak would be drawn by the next, shorter one.
+      for(let i=v;i<METEOR_VERTS;i++){
+        meteorPos[i*3] = 0; meteorPos[i*3+1] = 0; meteorPos[i*3+2] = 0; meteorAlpha[i] = 0;
+      }
+      return v;
+    }
+
     /* mat4 */
     const m4 = () => new Float32Array(16);
     function persp(o, fovy, asp, n, f){
@@ -1774,34 +1900,44 @@
     window.addEventListener('resize', resize);
 
     let running = false, lost = false, revealed = false;
-    let lastY = window.scrollY, leadX = 0, leadY = 0, frame = 0, lastT = 0;
-    // The scroll lead relaxes at a fixed rate in wall time rather than per
-    // frame, so the parallax settles identically on a 30, 60 or 120Hz display.
-    // LEAD_DECAY is the fraction remaining after one 1/60s step.
-    const LEAD_DECAY = 0.94, LEAD_REF = 60;
+    let followX = 0, followY = 0, frame = 0, lastT = 0;
+    // The camera chases the page's real scroll position with a slow first-order
+    // lag. It used to accumulate scroll *velocity* instead (lead += dy * 0.55,
+    // clamped, then relaxed back), so the moon shot ahead of the wheel and crept
+    // back after the reader stopped -- it read as predicting the next move, which
+    // was the complaint. A lag on the true position can neither overshoot nor
+    // anticipate: it only ever moves toward where the page already is.
+    //
+    // FOLLOW is the fraction of the remaining distance left after one 1/60s step,
+    // so the catch-up takes about 0.8s and is identical on 30, 60 or 120Hz.
+    // PARALLAX_X/Y bound the drift, and are keyed to scroll progress p (0..1) so
+    // the offset stays in range whatever the page height.
+    const FOLLOW = 0.98, FOLLOW_REF = 60, PARALLAX_X = 46, PARALLAX_Y = 150;
     // Moon spin in rad/s about its own Y axis. The shader culls on the carried
     // normal's vNz, and for a sphere turning about its own centre that cap has
     // axis R^T z and projects to a constant radius, so the limb stays a clean
     // circle and only the maria and the terminator travel.
+    //
+    // The rate only sets the pace now. The moon used to be a still image at any
+    // speed because the maria were sampled from the view-space normal: for a
+    // sphere the view normal at a screen pixel is the same whatever the model
+    // rotation, so the pattern was pinned to the screen and MOON_SPIN changed
+    // nothing at all (measured 0.00/255 over 10s). The pattern now comes from
+    // vM, the model-space normal, so it is attached to the moon and turns with
+    // it. Once that is fixed the per-pixel change saturates at the local maria
+    // contrast (~10/255 mean, ~72% of the disc moving) regardless of rate, so
+    // the rate is chosen purely for feel: 0.03 rad/s is a 3.5 minute revolution,
+    // and 0.3 rad (~17 degrees) of turn in 10s is enough to read as rotation
+    // rather than a frozen disc.
     const MOON_SPIN = 0.03;
-
-    window.addEventListener('scroll', () => {
-      const y = window.scrollY;
-      const dy = y - lastY;
-      lastY = y;
-      leadY = clamp(leadY + dy * 0.55, -95, 95);
-      leadX = clamp(leadX + dy * 0.20, -70, 70);
-    }, { passive: true });
 
     function render(now){
       if(!running) return;
       if(document.hidden){ lastT = now; return; }
-      // Delta time drives the lead decay so the motion is frame-rate independent.
+      // Delta time drives the follow so the motion is frame-rate independent.
       // Clamped so a backgrounded tab or a long stall cannot jump the scene.
       const dt = Math.min(Math.max((now - lastT) / 1000, 0), 0.1);
       lastT = now;
-      const relax = Math.pow(LEAD_DECAY, dt * LEAD_REF);
-      leadY *= relax; leadX *= relax;
 
       const doc = document.documentElement;
       const max = Math.max(1, doc.scrollHeight - window.innerHeight);
@@ -1810,12 +1946,19 @@
       const tt = now * 0.001;
       const bob = reduceMotion ? 0 : Math.sin(tt * 0.14) * 14;
 
+      // Ease toward the target, never past it: a pure exponential lag has no
+      // velocity term, so the camera cannot run ahead of the scroll and spring
+      // back when the reader lifts the wheel.
+      const k = 1 - Math.pow(FOLLOW, dt * FOLLOW_REF);
+      followY += (p * PARALLAX_Y - followY) * k;
+      followX += (p * PARALLAX_X - followX) * k;
+
       persp(P, FOV, W / H, 1, 12000);
       // The look target shares the camera's x/y so the view axis stays locked to
-      // -Z and the scroll lead stays a pure translation (parallax). The target
-      // used to sit 1 unit away while the lead reached 95, which rotated the
-      // camera ~89 degrees and threw the moon off screen on the first scroll.
-      const camX = leadX, camY = leadY + bob;
+      // -Z and the follow stays a pure translation (parallax). The target used to
+      // sit 1 unit away while the offset reached 95, which rotated the camera
+      // ~89 degrees and threw the moon off screen on the first scroll.
+      const camX = followX, camY = followY + bob;
       lookAt(V, [camX, camY, camZ], [camX, camY, camZ - 1], [0, 1, 0]);
       trs(M, MOON[0], MOON[1], MOON[2], tt * MOON_SPIN, 1);
       nrm3(N, M);
@@ -1877,6 +2020,24 @@
       gl.bufferSubData(gl.ARRAY_BUFFER, 0, rainAlpha);
       gl.enableVertexAttribArray(2); gl.vertexAttribPointer(2, 1, gl.FLOAT, false, 0, 0);
       gl.drawArrays(gl.POINTS, 0, RAIN_N);
+
+      /* meteors: additive tapered ribbons. Depth testing is still on, so a streak
+         that passes behind the moon is occluded by it. */
+      const meteorVerts = stepMeteors(dt, !reduceMotion);
+      if(meteorVerts > 0){
+        gl.useProgram(meteorProg.p);
+        gl.uniformMatrix4fv(meteorProg.u.uProj, false, P);
+        gl.uniformMatrix4fv(meteorProg.u.uView, false, V);
+        gl.blendFunc(gl.SRC_ALPHA, gl.ONE);
+        gl.depthMask(false);
+        gl.bindBuffer(gl.ARRAY_BUFFER, mBuf);
+        gl.bufferSubData(gl.ARRAY_BUFFER, 0, meteorPos);
+        gl.enableVertexAttribArray(0); gl.vertexAttribPointer(0, 3, gl.FLOAT, false, 0, 0);
+        gl.bindBuffer(gl.ARRAY_BUFFER, mAlpha);
+        gl.bufferSubData(gl.ARRAY_BUFFER, 0, meteorAlpha);
+        gl.enableVertexAttribArray(1); gl.vertexAttribPointer(1, 1, gl.FLOAT, false, 0, 0);
+        gl.drawArrays(gl.TRIANGLES, 0, meteorVerts);
+      }
 
       gl.depthMask(true);
       gl.disable(gl.BLEND);
