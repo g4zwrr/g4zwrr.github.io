@@ -5,49 +5,84 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Oops something's wrong</title>
 <style>
+  @import url('https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Inter:wght@400;500;800&display=swap');
+
+  :root{
+    --bg:#000000;
+    --fg:#ffffff;
+    --fg-dim:rgba(255,255,255,0.72);
+    --line:rgba(255,255,255,0.12);
+    --bg-panel:rgba(255,255,255,0.035);
+    --accent:#ffffff;
+    --r:2px;
+  }
+
   * {
     box-sizing: border-box;
     margin: 0;
     padding: 0;
   }
+  html{
+    scrollbar-color:rgba(255,255,255,0.25) #000000;
+  }
   body {
-    background-color: #000000;
-    color: #ffffff;
-    font-family: system-ui, -apple-system, sans-serif;
-    height: 100vh;
+    background-color: var(--bg);
+    color: var(--fg);
+    font-family: 'Inter', sans-serif;
+    min-height: 100vh;
+    min-height: 100svh;
     overflow: hidden;
     display: flex;
     justify-content: center;
     align-items: center;
     text-align: center;
+    padding: 24px;
   }
+  ::selection{ background: var(--accent); color: var(--bg); }
+
   .message-box {
+    position: relative;
     z-index: 10;
     pointer-events: none;
-    background: rgba(0, 0, 0, 0.8);
-    padding: 2rem;
-    border-radius: 12px;
+    background: var(--bg-panel);
+    border: 1px solid var(--line);
+    border-radius: var(--r);
+    padding: 36px 32px;
+    max-width: 460px;
   }
   h1 {
-    font-size: 2rem;
-    margin-bottom: 0.5rem;
-    color: #ffffff;
+    font-family: 'Space Mono', monospace;
+    font-size: clamp(24px, 7vw, 34px);
+    font-weight: 700;
+    letter-spacing: -0.01em;
+    margin-bottom: 18px;
+    color: var(--fg);
   }
   p {
-    font-size: 1.25rem;
-    color: #ffffff;
+    font-size: 15px;
+    color: var(--fg-dim);
+    line-height: 1.6;
   }
   #countdown {
-    font-weight: bold;
-    color: #ffffff;
+    font-family: 'Space Mono', monospace;
+    font-weight: 700;
+    color: var(--fg);
+    font-variant-numeric: tabular-nums;
   }
+
   #teto {
-    position: absolute;
+    position: fixed;
     width: 120px;
     height: auto;
     top: 0;
     left: 0;
     user-select: none;
+    pointer-events: none;
+    opacity: 0.92;
+  }
+
+  @media (prefers-reduced-motion: reduce){
+    #teto{ display: none; }
   }
 </style>
 </head>
@@ -92,7 +127,8 @@
     y = Math.min(y, window.innerHeight - 120);
   });
 
-  requestAnimationFrame(move);
+  const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  if (!reduceMotion) requestAnimationFrame(move);
 
   const KNOWN_ROUTES = ["projects", "about", "contact"];
   const firstSegment = location.pathname.replace(/^\/+|\/+$/g, "").split("/")[0];
