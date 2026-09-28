@@ -1,0 +1,491 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>g4zwr ♡ cute</title>
+<meta name="description" content="the soft pink side of g4zwr">
+<meta property="og:title" content="g4zwr ♡ cute">
+<meta property="og:description" content="the soft pink side of g4zwr">
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Caveat:wght@400;500;600;700&family=Quicksand:wght@400;500;600;700&display=swap');
+
+  :root{
+    --cream:#fff7f4;
+    --paper:#fffaf8;
+    --pink:#ffc2d1;
+    --pink-soft:#ffe3ea;
+    --pink-deep:#f7a8c0;
+    --rose:#e5899f;
+    --brown:#8d6a5c;
+    --brown-deep:#6b4e43;
+    --brown-light:#b99a8b;
+    --ink:#5b4038;
+    --r:16px;
+    --font-scribble:'Caveat','Segoe Script',cursive;
+    --font-body:'Quicksand',system-ui,sans-serif;
+    --shadow:0 10px 30px rgba(139,106,92,0.18);
+  }
+
+  *{box-sizing:border-box; -webkit-tap-highlight-color:transparent;}
+  html{scroll-behavior:smooth;}
+  body{
+    margin:0;
+    min-height:100dvh;
+    font-family:var(--font-body);
+    color:var(--ink);
+    background:
+      radial-gradient(1200px 700px at 78% 8%,  rgba(255,194,209,0.55), transparent 60%),
+      radial-gradient(900px 600px at 12% 90%, rgba(255,227,234,0.75), transparent 60%),
+      linear-gradient(180deg, var(--cream) 0%, var(--pink-soft) 100%);
+    background-attachment:fixed;
+    overflow-x:hidden;
+  }
+  ::selection{ background:var(--pink-deep); color:#fff; }
+  a{ color:var(--brown-deep); }
+  a:focus-visible, button:focus-visible{ outline:2.5px solid var(--rose); outline-offset:3px; border-radius:8px; }
+
+  /* soft drifting light behind everything */
+  #glow{
+    position:fixed; inset:0; pointer-events:none; z-index:0;
+    background:radial-gradient(420px 420px at var(--gx,70%) var(--gy,25%), rgba(255,194,209,0.35), transparent 70%);
+    transition:background 0.4s ease;
+  }
+  #petals{ position:fixed; inset:0; width:100%; height:100%; pointer-events:none; z-index:1; }
+
+  .wrap{ position:relative; z-index:2; }
+
+  header{
+    display:flex; align-items:center; gap:14px; flex-wrap:wrap;
+    padding:22px clamp(18px,5vw,54px);
+  }
+  .brand{
+    display:inline-flex; align-items:center; gap:9px;
+    font-family:var(--font-scribble); font-size:30px; font-weight:700;
+    color:var(--brown-deep); text-decoration:none;
+  }
+  .brand .dot{ width:11px; height:11px; border-radius:50%; background:var(--pink-deep); box-shadow:0 0 0 5px rgba(247,168,192,0.25); }
+  .back{
+    margin-left:auto; display:inline-flex; align-items:center; gap:8px;
+    padding:10px 18px; border-radius:999px; text-decoration:none;
+    background:rgba(255,255,255,0.6); border:1.5px solid rgba(185,154,139,0.5);
+    color:var(--brown-deep); font-weight:600; font-size:15px;
+    transition:transform 0.2s ease, background 0.2s ease, box-shadow 0.2s ease;
+  }
+  .back:hover{ background:#fff; transform:translateY(-2px); box-shadow:var(--shadow); }
+
+  main{ display:grid; gap:clamp(30px,6vw,60px); padding:clamp(8px,3vw,20px) clamp(18px,5vw,54px) 40px; }
+
+  /* ── animated scribble headings: draw-on stroke, then a gentle idle wiggle ── */
+  .scribble{ margin:0; }
+  .scribble svg{ display:block; width:100%; height:auto; overflow:visible; }
+  .scribble text{
+    font-family:var(--font-scribble);
+    font-size:150px; line-height:1;
+    fill:var(--brown-deep); fill-opacity:0;
+    stroke:var(--rose); stroke-width:3.5; stroke-linecap:round; stroke-linejoin:round;
+    paint-order:stroke fill;
+    transform-box:fill-box; transform-origin:center;
+    animation:
+      draw 1.5s cubic-bezier(.4,0,.2,1) var(--d,0s) forwards,
+      wiggle 5s ease-in-out calc(var(--d,0s) + 1.5s) infinite;
+  }
+  .scribble.light text{ fill:var(--brown); stroke:var(--pink-deep); }
+  @keyframes draw{ from{ stroke-dashoffset:1; fill-opacity:0; } to{ stroke-dashoffset:0; fill-opacity:1; } }
+  @keyframes wiggle{
+    0%,100%{ transform:rotate(-1.1deg) translateY(0); }
+    50%    { transform:rotate(1.1deg) translateY(-5px); }
+  }
+
+  /* ── 2D kawaii moon: scribble draw-on, then a gentle rock ─────────────────
+     Pure SVG, deliberately not the main site's WebGL moon. A round cream moon
+     with a happy closed-eye face, craters, blush and sparkles. Every stroke
+     carries pathLength="1", so a single dasharray value draws them all; the
+     body and face sketch themselves on in sequence, then the whole moon rocks. */
+  .moon{
+    position:relative; width:clamp(180px,32vw,250px); aspect-ratio:1;
+    display:grid; place-items:center; margin:0 auto;
+    animation:rock 6s ease-in-out infinite;
+  }
+  .moon svg{ width:100%; height:100%; overflow:visible; filter:drop-shadow(0 14px 28px rgba(139,106,92,0.28)); }
+  .moon .halo{ fill:rgba(255,227,234,0.6); transform-box:fill-box; transform-origin:center; animation:halo 5s ease-in-out infinite; }
+  .moon .body{
+    fill:url(#moonFill); stroke:var(--brown); stroke-width:4; stroke-linecap:round;
+    stroke-dasharray:1; stroke-dashoffset:1; fill-opacity:0;
+    animation:moonDraw 1.8s cubic-bezier(.4,0,.2,1) .1s forwards;
+  }
+  .moon .crater{ fill:rgba(185,154,139,0.4); opacity:0; animation:fadeIn .8s ease .95s forwards; }
+  .moon .face path{ fill:none; stroke:var(--brown-deep); stroke-width:5; stroke-linecap:round; stroke-dasharray:1; stroke-dashoffset:1; }
+  .moon .eye-l{ animation:moonDraw .5s ease 1.7s forwards; }
+  .moon .eye-r{ animation:moonDraw .5s ease 1.85s forwards; }
+  .moon .smile{ animation:moonDraw .5s ease 2s forwards; }
+  .moon .blush{ fill:var(--pink-deep); opacity:0; animation:fadeIn .7s ease 2.1s forwards; }
+  .moon .star{ fill:var(--pink-deep); transform-box:fill-box; transform-origin:center; animation:twinkle 3s ease-in-out infinite; }
+  .moon .star.s2{ animation-delay:.8s; }
+  @keyframes moonDraw{ to{ stroke-dashoffset:0; fill-opacity:1; } }
+  @keyframes fadeIn{ to{ opacity:1; } }
+  @keyframes rock{ 0%,100%{ transform:rotate(-4deg) translateY(0); } 50%{ transform:rotate(4deg) translateY(-10px); } }
+  @keyframes halo{ 0%,100%{ transform:scale(1); opacity:.6; } 50%{ transform:scale(1.07); opacity:.85; } }
+  @keyframes twinkle{ 0%,100%{ opacity:.3; transform:scale(.75); } 50%{ opacity:1; transform:scale(1.15); } }
+
+  .hero{ display:grid; gap:26px; justify-items:center; text-align:center; padding-top:clamp(20px,6vw,70px); }
+  .hero .scribble{ width:min(760px,92vw); }
+  .tagline{
+    font-size:clamp(17px,2.2vw,21px); color:var(--brown); max-width:52ch; margin:0;
+    font-weight:500;
+  }
+  .hero-cta{ display:flex; gap:14px; flex-wrap:wrap; justify-content:center; }
+  .pill{
+    display:inline-flex; align-items:center; gap:10px; padding:13px 26px; border-radius:999px;
+    font-weight:700; font-size:16px; text-decoration:none; cursor:pointer; border:none;
+    background:linear-gradient(180deg,var(--pink-deep),var(--rose)); color:#fff;
+    box-shadow:0 8px 20px rgba(229,137,159,0.4);
+    transition:transform 0.18s ease, box-shadow 0.18s ease;
+  }
+  .pill:hover{ transform:translateY(-3px); box-shadow:0 14px 28px rgba(229,137,159,0.5); }
+  .pill.ghost{ background:rgba(255,255,255,0.7); color:var(--brown-deep); border:1.5px solid rgba(185,154,139,0.6); box-shadow:none; }
+  .pill.ghost:hover{ background:#fff; }
+
+  /* ── now playing ── */
+  .now{
+    display:flex; align-items:center; gap:16px; flex-wrap:wrap; justify-content:center;
+    background:rgba(255,255,255,0.65); border:1.5px solid rgba(185,154,139,0.45);
+    border-radius:var(--r); padding:16px 22px; box-shadow:var(--shadow); backdrop-filter:blur(6px);
+    max-width:640px; width:100%;
+  }
+  .disc{
+    width:54px; height:54px; border-radius:50%; flex:none;
+    background:radial-gradient(circle at 34% 30%, var(--pink), var(--rose));
+    display:grid; place-items:center; color:#fff; font-size:22px;
+    box-shadow:0 6px 16px rgba(229,137,159,0.45);
+  }
+  .disc.spin{ animation:spin 3.2s linear infinite; }
+  @keyframes spin{ to{ transform:rotate(360deg); } }
+  .np-text{ display:grid; gap:2px; text-align:left; }
+  .np-title{ font-weight:700; font-size:16px; color:var(--brown-deep); }
+  .np-sub{ font-size:14px; color:var(--brown); }
+  .np-btn{
+    margin-left:auto; display:inline-flex; align-items:center; gap:9px;
+    padding:11px 22px; border-radius:999px; border:none; cursor:pointer;
+    background:var(--brown-deep); color:#fff; font-weight:700; font-size:15px; font-family:var(--font-body);
+    transition:transform 0.18s ease, opacity 0.18s ease;
+  }
+  .np-btn:hover{ transform:translateY(-2px); opacity:0.92; }
+
+  .teto{
+    display:grid; justify-items:center; gap:18px; padding:10px 0 30px;
+  }
+  .teto img{
+    width:clamp(190px,34vw,280px); border-radius:var(--r);
+    box-shadow:var(--shadow); image-rendering:auto;
+    animation:bob 3.4s ease-in-out infinite;
+  }
+  @keyframes bob{ 0%,100%{ transform:translateY(0) rotate(-1deg); } 50%{ transform:translateY(-14px) rotate(1.5deg); } }
+  .teto .cap{ font-size:16px; color:var(--brown); font-weight:500; margin:0; }
+
+  footer{
+    padding:26px clamp(18px,5vw,54px) 46px; text-align:center;
+    color:var(--brown-light); font-size:14px; font-weight:600;
+  }
+  footer a{ color:var(--brown); }
+
+  /* ── sound toggle (floating, like the main site) ── */
+  #sound-toggle{
+    position:fixed; right:20px; bottom:20px; z-index:5;
+    display:inline-flex; align-items:center; gap:9px; padding:11px 16px; border-radius:999px;
+    background:rgba(255,255,255,0.8); border:1.5px solid rgba(185,154,139,0.55);
+    box-shadow:var(--shadow); cursor:pointer; color:var(--brown-deep);
+    font-family:var(--font-body); font-weight:700; font-size:14px;
+    backdrop-filter:blur(6px); transition:transform 0.2s ease;
+  }
+  #sound-toggle:hover{ transform:translateY(-2px); }
+  #sound-toggle .bar{ width:3px; height:16px; border-radius:2px; background:var(--rose); transform-origin:bottom; }
+  #sound-toggle.playing .bar{ animation:eq 0.9s ease-in-out infinite; }
+  #sound-toggle.playing .bar:nth-child(2){ animation-delay:0.15s; }
+  #sound-toggle.playing .bar:nth-child(3){ animation-delay:0.3s; }
+  @keyframes eq{ 0%,100%{ transform:scaleY(0.4); } 50%{ transform:scaleY(1); } }
+
+  .hint{
+    position:fixed; left:50%; bottom:22px; transform:translateX(-50%); z-index:4;
+    background:rgba(255,255,255,0.85); border:1.5px solid rgba(185,154,139,0.5);
+    color:var(--brown); padding:9px 18px; border-radius:999px; font-size:14px; font-weight:600;
+    box-shadow:var(--shadow); animation:hintFloat 3s ease-in-out infinite;
+  }
+  .hint.hide{ display:none; }
+  @keyframes hintFloat{ 0%,100%{ transform:translateX(-50%) translateY(0); } 50%{ transform:translateX(-50%) translateY(-6px); } }
+
+  @media (prefers-reduced-motion:reduce){
+    *,*::before,*::after{ animation-duration:0.01ms !important; animation-iteration-count:1 !important; }
+    .scribble text{ fill-opacity:1; stroke-dashoffset:0; }
+  }
+</style>
+</head>
+<body>
+
+<div id="glow"></div>
+<canvas id="petals" aria-hidden="true"></canvas>
+
+<div class="wrap">
+  <header>
+    <a class="brand" href="/cute"><span class="dot"></span>g4zwr ♡</a>
+    <a class="back" href="/">&larr; the serious site</a>
+  </header>
+
+  <main>
+    <section class="hero">
+      <div class="moon">
+        <svg viewBox="0 0 120 120" role="img" aria-label="a cute 2D anime moon with a happy face">
+          <defs>
+            <radialGradient id="moonFill" cx="38%" cy="30%" r="72%">
+              <stop offset="0%"   stop-color="#fffaf1"/>
+              <stop offset="55%"  stop-color="#ffeede"/>
+              <stop offset="100%" stop-color="#ffd9c0"/>
+            </radialGradient>
+          </defs>
+          <circle class="halo"  cx="60" cy="60" r="58"/>
+          <circle class="body"  cx="60" cy="60" r="46" pathLength="1"/>
+          <circle class="crater" cx="46" cy="42" r="5"/>
+          <circle class="crater" cx="76" cy="48" r="4"/>
+          <circle class="crater" cx="54" cy="82" r="3.5"/>
+          <g class="face">
+            <path class="eye-l" pathLength="1" d="M44 60 q5 6 10 0"/>
+            <path class="eye-r" pathLength="1" d="M66 60 q5 6 10 0"/>
+            <path class="smile" pathLength="1" d="M57 70 q3 3.5 6 0"/>
+          </g>
+          <ellipse class="blush" cx="38" cy="70" rx="6" ry="4"/>
+          <ellipse class="blush" cx="82" cy="70" rx="6" ry="4"/>
+          <path class="star"   d="M101 20 l2.6 6.4 6.4 2.6 -6.4 2.6 -2.6 6.4 -2.6-6.4 -6.4-2.6 6.4-2.6z"/>
+          <path class="star s2" d="M17 30 l2 5 5 2 -5 2 -2 5 -2-5 -5-2 5-2z"/>
+        </svg>
+      </div>
+      <h1 class="scribble" data-scribble="hello there"></h1>
+      <p class="tagline">a softer, pinker corner of the internet. same person, fewer stars, better music.</p>
+      <div class="hero-cta">
+        <button class="pill" id="play-cta">&#9835; play the song</button>
+        <a class="pill ghost" href="/">visit the main site</a>
+      </div>
+    </section>
+
+    <section class="now">
+      <div class="disc" id="disc">&#9834;</div>
+      <div class="np-text">
+        <span class="np-title">&#127912;&#65039; ライラック (feat. Kasane Teto)</span>
+        <span class="np-sub">now playing &middot; soft pink hours</span>
+      </div>
+      <button class="np-btn" id="play-btn">play</button>
+    </section>
+
+    <section class="teto">
+      <img src="teto.gif" alt="Kasane Teto bouncing">
+      <p class="cap">she bounces, i hum along.</p>
+    </section>
+  </main>
+
+  <footer>
+    <p>made with too much pink &middot; <a href="/">back to the serious site</a></p>
+  </footer>
+</div>
+
+<div class="hint" id="hint">&#9834; tap anywhere for music</div>
+
+<button id="sound-toggle" aria-label="Toggle sound">
+  <span class="bar"></span><span class="bar"></span><span class="bar"></span>
+  <span id="sound-label">music</span>
+</button>
+
+<audio id="bg-audio" loop preload="auto">
+  <source src="teto-lairac.mp3" type="audio/mpeg">
+</audio>
+
+<script>
+(() => {
+  'use strict';
+
+  const reduceMotion = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const audio = document.getElementById('bg-audio');
+  const disc = document.getElementById('disc');
+  const playBtn = document.getElementById('play-btn');
+  const playCta = document.getElementById('play-cta');
+  const soundToggle = document.getElementById('sound-toggle');
+  const soundLabel = document.getElementById('sound-label');
+  const hint = document.getElementById('hint');
+  audio.volume = 0.55;
+
+  /* ── animated scribble headings ────────────────────────────────────────────
+     Each [data-scribble] becomes an SVG <text> whose stroke is revealed with
+     stroke-dashoffset, so the word "writes itself" in, then a gentle wiggle
+     kicks in. pathLength="1" normalizes any word's length to 1, so one
+     dasharray value draws every heading regardless of its text. */
+  document.querySelectorAll('[data-scribble]').forEach((el, i) => {
+    const text = (el.dataset.scribble || el.textContent).trim();
+    el.textContent = '';
+    const NS = 'http://www.w3.org/2000/svg';
+    const svg = document.createElementNS(NS, 'svg');
+    svg.setAttribute('viewBox', '0 0 1000 200');
+    svg.setAttribute('role', 'img');
+    svg.setAttribute('aria-label', text);
+    const t = document.createElementNS(NS, 'text');
+    t.setAttribute('x', '500');
+    t.setAttribute('y', '152');
+    t.setAttribute('text-anchor', 'middle');
+    t.setAttribute('pathLength', '1');
+    t.setAttribute('stroke-dasharray', '1');
+    t.setAttribute('stroke-dashoffset', '1');
+    t.setAttribute('fill-opacity', '0');
+    t.style.setProperty('--d', (i * 0.2).toFixed(2) + 's');
+    t.textContent = text;
+    svg.appendChild(t);
+    el.appendChild(svg);
+  });
+
+  /* ── audio: gentle graph + reactive petals ──────────────────────────────── */
+  let ctx, analyser, dataArray, src, gain, comp, started = false, ready = false;
+  function initAudio() {
+    if (ctx) return;
+    try {
+      ctx = new (window.AudioContext || window.webkitAudioContext)();
+      analyser = ctx.createAnalyser();
+      analyser.fftSize = 64;
+      gain = ctx.createGain();
+      gain.gain.value = 0.55;
+      comp = ctx.createDynamicsCompressor();     // keep the cute theme from clipping
+      src = ctx.createMediaElementSource(audio);
+      src.connect(analyser);
+      analyser.connect(gain);
+      gain.connect(comp);
+      comp.connect(ctx.destination);
+      dataArray = new Uint8Array(analyser.frequencyBinCount);
+      ready = true;
+    } catch (e) { ready = false; }
+  }
+  function level() {
+    if (!ready) return 0;
+    analyser.getByteFrequencyData(dataArray);
+    let s = 0; for (let i = 0; i < 12; i++) s += dataArray[i];
+    return Math.min(1, s / (12 * 255));
+  }
+
+  function updateUI() {
+    disc.classList.toggle('spin', started);
+    soundToggle.classList.toggle('playing', started);
+    soundLabel.textContent = started ? 'playing' : 'music';
+    playBtn.textContent = started ? 'pause' : 'play';
+    playCta.innerHTML = started ? '&#9835; playing &mdash; pause' : '&#9835; play the song';
+    hint.classList.toggle('hide', started);
+  }
+  async function play() {
+    initAudio();
+    if (ctx && ctx.state === 'suspended') { try { await ctx.resume(); } catch (e) {} }
+    try { await audio.play(); }
+    catch (e) { started = false; updateUI(); return; }  // autoplay still blocked: stay honest
+    started = true;
+    updateUI();
+  }
+  function pause() {
+    audio.pause();
+    started = false;
+    updateUI();
+  }
+  function toggle() { started ? pause() : play(); }
+
+  playBtn.addEventListener('click', toggle);
+  playCta.addEventListener('click', toggle);
+  soundToggle.addEventListener('click', toggle);
+
+  // browsers block autoplay until a gesture, so the first tap elsewhere starts it. a tap that
+  // lands on a control is left to that control's own handler, otherwise this pointerdown would
+  // start playback and the click that follows would immediately pause it again.
+  function firstGesture(e) {
+    if (started) return;
+    const t = e.target;
+    if (t && t.closest && t.closest('button, a')) return;
+    removeEventListener('pointerdown', firstGesture);
+    removeEventListener('keydown', firstGesture);
+    play();
+  }
+  addEventListener('pointerdown', firstGesture);
+  addEventListener('keydown', firstGesture);
+  updateUI();
+
+  /* ── petals + sparkles drifting behind the moon ─────────────────────────── */
+  const cv = document.getElementById('petals');
+  const cx = cv.getContext('2d');
+  const glow = document.getElementById('glow');
+  let W, H, dpr, petals = [], sparks = [];
+
+  function resize() {
+    dpr = Math.min(2, devicePixelRatio || 1);
+    W = cv.width = innerWidth * dpr;
+    H = cv.height = innerHeight * dpr;
+    cv.style.width = innerWidth + 'px';
+    cv.style.height = innerHeight + 'px';
+  }
+  function seed() {
+    const n = reduceMotion ? 0 : Math.round(Math.min(46, innerWidth / 30));
+    petals = Array.from({ length: n }, () => ({
+      x: Math.random() * W, y: Math.random() * H,
+      r: (7 + Math.random() * 9) * dpr,
+      vy: (0.25 + Math.random() * 0.6) * dpr,
+      sway: 0.6 + Math.random() * 1.1,
+      phase: Math.random() * Math.PI * 2,
+      rot: Math.random() * Math.PI * 2,
+      vr: (Math.random() - 0.5) * 0.02,
+      hue: Math.random() < 0.5 ? '247,168,192' : '229,137,159'
+    }));
+    sparks = Array.from({ length: reduceMotion ? 0 : 40 }, () => ({
+      x: Math.random() * W, y: Math.random() * H,
+      r: (1 + Math.random() * 1.6) * dpr,
+      a: Math.random()
+    }));
+  }
+  function petal(ctx2, p, boost) {
+    ctx2.save();
+    ctx2.translate(p.x, p.y);
+    ctx2.rotate(p.rot);
+    ctx2.globalAlpha = 0.75 * (0.7 + boost * 0.6);
+    ctx2.fillStyle = 'rgba(' + p.hue + ',1)';
+    ctx2.beginPath();                       // a simple teardrop petal
+    ctx2.moveTo(0, -p.r);
+    ctx2.bezierCurveTo(p.r, -p.r * 0.2, p.r * 0.7, p.r, 0, p.r);
+    ctx2.bezierCurveTo(-p.r * 0.7, p.r, -p.r, -p.r * 0.2, 0, -p.r);
+    ctx2.fill();
+    ctx2.restore();
+  }
+  let t = 0;
+  function frame() {
+    t += 0.016;
+    cx.clearRect(0, 0, W, H);
+    const lv = level();
+
+    for (const s of sparks) {
+      s.a = 0.5 + 0.5 * Math.sin(t * 2 + s.x * 0.01);
+      cx.globalAlpha = 0.10 + s.a * (0.18 + lv * 0.5);
+      cx.fillStyle = '#fff';
+      cx.beginPath(); cx.arc(s.x, s.y, s.r * (1 + lv * 0.5), 0, 6.283); cx.fill();
+    }
+    for (const p of petals) {
+      p.y += p.vy * (1 + lv * 0.9);         // music gently lifts the petals
+      p.x += Math.sin(t * p.sway + p.phase) * 0.5 * dpr;
+      p.rot += p.vr;
+      if (p.y - p.r > H) { p.y = -p.r; p.x = Math.random() * W; }
+      petal(cx, p, lv);
+    }
+    cx.globalAlpha = 1;
+
+    // the ambient glow breathes with the track
+    glow.style.setProperty('--gx', (68 + Math.sin(t * 0.4) * 8) + '%');
+    glow.style.setProperty('--gy', (24 + Math.cos(t * 0.33) * 6 + lv * 8) + '%');
+
+    requestAnimationFrame(frame);
+  }
+  addEventListener('resize', () => { resize(); seed(); });
+  resize(); seed();
+  if (!reduceMotion) requestAnimationFrame(frame);
+
+  // start the track as soon as the browser allows it (works on some autoplay policies)
+  initAudio();
+  play();
+})();
+</script>
+</body>
+</html>
