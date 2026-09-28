@@ -805,7 +805,7 @@
 <canvas id="visualizer"></canvas>
 <div id="progress"></div>
 
-<button id="hamburger" aria-label="Open menu"><span></span><span></span><span></span></button>
+<button id="hamburger" aria-label="Open menu" aria-expanded="false" aria-controls="sidebar"><span></span><span></span><span></span></button>
 <div id="sidebar-overlay"></div>
 <nav id="sidebar">
   <a href="/" data-route="home">Home</a>
@@ -1457,7 +1457,10 @@
 
   enterHint.addEventListener('click', enterSite);
   window.addEventListener('keydown', (e) => {
-    if(e.key === 'Enter' || e.key === ' ') enterSite();
+    // Escape joins Enter and Space here so the gate is dismissible by keyboard.
+    // Until the site is entered it owns Escape, because the page is still
+    // blurred and scroll-locked and a menu would open behind the overlay.
+    if(e.key === 'Enter' || e.key === ' ' || e.key === 'Escape') enterSite();
   });
 
   page.addEventListener('transitionend', (e) => {
@@ -2537,16 +2540,50 @@
       return route === 'home' ? pageHome : document.getElementById('view-' + route);
     }
 
-    function openSidebar(){ sidebar.classList.add('open'); overlay.classList.add('open'); hamburger.classList.add('open'); }
-    function closeSidebar(){ sidebar.classList.remove('open'); overlay.classList.remove('open'); hamburger.classList.remove('open'); }
+    // aria-expanded tracks the state for the hamburger, which is now only one of
+    // three ways in (click, Escape, edge swipe) rather than the single one.
+    function openSidebar(){ sidebar.classList.add('open'); overlay.classList.add('open'); hamburger.classList.add('open'); hamburger.setAttribute('aria-expanded','true'); }
+    function closeSidebar(){ sidebar.classList.remove('open'); overlay.classList.remove('open'); hamburger.classList.remove('open'); hamburger.setAttribute('aria-expanded','false'); }
+    closeSidebar();
 
     hamburger.addEventListener('click', () => {
       sidebar.classList.contains('open') ? closeSidebar() : openSidebar();
     });
     overlay.addEventListener('click', closeSidebar);
     window.addEventListener('keydown', (e) => {
-      if(e.key === 'Escape') closeSidebar();
+      if(e.key !== 'Escape') return;
+      // Escape toggles rather than only opening: it has to stay a way out of the
+      // drawer, otherwise a keyboard user opens it once and can never close it.
+      if(!document.body.classList.contains('entered')) return;   // the gate owns Escape until then
+      sidebar.classList.contains('open') ? closeSidebar() : openSidebar();
     });
+
+    // Swipe right from the left edge to open, mirroring the drawer. The gesture
+    // is edge-constrained instead of screen-wide on purpose: the projects and
+    // contact carousels are full-bleed (margin: 0 calc(50% - 50vw)) with
+    // scrollable padding that reaches x=0, so a screen-wide swipe would fight
+    // them and text selection. Those strips are excluded explicitly. Opening
+    // only, in the direction the drawer travels; the overlay and the hamburger
+    // stay the way out.
+    const EDGE = 44, SWIPE_MIN = 48, SWIPE_MAX_MS = 900;
+    let sx = 0, sy = 0, st = 0, tracking = false;
+    window.addEventListener('touchstart', (e) => {
+      if(sidebar.classList.contains('open') || e.touches.length !== 1) { tracking = false; return; }
+      const t = e.touches[0];
+      if(t.clientX > EDGE) { tracking = false; return; }
+      if(e.target.closest && e.target.closest('.carousel')) { tracking = false; return; }
+      tracking = true; sx = t.clientX; sy = t.clientY; st = e.timeStamp;
+    }, { passive: true });
+    window.addEventListener('touchend', (e) => {
+      if(!tracking) return;
+      tracking = false;
+      if(e.timeStamp - st > SWIPE_MAX_MS) return;                 // a slow drag is not a swipe
+      const t = e.changedTouches[0];
+      if(!t) return;
+      const dx = t.clientX - sx, dy = t.clientY - sy;
+      if(dx > SWIPE_MIN && Math.abs(dy) < Math.abs(dx) * 0.7) openSidebar();
+    }, { passive: true });
+    window.addEventListener('touchcancel', () => { tracking = false; }, { passive: true });
 
     let currentView = pageHome;
     let currentRoute = 'home';
