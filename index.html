@@ -1561,7 +1561,23 @@
       'col+=vec3(0.052,0.057,0.068)*(1.0-lit);'+
       'gl_FragColor=vec4(col,smoothstep(0.0,0.085,vNz));}'
     );
-    if(!starProg || !moonProg){ return null; }
+    /* Rain is a soft white disc, additively blended, sized in screen space with
+       a hard core plus a faint halo so it reads as a circle rather than a blob. */
+    const rainProg = build(
+      'attribute vec3 aPos;attribute float aSize;attribute float aAlpha;'+
+      'uniform mat4 uProj,uView;uniform float uPix;varying float vA;'+
+      'void main(){vec4 vp=uView*vec4(aPos,1.0);gl_Position=uProj*vp;'+
+      'float d=max(-vp.z,1.0);'+
+      'gl_PointSize=clamp(aSize*260.0/d,1.5,7.0*uPix);'+
+      'vA=aAlpha;}',
+
+      'precision mediump float;varying float vA;'+
+      'void main(){float r=length(gl_PointCoord-0.5);'+
+      'float a=smoothstep(0.5,0.16,r)*vA;'+
+      'if(a<0.01)discard;'+
+      'gl_FragColor=vec4(vec3(1.0),a);}'
+    );
+    if(!starProg || !moonProg || !rainProg){ return null; }
 
     /* geometry */
     const NARROW = window.innerWidth < 760;
@@ -1631,6 +1647,67 @@
     const sPhase = gl.createBuffer();
     gl.bindBuffer(gl.ARRAY_BUFFER, sPhase);
     gl.bufferData(gl.ARRAY_BUFFER, starPhase, gl.STATIC_DRAW);
+
+    /* Rain: white circles falling down while drifting left to right. The spawn
+       volume is a slab in front of and behind the moon so the depth test lets
+       drops pass in front of it and hide behind it. Width and height are sized
+       to cover the frustum at the nearest depth plus the maximum scroll lead. */
+    const RAIN_N = NARROW ? 90 : 170;
+    const RAIN_HALF_X = 1620, RAIN_HALF_Y = 1150, RAIN_MIN_Z = -1050, RAIN_MAX_Z = -12000;
+    const rainPos = new Float32Array(RAIN_N * 3);
+    const rainSize = new Float32Array(RAIN_N);
+    const rainAlpha = new Float32Array(RAIN_N);
+    const rainVX = new Float32Array(RAIN_N);
+    const rainVY = new Float32Array(RAIN_N);
+    const rainBase = new Float32Array(RAIN_N);
+    for(let i=0;i<RAIN_N;i++){
+      rainPos[i*3]   = (Math.random()*2-1) * RAIN_HALF_X;
+      rainPos[i*3+1] = (Math.random()*2-1) * RAIN_HALF_Y;
+      rainPos[i*3+2] = RAIN_MAX_Z + Math.pow(Math.random(), 0.6) * (RAIN_MIN_Z - RAIN_MAX_Z);
+      rainSize[i] = 0.6 + Math.random()*1.5;
+      rainAlpha[i] = 0;
+      rainBase[i] = 0.16 + Math.random()*0.2;
+      // rightward drift is roughly a third of the fall, so drops read as slanted rain
+      rainVX[i] = 26 + Math.random()*34;
+      rainVY[i] = -(78 + Math.random()*96);
+    }
+    const rPos = gl.createBuffer();
+    gl.bindBuffer(gl.ARRAY_BUFFER, rPos);
+    gl.bufferData(gl.ARRAY_BUFFER, rainPos, gl.DYNAMIC_DRAW);
+    const rSize = gl.createBuffer();
+    gl.bindBuffer(gl.ARRAY_BUFFER, rSize);
+    gl.bufferData(gl.ARRAY_BUFFER, rainSize, gl.STATIC_DRAW);
+    const rAlpha = gl.createBuffer();
+    gl.bindBuffer(gl.ARRAY_BUFFER, rAlpha);
+    gl.bufferData(gl.ARRAY_BUFFER, rainAlpha, gl.DYNAMIC_DRAW);
+    let rainPrev = null;
+    function stepRain(now, move){
+      // Rain advances on wall time, not frame count, so the 30fps cap and a
+      // dropped frame slow nothing down. Alpha is recomputed every frame,
+      // including the seeding frame, so the first paint and the static
+      // reduced-motion scatter are both visible.
+      const step = rainPrev === null ? 0 : Math.min((now - rainPrev) / 1000, 0.1);
+      rainPrev = now;
+      for(let i=0;i<RAIN_N;i++){
+        if(move){
+          if(step > 0){
+            rainPos[i*3]   += rainVX[i] * step;
+            rainPos[i*3+1] += rainVY[i] * step;
+            // wrap on a box, recycling bottom drops to the top and right drops to the left
+            if(rainPos[i*3+1] < -RAIN_HALF_Y) rainPos[i*3+1] += RAIN_HALF_Y*2;
+            if(rainPos[i*3]   > RAIN_HALF_X) rainPos[i*3]   -= RAIN_HALF_X*2;
+          }
+          // fade toward the wrap edges so drops never pop into existence
+          const topFade = Math.min(1, (rainPos[i*3+1] + RAIN_HALF_Y) / 300);
+          const rightFade = Math.min(1, (RAIN_HALF_X - rainPos[i*3]) / 300);
+          rainAlpha[i] = Math.min(topFade, rightFade) * rainBase[i];
+        }else{
+          // reduced motion: one static scatter, no travel
+          rainAlpha[i] = 0.5;
+        }
+      }
+    }
+    stepRain(performance.now(), false);
 
     /* mat4 */
     const m4 = () => new Float32Array(16);
@@ -1723,7 +1800,12 @@
       const bob = reduceMotion ? 0 : Math.sin(tt * 0.14) * 14;
 
       persp(P, FOV, W / H, 1, 12000);
-      lookAt(V, [leadX * 0.5, leadY * 0.5 + bob, camZ], [leadX, leadY + bob, camZ - 1], [0, 1, 0]);
+      // The look target shares the camera's x/y so the view axis stays locked to
+      // -Z and the scroll lead stays a pure translation (parallax). The target
+      // used to sit 1 unit away while the lead reached 95, which rotated the
+      // camera ~89 degrees and threw the moon off screen on the first scroll.
+      const camX = leadX, camY = leadY + bob;
+      lookAt(V, [camX, camY, camZ], [camX, camY, camZ - 1], [0, 1, 0]);
       trs(M, MOON[0], MOON[1], MOON[2], tt * 0.02, 1);
       nrm3(N, M);
 
@@ -1765,6 +1847,26 @@
       gl.bindBuffer(gl.ARRAY_BUFFER, sPhase);
       gl.enableVertexAttribArray(2); gl.vertexAttribPointer(2, 1, gl.FLOAT, false, 0, 0);
       gl.drawArrays(gl.POINTS, 0, STAR_N);
+
+      /* rain: additive white circles. Depth testing is still on, so drops nearer
+         than the moon pass and drops behind it are rejected by the moon's depth. */
+      stepRain(now, !reduceMotion);
+      gl.useProgram(rainProg.p);
+      gl.uniformMatrix4fv(rainProg.u.uProj, false, P);
+      gl.uniformMatrix4fv(rainProg.u.uView, false, V);
+      gl.uniform1f(rainProg.u.uPix, DPR);
+      gl.enable(gl.BLEND);
+      gl.blendFunc(gl.SRC_ALPHA, gl.ONE);   // additive, stated here rather than inherited
+      gl.bindBuffer(gl.ARRAY_BUFFER, rPos);
+      gl.bufferSubData(gl.ARRAY_BUFFER, 0, rainPos);
+      gl.enableVertexAttribArray(0); gl.vertexAttribPointer(0, 3, gl.FLOAT, false, 0, 0);
+      gl.bindBuffer(gl.ARRAY_BUFFER, rSize);
+      gl.enableVertexAttribArray(1); gl.vertexAttribPointer(1, 1, gl.FLOAT, false, 0, 0);
+      gl.bindBuffer(gl.ARRAY_BUFFER, rAlpha);
+      gl.bufferSubData(gl.ARRAY_BUFFER, 0, rainAlpha);
+      gl.enableVertexAttribArray(2); gl.vertexAttribPointer(2, 1, gl.FLOAT, false, 0, 0);
+      gl.drawArrays(gl.POINTS, 0, RAIN_N);
+
       gl.depthMask(true);
       gl.disable(gl.BLEND);
     }
@@ -1776,7 +1878,7 @@
     }
     function start(){
       if(running || lost) return;
-      running = true; t0 = 0;
+      running = true; t0 = 0; rainPrev = null;
       if(reduceMotion){ render(performance.now() + FRAME_MS); return; }
       requestAnimationFrame(loop);
     }
