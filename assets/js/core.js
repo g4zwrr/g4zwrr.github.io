@@ -8,8 +8,8 @@ var G = window.G4;
 /* ---------- editable config (top, easy to swap) ---------- */
 G.BASE = ""; // subpath hosting, e.g. "/g4zwr.github.io"
 G.CONFIG = {
-  handle: "g4zwr", aka: "gaze", ghUser: "g4zwr",
-  excluded: ["g4zwr", "g4zwr.github.io"],
+  handle: "g4zwr", aka: "gaze", ghUser: "g4zwrr",
+  excluded: ["g4zwrr", "g4zwrr.github.io"],
   quote: "yes i see the bug too, im trying to fix it rn",
   tagline: "Gamedev",
   audio: "/assets/audio/teto-lairac.mp3",

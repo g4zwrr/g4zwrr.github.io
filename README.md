@@ -7,3 +7,4 @@ Personal site — Roblox & Luau gamedev.
 - **Extras:** [`cute.html`](cute.html) — the kawaii fork of the home page · [`emotes.lua`](emotes.lua) — Roblox emote/animation script
 
 Static HTML/CSS/JS, no build step. Every push to `main` deploys to GitLab Pages (see `.gitlab-ci.yml`).
+ 

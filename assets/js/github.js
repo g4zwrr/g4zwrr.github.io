@@ -19,42 +19,42 @@ function req(url){
 
 G.github = {
   user: function(){
-    var c = cacheGet("g4_user");
+    var c = cacheGet("g4rr_user");
     if(c && c.fresh) return Promise.resolve(c.fresh);
     return req(U+"/users/"+G.CONFIG.ghUser).then(function(d){
-      cacheSet("g4_user",d); return d;
+      cacheSet("g4rr_user",d); return d;
     }).catch(function(e){ if(c&&c.stale) return c.stale; throw e; });
   },
   repos: function(){
-    var c = cacheGet("g4_repos");
+    var c = cacheGet("g4rr_repos");
     if(c && c.fresh) return Promise.resolve(c.fresh);
     return req(U+"/users/"+G.CONFIG.ghUser+"/repos?per_page=100&sort=updated").then(function(d){
       var list = d.filter(function(r){ return G.CONFIG.excluded.indexOf(r.name)<0; });
       list.sort(function(a,b){ return (b.stargazers_count-a.stargazers_count) ||
         (new Date(b.updated_at)-new Date(a.updated_at)); });
-      cacheSet("g4_repos",list); return list;
+      cacheSet("g4rr_repos",list); return list;
     }).catch(function(e){ if(c&&c.stale) return c.stale; throw e; });
   },
   events: function(){
-    var c = cacheGet("g4_events");
+    var c = cacheGet("g4rr_events");
     if(c && c.fresh) return Promise.resolve(c.fresh);
     return req(U+"/users/"+G.CONFIG.ghUser+"/events/public?per_page=20").then(function(d){
-      cacheSet("g4_events",d); return d;
+      cacheSet("g4rr_events",d); return d;
     }).catch(function(e){ if(c&&c.stale) return c.stale; throw e; });
   },
   readme: function(repo){
-    var c = cacheGet("g4_readme_"+repo);
+    var c = cacheGet("g4rr_readme_"+repo);
     if(c && c.fresh) return Promise.resolve(c.fresh);
     return req(U+"/repos/"+G.CONFIG.ghUser+"/"+repo+"/readme").then(function(d){
       return fetch(d.download_url).then(function(r){ return r.text(); });
-    }).then(function(t){ cacheSet("g4_readme_"+repo,t); return t; })
+    }).then(function(t){ cacheSet("g4rr_readme_"+repo,t); return t; })
     .catch(function(e){ if(c&&c.stale) return c.stale; throw e; });
   },
   langs: function(repo){
-    var c = cacheGet("g4_lang_"+repo);
+    var c = cacheGet("g4rr_lang_"+repo);
     if(c && c.fresh) return Promise.resolve(c.fresh);
     return req(U+"/repos/"+G.CONFIG.ghUser+"/"+repo+"/languages").then(function(d){
-      cacheSet("g4_lang_"+repo,d); return d;
+      cacheSet("g4rr_lang_"+repo,d); return d;
     }).catch(function(e){ if(c&&c.stale) return c.stale; throw e; });
   },
   /* README sanitizer: strip dangerous tags, on* attrs, javascript: URLs, srcset;
