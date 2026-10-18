@@ -1,0 +1,18 @@
+stages:
+  - deploy
+
+pages:
+  stage: deploy
+  image: alpine:latest
+  interruptible: true
+  script:
+    - mkdir -p public
+    - tar cf - --exclude=./.git --exclude=./public --exclude=./.gitlab-ci.yml . | (cd public && tar xf -)
+    - test -f public/index.html
+    - test -f public/assets/css/site.css
+    - test ! -e public/.git
+  artifacts:
+    paths:
+      - public
+  rules:
+    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
