@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="en" data-fx="full">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Stack — g4zwr</title>
+<meta name="description" content="Languages, tools, environment and pipeline of g4zwr.">
+<link rel="canonical" href="/stack/">
+<meta name="theme-color" content="#000">
+<meta property="og:type" content="website">
+<meta property="og:title" content="Stack — g4zwr">
+<meta property="og:description" content="Roblox systems in Luau, music, 2D/3D art.">
+<meta property="og:image" content="/assets/img/og-image.png">
+<meta property="og:url" content="/stack/">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Stack — g4zwr">
+<meta name="twitter:description" content="Roblox systems in Luau, music, 2D/3D art.">
+<meta name="twitter:image" content="/assets/img/og-image.png">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"Person","name":"g4zwr","alternateName":"gaze","jobTitle":"Gamedev","url":"/","sameAs":["https://www.roblox.com/users/10841765037","https://www.youtube.com/@g4zwr","https://www.tiktok.com/@g4zwr","https://discord.com/users/1296500534739734530","https://www.reddit.com/user/g4zwr","https://x.com/g4zwr_","mailto:g4zwr@duck.com"]}</script>
+<script>try{if(sessionStorage.getItem("g4_trans"))document.documentElement.classList.add("g4-in");}catch(e){}</script>
+<noscript><style>html.g4-in body::before{display:none!important}</style></noscript>
+<link rel="icon" type="image/svg+xml" href="/assets/img/favicon.svg">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Big+Shoulders+Display:wght@700;800;900&family=Big+Shoulders+Text:wght@400;500;600&family=Space+Mono:wght@400;700&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Big+Shoulders+Display:wght@700;800;900&family=Big+Shoulders+Text:wght@400;500;600&family=Space+Mono:wght@400;700&display=swap">
+<link rel="stylesheet" href="/assets/css/site.css">
+</head>
+<body data-page="stack">
+<a class="skip" href="#main">SKIP TO CONTENT</a>
+<div id="ariaLive" class="sr" aria-live="polite"></div>
+<div id="progress"></div>
+<div id="crt" aria-hidden="true"></div>
+<canvas id="sky" aria-hidden="true"></canvas>
+<div id="frame" aria-hidden="true"><i></i><i></i><i></i><i></i></div>
+<span class="fcoord" id="fTL">G4ZWR // STACK</span><span class="fcoord" id="fTR">B/W SIGNAL</span>
+<span class="fcoord" id="fBL">GAZE</span><span class="fcoord" id="fBR">SCROLL 000%</span>
+
+<header id="hud">
+  <a class="logo" href="/" aria-label="g4zwr home"><b class="glitch" data-text="G4ZWR">G4ZWR</b><small>// GAZE</small></a>
+  <nav id="mainnav" aria-label="Primary">
+    <a href="/" >01 HOME</a><a href="/projects/">02 PROJECTS</a><a href="/stack/" aria-current="page">03 STACK</a><a href="/about/">04 ABOUT</a><a href="/contact/">05 CONTACT</a>
+  </nav>
+  <div class="hstat">
+    <span class="clock num" id="clock">00:00:00</span>
+    <button class="hbtn" id="fxBtn" aria-label="Cycle FX mode">FX FULL</button>
+    <button class="hbtn" id="sndBtn" aria-label="Play or pause sound">SOUND</button>
+    <canvas id="vuMini" width="34" height="14" aria-hidden="true"></canvas>
+    <button class="hbtn" id="hamb" aria-label="Open menu" aria-expanded="false">☰</button>
+  </div>
+</header>
+<canvas id="specEdge" aria-hidden="true"></canvas>
+<div id="mmenu" role="dialog" aria-label="Menu">
+  <a class="big" href="/">01 HOME <small>boot gate + hub</small> →</a>
+  <a class="big" href="/projects/">02 PROJECTS <small>all repos</small> →</a>
+  <a class="big" href="/stack/">03 STACK <small>tools dossier</small> →</a>
+  <a class="big" href="/about/">04 ABOUT <small>bio + log</small> →</a>
+  <a class="big" href="/contact/">05 CONTACT <small>channels</small> →</a>
+  <p class="meta" id="mLatest">LATEST: …</p>
+  <p class="meta num" id="mTime">00:00:00</p>
+</div>
+
+<!-- GATE: first visit per session only (tv-gate.js). Real 3D: 6 CSS-3D faces. -->
+<div id="gate" role="button" tabindex="0" aria-label="Tap to enter the g4zwr site">
+  <div class="tvscene"><div class="tv" id="tvBox">
+    <div class="face f-front"><div class="bezel">
+      <div class="screen"><canvas id="tvstatic" width="160" height="120"></canvas>
+        <div class="tear"></div><div class="vhold"></div><div class="scan"></div><div class="glass"></div>
+        <svg style="position:absolute;inset:0;width:100%;height:100%" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true"><polyline points="8,0 30,34 26,58 55,78 50,100" fill="none" stroke="#fff" stroke-width="1.2" opacity="0.9"/></svg>
+        <div class="tvtxt glitch" data-text="TAP TO ENTER">TAP TO ENTER</div>
+      </div>
+      <div class="side"><div class="knob"></div><div class="knob"></div><div class="slits"></div><div class="plate">G4ZWR-TV</div></div>
+    </div></div>
+    <div class="face f-back"><div class="vent"></div><div class="plate" style="position:absolute;bottom:12px;left:12px">MODEL G4-01 · B/W</div></div>
+    <div class="face f-right"></div><div class="face f-left"></div>
+    <div class="face f-top"><div class="ant"></div><div class="ant ant2"></div></div>
+    <div class="face f-bottom"></div>
+  </div></div>
+  <div class="feet" aria-hidden="true" style="position:relative;width:min(70vw,420px)"><i></i><i></i></div>
+  <p id="gateCap">TAP THE TV</p>
+  <div class="speedlines" aria-hidden="true"></div>
+</div>
+
+<div id="pagewrap">
+<main id="main">
+<div class="wrap">
+<p class="lbl">03 · LOAD // STACK</p>
+<h1 class="glitch" data-text="STACK">STACK</h1>
+<p>Languages, tools, environment, and the pipeline that connects them.</p>
+<p><button class="chip on" data-stack="">ALL</button> <button class="chip" data-stack="LANG">LANG</button> <button class="chip" data-stack="TOOL">TOOL</button> <button class="chip" data-stack="ENV">ENV</button></p>
+<div class="projGrid" id="stackGrid" style="margin:16px 0"></div>
+<h2 class="reveal">PIPELINE</h2>
+<div class="pipe reveal" aria-label="Build pipeline">
+<div class="step"><b class="tall">CODE</b><p class="meta">Luau / Python</p></div>
+<div class="step"><b class="tall">BUILD</b><p class="meta">Roblox Studio</p></div>
+<div class="step"><b class="tall">MODEL</b><p class="meta">Prisma 3D</p></div>
+<div class="step"><b class="tall">DRAW</b><p class="meta">ibis Paint X</p></div>
+<div class="step"><b class="tall">ANIMATE</b><p class="meta">Alight Motion</p></div>
+<div class="step"><b class="tall">SCORE</b><p class="meta">FL Studio Mobile</p></div>
+<div class="step"><b class="tall">MOBILE</b><p class="meta">APKTool M</p></div>
+</div>
+<p style="margin-top:24px"><a class="btn" href="/">← BACK HOME</a></p>
+</div>
+</main>
+
+<nav id="railL" aria-label="Sections"></nav>
+
+<div id="dock" role="region" aria-label="Now playing">
+  <div class="dhead"><span>♪ TETO-LAIRAC · LOOP</span><span id="dTime" class="num">00:00 / 00:00</span></div>
+  <canvas id="dockViz" width="340" height="64"></canvas>
+  <div class="drow"><button id="dPlay" aria-label="Play or pause">▶</button><button id="dMute" aria-label="Mute">MUTE</button>
+    <div id="seek" role="slider" aria-label="Seek" tabindex="0"><div id="seekFill"></div><span id="seekTip"></span></div></div>
+  <div class="drow"><label class="meta" for="vol">VOL</label><input id="vol" type="range" min="0" max="1" step="0.01" value="0.8">
+    <button id="dViz" aria-label="Cycle visualizer mode">VIZ: SCOPE</button></div>
+  <button id="tapStart">▶ TAP TO START SOUND</button>
+</div>
+<div id="ticker"><span id="tickerIn">G4ZWR · </span></div>
+
+<footer><div class="wrap">
+  <div class="fcols">
+    <div><p class="lbl">SITEMAP</p><p><a href="/">01 HOME</a><br><a href="/projects/">02 PROJECTS</a><br><a href="/stack/">03 STACK</a><br><a href="/about/">04 ABOUT</a><br><a href="/contact/">05 CONTACT</a></p></div>
+    <div><p class="lbl">SOCIALS</p><p id="footSoc"><a href="https://www.roblox.com/users/10841765037" target="_blank" rel="noopener">ROBLOX</a><br><a href="https://www.youtube.com/@g4zwr" target="_blank" rel="noopener">YOUTUBE</a><br><a href="https://www.tiktok.com/@g4zwr" target="_blank" rel="noopener">TIKTOK</a><br><a href="https://discord.com/users/1296500534739734530" target="_blank" rel="noopener">DISCORD</a><br><a href="https://www.reddit.com/user/g4zwr" target="_blank" rel="noopener">REDDIT</a><br><a href="https://x.com/g4zwr_" target="_blank" rel="noopener">X</a><br><a href="mailto:g4zwr@duck.com">EMAIL</a></p></div>
+    <div><p class="lbl">SYSTEM</p><p class="meta num">© <span class="yr">2026</span> g4zwr. All rights reserved.<br>FX <span id="footFx">FULL</span> · <span id="footPush">LAST PUSH …</span><br><a href="/" id="replayIntro">↻ REPLAY INTRO</a></p></div>
+    <div><p class="lbl">TOP</p><p><button class="btn" onclick="scrollTo({top:0,behavior:'smooth'})">↑ TOP</button></p></div>
+  </div>
+  <div class="fine"><span>© <span class="yr">2026</span> g4zwr. All rights reserved.</span><span>Made with ❤</span></div>
+</div></footer>
+<button class="hbtn" id="toTop">↑ TOP</button>
+</div><!-- /pagewrap -->
+
+<canvas id="fxTrans" aria-hidden="true"></canvas>
+<div id="transBoot" aria-hidden="true"><div class="bw tall">BOOT</div><div id="transBar"><div id="transBarFill"></div></div><div class="term"></div></div>
+<div id="flash" aria-hidden="true"></div>
+<audio id="bgm" src="/assets/audio/teto-lairac.mp3" loop preload="auto"></audio>
+
+<script defer src="/assets/js/core.js"></script>
+<script defer src="/assets/js/glitch.js"></script>
+<script defer src="/assets/js/fx.js"></script>
+<script defer src="/assets/js/github.js"></script>
+<script defer src="/assets/js/audio.js"></script>
+<script defer src="/assets/js/viz.js"></script>
+<script defer src="/assets/js/sky.js"></script>
+<script defer src="/assets/js/transition.js"></script>
+<script defer src="/assets/js/tv-gate.js"></script>
+<script defer src="/assets/js/ascii.js"></script>
+<script defer src="/assets/js/carousel.js"></script>
+<script defer src="/assets/js/nav.js"></script>
+<script defer src="/assets/js/pages.js"></script>
+<script defer src="/assets/js/boot.js"></script>
+</body>
+</html>
