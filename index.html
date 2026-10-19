@@ -2,243 +2,500 @@
 <html lang="en" data-fx="full">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<title>g4zwr · aka gaze — Gamedev (Roblox & Luau)</title>
-<meta name="description" content="g4zwr aka gaze — Gamedev. Roblox systems in Luau, music, 2D/3D art. Projects, stack, about, contact.">
-<link rel="canonical" href="/index.html">
-<meta name="theme-color" content="#000">
-<meta property="og:type" content="website">
-<meta property="og:title" content="g4zwr · aka gaze — Gamedev">
-<meta property="og:description" content="Roblox systems in Luau, music, 2D/3D art.">
-<meta property="og:image" content="/assets/img/og-image.png">
-<meta property="og:url" content="/index.html">
-<meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:title" content="g4zwr · aka gaze — Gamedev">
-<meta name="twitter:description" content="Roblox systems in Luau, music, 2D/3D art.">
-<meta name="twitter:image" content="/assets/img/og-image.png">
-<script type="application/ld+json">{"@context":"https://schema.org","@type":"Person","name":"g4zwr","alternateName":"gaze","jobTitle":"Gamedev","url":"https://g4zwrr.github.io/","sameAs":["https://www.roblox.com/users/10841765037","https://www.youtube.com/@g4zwr","https://www.tiktok.com/@g4zwr","https://discord.com/users/1296500534739734530","https://www.reddit.com/user/g4zwr","https://x.com/g4zwr_","mailto:g4zwr@duck.com","https://github.com/g4zwrr"]}</script>
-<script>try{if(sessionStorage.getItem("g4_trans"))document.documentElement.classList.add("g4-in");}catch(e){}</script>
-<noscript><style>html.g4-in body::before{display:none!important}</style></noscript>
-<link rel="icon" type="image/svg+xml" href="/assets/img/favicon.svg">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Big+Shoulders+Display:wght@700;800;900&family=Big+Shoulders+Text:wght@400;500;600&family=Space+Mono:wght@400;700&display=swap">
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Big+Shoulders+Display:wght@700;800;900&family=Big+Shoulders+Text:wght@400;500;600&family=Space+Mono:wght@400;700&display=swap">
-<link rel="stylesheet" href="/assets/css/site.css">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>g4zwr · aka gaze — Gamedev</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Big+Shoulders+Display:wght@700;900&family=Space+Mono:wght@400;700&display=swap">
+<style>
+:root{--bg:#000;--fg:#fff;--dim:rgba(255,255,255,.55);--line:rgba(255,255,255,.28);--soft:rgba(255,255,255,.07);box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media(prefers-color-scheme:light){:root:not([data-theme="dark"]){--bg:#efefef;--fg:#000;--dim:rgba(0,0,0,.55);--line:rgba(0,0,0,.3);--soft:rgba(0,0,0,.06)}}
+:root[data-theme="dark"]{--bg:#000;--fg:#fff}
+*{box-sizing:border-box}
+html{height:100%;scroll-padding-top:env(safe-area-inset-top,0px)}
+body{margin:0;min-height:100%;background:var(--bg);color:var(--fg);font:15px/1.55 "Space Mono",ui-monospace,monospace;overflow-x:hidden}
+#crt{position:fixed;inset:0;pointer-events:none;z-index:30;background:repeating-linear-gradient(0deg,transparent 0 2px,rgba(128,128,128,.08) 2px 3px)}
+a{color:inherit}
+.disp,.card h3,.logo{font-family:"Big Shoulders Display",Impact,sans-serif;font-weight:900;text-transform:uppercase;line-height:.9;margin:0}
+header{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;display:flex;align-items:center;gap:14px;padding:10px 20px;background:var(--bg);border-bottom:1px solid var(--line);flex-wrap:wrap}
+.logo{font-size:28px;text-decoration:none;letter-spacing:.04em}
+nav{display:flex;gap:4px;flex-wrap:wrap;margin-left:auto}
+nav a{padding:6px 10px;text-decoration:none;font-size:13px;border:1px solid transparent}
+nav a:hover{border-color:var(--line)}
+nav a[aria-current=page]{background:var(--fg);color:var(--bg)}
+nav a[aria-current=page]::before,nav a[aria-current=page]::after{display:none}
+.hb{font:inherit;font-size:12px;padding:5px 9px;background:none;color:var(--fg);border:1px solid var(--line);cursor:pointer}
+.path{font-size:12px;color:var(--dim);padding:6px 20px;border-bottom:1px solid var(--line)}
+.marq{overflow:hidden;white-space:nowrap;border-bottom:1px solid var(--line);font-size:12px;padding:5px 0;color:var(--dim)}
+.marq span{display:inline-block;animation:mq 22s linear infinite}@keyframes mq{to{transform:translateX(-50%)}}
+main{max-width:1060px;margin:0 auto;padding:36px 20px 120px}
+.view{display:none}.view.on{display:block}
+h1.disp{font-size:clamp(72px,16vw,200px)}
+h2.disp{font-size:clamp(40px,8vw,84px);margin:0 0 22px}
+.g{position:relative;display:inline-block}
+.g::before,.g::after{content:attr(data-t);position:absolute;left:0;top:0;width:100%;height:100%;padding:inherit;opacity:0;pointer-events:none;animation:gl 4s infinite steps(1)}
+.g::before{transform:translate(3px,0);clip-path:inset(15% 0 55% 0)}
+.g::after{transform:translate(-3px,0);clip-path:inset(60% 0 8% 0);animation-delay:-1.3s}
+@keyframes gl{0%,90%,100%{opacity:0}92%{opacity:.85}95%{opacity:.4;transform:translate(7px,0)}}
+.g:hover::before,.g:hover::after,.hit::before,.hit::after{opacity:.9;animation:gh .25s infinite steps(2)}
+@keyframes gh{0%{transform:translate(4px,-1px);clip-path:inset(10% 0 60% 0)}50%{transform:translate(-5px,1px);clip-path:inset(55% 0 15% 0)}100%{transform:translate(2px,0);clip-path:inset(30% 0 40% 0)}}
+.hit{animation:sk .3s steps(3)}@keyframes sk{33%{transform:skewX(8deg)}66%{transform:skewX(-6deg) translateX(3px)}}
+[data-fx=off] .g::before,[data-fx=off] .g::after,[data-fx=off] #crt{display:none}
+[data-fx=off] *{animation:none!important}
+.aka{letter-spacing:.35em;margin:8px 0 22px;color:var(--dim)}
+.btn{display:inline-block;padding:9px 15px;border:1px solid var(--fg);background:none;color:var(--fg);font:inherit;font-size:14px;text-decoration:none;cursor:pointer;margin:0 6px 8px 0}
+.btn.s,.btn:hover{background:var(--fg);color:var(--bg)}
+.hero{position:relative;display:grid;grid-template-columns:1fr;padding:10px 0}
+.hero>*{position:relative;z-index:1}
+#heroViz{position:fixed;inset:0;width:100%;height:100%;opacity:.2;z-index:0;pointer-events:none}
+main,footer,.path,.marq{position:relative;z-index:1}
+@media(max-width:760px){.hero{grid-template-columns:1fr}}
+table{border-collapse:collapse;width:100%;font-size:13px;background:var(--bg)}
+td{border:1px solid var(--line);padding:6px 10px}td:first-child{color:var(--dim);width:42%}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:14px}
+.card{display:block;border:1px solid var(--line);padding:16px;background:var(--soft);text-decoration:none}
+.card:hover{border-color:var(--fg)}
+.card h3{font-size:30px;margin:0 0 6px}
+.card p{margin:0 0 8px;font-size:13px;color:var(--dim)}
+.tag{display:inline-block;border:1px solid var(--line);font-size:11px;padding:1px 7px;margin:0 4px 4px 0}
+.chips{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px}
+.chips button{font:inherit;font-size:13px;padding:5px 12px;background:none;color:var(--fg);border:1px solid var(--line);cursor:pointer}
+.chips button.on{background:var(--fg);color:var(--bg)}
+input[type=text],textarea{width:100%;font:inherit;background:var(--bg);color:var(--fg);border:1px solid var(--line);padding:10px;margin:4px 0 14px}
+:focus-visible{outline:2px solid var(--fg);outline-offset:2px}
+label{font-size:13px;color:var(--dim)}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:32px}
+@media(max-width:760px){.two{grid-template-columns:1fr}}
+.ct{cursor:pointer}.ct.open{border-color:var(--fg)}
+.dsc{position:relative;overflow:hidden;transition:height .35s ease}
+.dsc p{margin:0 0 8px;transition:opacity .35s ease}
+.dsc .lg{position:absolute;left:0;top:0;width:100%;opacity:0;pointer-events:none;color:var(--fg);font-size:14px}
+.ct.open .dsc .sh{position:absolute;left:0;top:0;width:100%;opacity:0;pointer-events:none}
+.ct.open .dsc .lg{position:static;opacity:1;pointer-events:auto}
+.ct .act{display:none;margin-top:4px}.ct.open .act{display:block;animation:fi .35s ease both}@keyframes fi{from{opacity:0}to{opacity:1}}
+.ct .opn{margin:0}
+#cfm{position:fixed;inset:0;z-index:70;background:rgba(0,0,0,.6);display:none;align-items:center;justify-content:center;padding:20px}
+#cfb{background:var(--bg);color:var(--fg);border:2px solid var(--fg);padding:22px;max-width:420px;width:100%}
+#cfb h3{font-size:34px;margin:0 0 10px}#cfu{display:block;word-break:break-all;font-size:12px;color:var(--dim);border:1px solid var(--line);padding:6px 8px;margin:10px 0 6px}
+.log li{padding:8px 0;border-bottom:1px dashed var(--line);font-size:14px}.log span{color:var(--dim);margin-right:10px}
+.blink{animation:b 1s steps(2) infinite}@keyframes b{50%{opacity:0}}
+.asc{display:grid;grid-template-columns:1fr 220px;gap:16px}
+@media(max-width:760px){.asc{grid-template-columns:1fr}}
+#ascii{margin:0;font:9px/9px "Space Mono",monospace;border:1px solid var(--line);padding:8px;overflow:hidden;cursor:grab;touch-action:none;user-select:none;min-height:100px;display:flex;justify-content:center}
+#ascii pre{margin:0;font:inherit}
+.spec{border:1px solid var(--line);padding:14px;font-size:12px;color:var(--dim)}.spec b{display:block;font-size:40px;color:var(--fg)}
+.lb{display:flex;height:12px;border:1px solid var(--line);margin:12px 0 6px}.lb i{display:block;background:var(--fg)}
+.st{font-size:12px;color:var(--dim);margin:0 0 12px}
+#dock{position:fixed;right:12px;bottom:calc(12px + env(safe-area-inset-bottom,0px));width:290px;max-width:calc(100vw - 24px);background:var(--bg);border:1px solid var(--fg);padding:8px;z-index:6;font-size:11px;display:none}
+#dock canvas{width:100%;height:64px;display:block;border:1px solid var(--line)}
+.dr{display:flex;gap:6px;align-items:center;margin-top:6px}.dr .hb{padding:3px 8px}.dr input{flex:1;min-width:0}
+.toast{position:fixed;left:50%;bottom:calc(90px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:var(--fg);color:var(--bg);padding:9px 14px;font-size:13px;display:none;z-index:40}
+footer{border-top:1px solid var(--line);padding:16px 20px;font-size:12px;color:var(--dim);display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px}
+#gate{position:fixed;inset:0;z-index:45;background:var(--bg);display:none;flex-direction:column;align-items:center;justify-content:center;cursor:pointer;gap:34px;overflow:hidden}
+#gate.on{display:flex}
+.sc{perspective:1100px;width:300px;height:230px;margin-top:70px;position:relative;transform-origin:39% 50%}
+@media(max-width:420px){.sc{zoom:.74}}
+.shd{position:absolute;left:8%;right:8%;bottom:-40px;height:24px;border-radius:50%;background:radial-gradient(var(--line),transparent 70%);transform:translateX(calc(var(--ry,0)*-1.4px))}
+.tv{position:relative;width:300px;height:230px;transform-style:preserve-3d;transform:rotateX(calc(var(--rx,0)*1deg)) rotateY(calc(var(--ry,0)*1deg))}
+.f{position:absolute;border:2px solid var(--fg);background:var(--bg)}
+.f.fr{inset:0;transform:translateZ(60px);border-radius:26px;padding:14px;display:flex;gap:12px}
+.f.bk{inset:0;transform:translateZ(-60px) rotateY(180deg);border-radius:26px;background:repeating-linear-gradient(0deg,var(--line) 0 2px,transparent 2px 9px),var(--bg)}
+.f.l,.f.r{width:120px;height:230px;left:90px;background:repeating-linear-gradient(90deg,var(--soft) 0 3px,transparent 3px 9px),var(--bg)}
+.f.r{transform:rotateY(90deg) translateZ(150px)}.f.l{transform:rotateY(-90deg) translateZ(150px)}
+.f.t,.f.b{width:300px;height:120px;top:55px}
+.f.t{transform:rotateX(90deg) translateZ(115px)}.f.b{transform:rotateX(-90deg) translateZ(115px)}
+.ant{display:block;position:absolute;left:50%;top:-84px;width:3px;height:86px;background:var(--fg);transform-origin:50% 100%}
+.ant::after{content:"";position:absolute;top:-4px;left:-3px;width:9px;height:9px;border-radius:50%;background:var(--fg)}
+.ant.a{transform:translateX(-12px) rotateZ(-26deg)}.ant.b{transform:translateX(10px) rotateZ(24deg)}
+.scr{position:relative;flex:1;border:2px solid var(--fg);border-radius:20px;overflow:hidden;background:#000}
+.scr canvas{width:100%;height:100%;display:block;image-rendering:pixelated}
+.scr::before{content:"";position:absolute;inset:0;z-index:1;background:repeating-linear-gradient(0deg,rgba(0,0,0,.28) 0 1px,transparent 1px 3px),radial-gradient(ellipse at center,transparent 55%,rgba(0,0,0,.65))}
+.scr::after{content:"";position:absolute;inset:0;z-index:1;background:linear-gradient(115deg,rgba(255,255,255,.22) 0,transparent 35%);transform:translateX(calc(var(--ry,0)*1.5px))}
+.scr span{position:absolute;inset:0;z-index:2;display:flex;align-items:center;justify-content:center;color:#fff;font-weight:700;font-size:15px;letter-spacing:.1em;text-align:center;background:rgba(0,0,0,.25)}
+.scr span::before,.scr span::after{display:flex;align-items:center;justify-content:center}
+.pnl{width:54px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px}.pnl i{display:block}
+.led{width:8px;height:8px;border-radius:50%;background:var(--fg);animation:b 1s steps(2) infinite}
+.kn{width:34px;height:34px;border:2px solid var(--fg);border-radius:50%;position:relative;transform:rotate(calc(var(--ry,0)*6deg))}
+.kn::after{content:"";position:absolute;left:50%;top:3px;width:2px;height:10px;margin-left:-1px;background:var(--fg)}
+.slit{width:34px;height:2px;background:var(--fg);box-shadow:0 6px 0 var(--fg),0 12px 0 var(--fg)}
+.tv.pw .scr{animation:crt .65s steps(3) forwards}.tv.pw .scr span{display:none}
+@keyframes crt{0%{transform:none;filter:none}30%{transform:scale(1,.03);filter:brightness(4)}60%{transform:scale(1.03,.03);filter:brightness(9)}100%{transform:none;filter:brightness(2.2)}}
+#gc{letter-spacing:.3em;font-size:13px}
+#ld{display:none;position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);letter-spacing:.3em;font-size:13px;white-space:nowrap}
+#gate.ld #ld{display:block}#gate.ld .sc,#gate.ld #gc{visibility:hidden}
+
+/* stack cards */
+.sk{cursor:pointer}.sk .top{display:flex;justify-content:space-between;gap:8px}
+.sk .pl{font-size:34px;transition:transform .45s cubic-bezier(.76,0,.24,1)}.sk.open .pl{transform:rotate(45deg)}
+.sk.open{border-color:var(--fg);background:var(--soft)}
+.sk .bar{height:6px;border:1px solid var(--line);margin:4px 0 10px}.sk .bar i{display:block;height:100%;width:0;background:var(--fg);transition:width 1s cubic-bezier(.76,0,.24,1)}
+.sk .bd{margin-top:2px;display:grid;grid-template-rows:0fr;transition:grid-template-rows .5s cubic-bezier(.76,0,.24,1)}.sk.open .bd{grid-template-rows:1fr}.sk .bd>div{overflow:hidden}
+.sk .bd p{margin:6px 0;font-size:13px;color:var(--fg)}
+
+/* home extras */
+.stats{display:grid;grid-template-columns:repeat(4,1fr);border:1px solid var(--line)}
+.stats div{padding:16px;border-right:1px solid var(--line);font-size:12px;color:var(--dim)}.stats div:last-child{border:0}
+.stats b{display:block;font:900 clamp(40px,7vw,72px)/1 "Big Shoulders Display",Impact,sans-serif;color:var(--fg)}
+@media(max-width:640px){.stats{grid-template-columns:1fr 1fr}.stats div:nth-child(2){border-right:0}.stats div:nth-child(-n+2){border-bottom:1px solid var(--line)}}
+.olw{overflow:hidden;margin:48px -20px}
+.ol{display:inline-block;white-space:nowrap;font-size:clamp(70px,15vw,160px);color:transparent;-webkit-text-stroke:1px var(--fg);animation:mq 28s linear infinite}
+.card.hv{transition:background .3s,color .3s}.card.hv:hover{background:var(--fg);color:var(--bg)}.card.hv:hover p,.card.hv:hover .tag{color:var(--bg);border-color:var(--bg)}
+.term{border:1px solid var(--fg)}.term .tb{display:flex;justify-content:space-between;padding:4px 10px;font-size:12px;border-bottom:1px solid var(--fg)}
+.term pre{margin:0;padding:14px;min-height:200px;white-space:pre-wrap;font:13px/1.65 "Space Mono",monospace}
+.cta{border:1px solid var(--fg);padding:40px 20px;margin-top:56px;text-align:center}
+.rv{opacity:0;transform:translateY(32px);transition:opacity .9s cubic-bezier(.76,0,.24,1),transform .9s cubic-bezier(.76,0,.24,1)}.rv.in{opacity:1;transform:none}
+[data-fx=off] .rv{opacity:1;transform:none;transition:none}
+
+/* page transition */
+#pt{position:fixed;inset:0;z-index:60;pointer-events:none;display:none;grid-auto-flow:column;grid-auto-columns:1fr}#pt.on{display:grid}
+#pt i{background:var(--fg);transform:scaleY(0);transform-origin:top;outline:2px solid var(--fg);margin:0 -1px;position:relative}
+#ptl{position:fixed;left:0;right:0;top:50%;margin-top:-.5em;z-index:61;display:none;text-align:center;color:var(--bg);pointer-events:none;font:900 clamp(56px,14vw,170px)/1 "Big Shoulders Display",Impact,sans-serif;text-transform:uppercase}
+#ptl small{display:block;font:700 14px "Space Mono",monospace;letter-spacing:.4em}
+body.lock,body.lock *{pointer-events:none!important}
+.scr{box-shadow:0 0 26px rgba(255,255,255,.22)}
+</style>
 </head>
-<body data-page="home">
-<a class="skip" href="#main">SKIP TO CONTENT</a>
-<div id="ariaLive" class="sr" aria-live="polite"></div>
-<div id="progress"></div>
+<body>
+<canvas id="heroViz" aria-hidden="true"></canvas>
 <div id="crt" aria-hidden="true"></div>
-<canvas id="sky" aria-hidden="true"></canvas>
-<div id="frame" aria-hidden="true"><i></i><i></i><i></i><i></i></div>
-<span class="fcoord" id="fTL">G4ZWR // HOME</span><span class="fcoord" id="fTR">B/W SIGNAL</span>
-<span class="fcoord" id="fBL">GAZE</span><span class="fcoord" id="fBR">SCROLL 000%</span>
+<div id="pt" aria-hidden="true"></div><div id="ptl" aria-hidden="true"></div>
 
-<header id="hud">
-  <a class="logo" href="/" aria-label="g4zwr home"><b class="glitch" data-text="G4ZWR">G4ZWR</b><small>// GAZE</small></a>
-  <nav id="mainnav" aria-label="Primary">
-    <a href="/" aria-current="page">01 HOME</a><a href="/projects/">02 PROJECTS</a><a href="/stack/">03 STACK</a><a href="/about/">04 ABOUT</a><a href="/contact/">05 CONTACT</a>
+<div id="gate" class="on ld" role="button" tabindex="0" aria-label="Tap to enter the g4zwr site">
+  <p id="ld" class="g" data-t="LOADING AUDIO…">LOADING AUDIO…</p>
+  <div class="sc" id="scn"><div class="shd"></div><div class="tv" id="tv">
+    <i class="ant a"></i><i class="ant b"></i>
+    <div class="f fr">
+      <div class="scr"><canvas id="stat" width="80" height="60"></canvas><span class="g" data-t="TAP TO ENTER">TAP TO ENTER</span></div>
+      <div class="pnl"><i class="led"></i><i class="kn"></i><i class="kn"></i><i class="slit"></i></div>
+    </div>
+    <div class="f bk"></div><div class="f l"></div><div class="f r"></div><div class="f t"></div><div class="f b"></div>
+  </div></div>
+  <p id="gc" class="g" data-t="TAP THE TV">TAP THE TV</p>
+</div>
+
+<header>
+  <a class="logo" href="/" data-r>G4ZWR</a>
+  <nav id="nav" aria-label="Primary">
+    <a href="/" data-r>HOME</a><a href="/projects/" data-r>PROJECTS</a><a href="/stack/" data-r>STACK</a><a href="/about/" data-r>ABOUT</a><a href="/contact/" data-r>CONTACT</a>
   </nav>
-  <div class="hstat">
-    <span class="clock num" id="clock">00:00:00</span>
-    <button class="hbtn" id="fxBtn" aria-label="Cycle FX mode">FX FULL</button>
-    <button class="hbtn" id="sndBtn" aria-label="Play or pause sound">SOUND</button>
-    <canvas id="vuMini" width="34" height="14" aria-hidden="true"></canvas>
-    <button class="hbtn" id="hamb" aria-label="Open menu" aria-expanded="false">☰</button>
-  </div>
 </header>
-<canvas id="specEdge" aria-hidden="true"></canvas>
-<div id="mmenu" role="dialog" aria-label="Menu">
-  <a class="big" href="/">01 HOME <small>boot gate + hub</small> →</a>
-  <a class="big" href="/projects/">02 PROJECTS <small>all repos</small> →</a>
-  <a class="big" href="/stack/">03 STACK <small>tools dossier</small> →</a>
-  <a class="big" href="/about/">04 ABOUT <small>bio + log</small> →</a>
-  <a class="big" href="/contact/">05 CONTACT <small>channels</small> →</a>
-  <p class="meta" id="mLatest">LATEST: …</p>
-  <p class="meta num" id="mTime">00:00:00</p>
-</div>
+<div class="path" id="path">g4zwr.dev/</div>
+<div class="marq" aria-hidden="true"><span>G4ZWR · AKA GAZE · GAMEDEV · ROBLOX · LUAU · MUSIC · 2D/3D ART · G4ZWR · AKA GAZE · GAMEDEV · ROBLOX · LUAU · MUSIC · 2D/3D ART · </span></div>
 
-<div id="pagewrap">
-<main id="main">
-<!-- GATE: first visit per session only (tv-gate.js). Real 3D: 6 CSS-3D faces. -->
-<div id="gate" role="button" tabindex="0" aria-label="Tap to enter the g4zwr site">
-  <div class="tvscene"><div class="tv" id="tvBox">
-    <div class="face f-front"><div class="bezel">
-      <div class="screen"><canvas id="tvstatic" width="160" height="120"></canvas>
-        <div class="tear"></div><div class="vhold"></div><div class="scan"></div><div class="glass"></div>
-        <svg style="position:absolute;inset:0;width:100%;height:100%" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true"><polyline points="8,0 30,34 26,58 55,78 50,100" fill="none" stroke="#fff" stroke-width="1.2" opacity="0.9"/></svg>
-        <div class="tvtxt glitch" data-text="TAP TO ENTER">TAP TO ENTER</div>
-      </div>
-      <div class="side"><div class="knob"></div><div class="knob"></div><div class="slits"></div><div class="plate">G4ZWR-TV</div></div>
-    </div></div>
-    <div class="face f-back"><div class="vent"></div><div class="plate" style="position:absolute;bottom:12px;left:12px">MODEL G4-01 · B/W</div></div>
-    <div class="face f-right"></div><div class="face f-left"></div>
-    <div class="face f-top"><div class="ant"></div><div class="ant ant2"></div></div>
-    <div class="face f-bottom"></div>
-  </div></div>
-  <div class="feet" aria-hidden="true" style="position:relative;width:min(70vw,420px)"><i></i><i></i></div>
-  <p id="gateCap">TAP THE TV</p>
-  <div class="speedlines" aria-hidden="true"></div>
-</div>
-
-<div class="wrap">
-<div class="hero grainy" id="hero">
-  <canvas id="heroViz" aria-hidden="true"></canvas>
-  <div class="heroL">
-    <p class="lbl">01 · BOOT // HOME</p>
-    <h1 id="heroTitle" class="glitch" data-text="G4ZWR">G4ZWR</h1>
-    <div class="ghost tall" aria-hidden="true" style="font-size:clamp(90px,15vw,240px);font-weight:900">G4ZWR</div>
-    <p class="aka tall">AKA GAZE</p>
-    <p class="typeq"><span id="typeq"></span><span class="caret" aria-hidden="true"></span></p>
-    <p class="tall" style="letter-spacing:.3em">GAMEDEV</p>
-    <p><a class="btn solid" href="/projects/">VIEW PROJECTS →</a> <a class="btn" href="/contact/">CONTACT →</a> <button class="btn" id="heroSnd">▶/❚❚ SOUND</button></p>
+<main>
+<section class="view" id="v-home">
+  <div class="hero">
+    <div>
+      <h1 class="disp g" data-t="G4ZWR">G4ZWR</h1>
+      <p class="aka">AKA GAZE · GAMEDEV</p>
+      <p>Roblox systems in Luau, music, 2D and 3D art.</p>
+      <a class="btn s" href="/projects/" data-r>View projects</a><a class="btn" href="/contact/" data-r>Contact</a><button class="btn" id="heroSnd">▶/❚❚ Sound</button>
+    </div>
   </div>
-  <div class="heroR"><div class="idcard">
-    <table>
-      <tr><td>HANDLE</td><td class="tall">g4zwr</td></tr>
-      <tr><td>ALIAS</td><td class="tall">gaze</td></tr>
-      <tr><td>ROLE</td><td class="tall">Gamedev</td></tr>
-      <tr><td>ENGINE</td><td class="tall">Roblox Studio</td></tr>
-      <tr><td>LANGUAGES</td><td class="tall">Luau / Python / HTML5</td></tr>
-      <tr><td>OS</td><td class="tall">Windows + Arch</td></tr>
-      <tr><td>STATUS</td><td class="tall blink">● building</td></tr>
-      <tr><td>LOCAL TIME</td><td class="tall num" id="idTime">--:--:--</td></tr>
-      <tr><td>GITHUB</td><td class="tall" id="idGithub">…</td></tr>
-    </table>
-  </div></div>
-  <span class="scrollcue" id="scrollcue">SCROLL ↓</span>
-</div>
-</div>
 
-<div class="marq" aria-hidden="true"><span>G4ZWR · AKA GAZE · GAMEDEV · ROBLOX · LUAU · MUSIC · 2D/3D ART · G4ZWR · AKA GAZE · GAMEDEV · ROBLOX · LUAU · MUSIC · 2D/3D ART ·&nbsp;</span></div>
-
-<div class="wrap">
-<section class="blk grainy reveal" id="routes"><span class="sec-num" aria-hidden="true">01</span>
-  <div class="sec-head"><span class="sec-idx">01 // ROUTES</span><h2>GO SOMEWHERE</h2></div>
-  <div class="grid12">
-    <a class="card" style="grid-column:span 3" href="/projects/"><p class="card-t">02 PROJECTS</p><p class="meta">every repo, searchable</p><p class="meta num" id="hintRepos">… REPOS</p><p class="tall">→</p></a>
-    <a class="card" style="grid-column:span 3" href="/stack/"><p class="card-t">03 STACK</p><p class="meta">languages, tools, pipeline</p><p class="meta">11 ITEMS</p><p class="tall">→</p></a>
-    <a class="card" style="grid-column:span 3" href="/about/"><p class="card-t">04 ABOUT</p><p class="meta">bio + github log</p><p class="meta">FAST FACTS</p><p class="tall">→</p></a>
-    <a class="card" style="grid-column:span 3" href="/contact/"><p class="card-t">05 CONTACT</p><p class="meta">pick a channel</p><p class="meta">7 WAYS</p><p class="tall">→</p></a>
+  <div class="stats rv" id="stats" style="margin-top:48px"><div><b id="n1">0</b>repos</div><div><b id="n2">0</b>stack items</div><div><b>2</b>tracks in the player</div><div><b>∞</b>half finished ideas</div></div>
+  <div class="olw rv" aria-hidden="true"><div class="ol disp">GAZE · G4ZWR · GAZE · G4ZWR · GAZE · G4ZWR · GAZE · G4ZWR · GAZE · G4ZWR · GAZE · G4ZWR · </div></div>
+  <h2 class="disp g rv" data-t="WHAT I MAKE">What I make</h2>
+  <div class="grid rv"><div class="card hv"><h3>Roblox</h3><p>Systems and tools in Luau. Render scripts, MIDI players, game modules.</p><span class="tag">Luau</span></div><div class="card hv"><h3>Music</h3><p>Loops and ideas in FL Studio, on PC or on my phone when an idea shows up at a bad time.</p><span class="tag">FL Studio</span></div><div class="card hv"><h3>Art</h3><p>2D drawing and 3D in Blender. Not perfect, still fun.</p><span class="tag">2D/3D</span></div></div>
+  <div class="asc rv" style="margin-top:56px">
+    <div id="ascii" aria-label="Spinning 3D shape in ASCII. Drag to spin, click for the next shape."><pre id="ap">LOADING…</pre></div>
+    <div class="spec"><p style="margin:0">SHAPE</p><b id="sn">TORUS</b><p id="si">1 / 3</p><p id="sf">-- fps</p><p>Drag to spin. Click for the next shape.</p></div>
   </div>
+  <h2 class="disp g rv" data-t="TERMINAL" style="margin-top:56px">Terminal</h2>
+  <div class="term rv"><div class="tb"><span>gaze@cachyos:~</span><span class="blink">●</span></div><pre id="tp"></pre></div>
+  <h2 class="disp g" data-t="LATEST REPOS" style="margin-top:56px">Latest repos</h2>
+  <p class="st" id="hst"></p>
+  <div class="grid" id="hg"></div>
+  <p style="margin-top:14px"><a class="btn" href="/projects/" data-r>All projects</a></p>
+  <h2 class="disp g rv" data-t="STACK" style="margin-top:56px">Stack</h2>
+  <div class="chips rv" id="peek"></div><a class="btn" href="/stack/" data-r>Open the stack</a>
+  <div class="cta rv"><h2 class="disp g" data-t="LET'S MAKE SOMETHING" style="margin-bottom:22px">Let's make something</h2><a class="btn s" href="/contact/" data-r>Contact</a></div>
 </section>
 
-<section class="blk reveal" id="contacts"><span class="sec-num" aria-hidden="true">02</span>
-  <div class="sec-head"><span class="sec-idx">02 // CONTACT</span><h2>SIGNAL LINES</h2></div>
+<section class="view" id="v-projects">
+  <h2 class="disp g" data-t="PROJECTS">Projects</h2>
+  <p class="st" id="pst"></p>
+  <div class="lb" id="lb"></div><p class="st" id="ll"></p>
+  <input type="text" id="q" placeholder="Search projects…" aria-label="Search projects">
+  <div class="grid" id="pg"></div>
 </section>
-</div>
-<div class="car" id="fanCar" style="--cw:190px" aria-label="Contact links carousel"></div>
-<div class="wrap">
 
-<section class="blk grainy reveal" id="hub"><span class="sec-num" aria-hidden="true">03</span>
-  <div class="sec-head"><span class="sec-idx">03 // HUB</span><h2>ASCII SHOWCASE</h2></div>
-  <div class="asciiWrap">
-    <div class="panel" aria-label="Real-time 3D shapes rendered as ASCII. Drag to spin, click for next shape."><pre id="ascii" aria-hidden="true">LOADING…</pre></div>
-    <div class="spec">
-      <p class="lbl">SPEC PANEL</p>
-      <p class="tall" id="specName" style="font-size:44px;font-weight:900">TORUS</p>
-      <p class="meta num" id="specIdx">01 / 05</p>
-      <p class="meta">EQ <code id="specEq">…</code></p>
-      <p class="meta num">A/B <span id="specAB">…</span> · <span id="specFps">…</span></p>
-      <p class="meta num" id="specVf">…</p>
-      <p class="meta mono">RAMP “ .,-~:;=!*#$@”</p>
-      <svg class="ring" viewBox="0 0 64 64" aria-hidden="true"><circle cx="32" cy="32" r="26" fill="none" stroke="rgba(255,255,255,.25)" stroke-width="4"/><circle id="specRingFg" cx="32" cy="32" r="26" fill="none" stroke="#fff" stroke-width="4" stroke-dasharray="163.3" stroke-dashoffset="0" transform="rotate(-90 32 32)"/></svg>
+<section class="view" id="v-stack">
+  <h2 class="disp g" data-t="STACK">Stack</h2>
+  <div class="chips" id="sc"><button class="on" data-f="">All</button><button data-f="Lang">Lang</button><button data-f="Tool">Tool</button><button data-f="Env">Env</button></div>
+  <div class="grid" id="sg"></div>
+</section>
+
+<section class="view" id="v-about">
+  <h2 class="disp g" data-t="ABOUT">About</h2>
+  <div class="two">
+    <div>
+      <p>hey, Im gaze.</p>
+      <p>I mostly do things in Roblox. Right now,</p>
+      <p>When I'm not I'm in FL Studio doing things too, on my PC or on my phone when an idea shows up at a bad time. I also draw a bit i know my drawing isnt good, which is the part that keeps everything else from feeling like worth nothing.</p>
+      <p>I run Windows and CachyOS, keep my code on GitHub, and this site is my pile of experiments. If something broken, it's on purpose. Mostly.</p>
+      <h3 class="disp g" data-t="FAST FACTS" style="font-size:34px;margin:26px 0 10px">Fast facts</h3>
+      <table><tr><td>What I do</td><td>Gamedev</td></tr><tr><td>Main tool</td><td>opencode</td></tr><tr><td>Music</td><td>FL Studio, PC + mobile</td></tr><tr><td>Runs on</td><td>Windows + CachyOS</td></tr><tr><td>My code</td><td><a href="https://github.com/g4zwr" target="_blank" rel="noopener">github.com/g4zwr</a></td></tr></table>
+    </div>
+    <div>
+      <h3 class="disp g" data-t="LOG" style="font-size:34px;margin:0 0 6px">Log</h3>
+      <p class="st" id="lgs"></p>
+      <ul class="log" id="lg" style="list-style:none;padding:0;margin:0"></ul>
     </div>
   </div>
 </section>
 
-<section class="blk reveal" id="projects"><span class="sec-num" aria-hidden="true">04</span>
-  <div class="sec-head"><span class="sec-idx">04 // PROJECTS</span><h2>	selected_WORK</h2></div>
+<section class="view" id="v-contact">
+  <h2 class="disp g" data-t="CONTACT">Contact</h2>
+  <div class="grid" id="cl"></div>
 </section>
-</div>
-<div class="car" id="projCar" style="--cw:260px" aria-label="Recent projects carousel"></div>
-<div class="wrap">
-  <div id="statRow" style="margin-top:18px"><div class="skel"></div></div>
-  <div id="langBar" class="langbar" aria-label="Language distribution"></div>
-  <p class="meta" id="langLegend">…</p>
-  <h3 class="tall" style="margin-top:22px">RECENT ACTIVITY</h3>
-  <div id="actFeed"><div class="skel"></div></div>
-  <p><a class="btn" href="/projects/">ALL PROJECTS →</a></p>
-
-<section class="blk grainy reveal" id="currently"><span class="sec-num" aria-hidden="true">05</span>
-  <div class="sec-head"><span class="sec-idx">05 // CURRENTLY</span><h2>NOW BUILDING</h2></div>
-  <div class="grid12">
-    <div class="panel" style="grid-column:span 4"><p class="tall" style="font-size:60px">▣</p><h3>ROBLOX / LUAU</h3><p>Roblox dev building systems in Luau.</p><p><a class="chip" href="/stack/">STACK →</a></p></div>
-    <div class="panel" style="grid-column:span 4"><p class="tall" style="font-size:60px">♪</p><h3>MUSIC / FL STUDIO</h3><p>Producing music on PC and mobile with FL Studio.</p><p><a class="chip" href="/stack/">STACK →</a></p></div>
-    <div class="panel" style="grid-column:span 4"><p class="tall" style="font-size:60px">◈</p><h3>ART 2D &amp; 3D</h3><p>Drawing and animating in 2D and 3D.</p><p><a class="chip" href="/stack/">STACK →</a></p></div>
-  </div>
-</section>
-
-<section class="blk reveal" id="bentoSec"><span class="sec-num" aria-hidden="true">06</span>
-  <div class="sec-head"><span class="sec-idx">06 // STACK BENTO</span><h2>TOOLBOX</h2></div>
-  <p><button class="chip on" data-bento="">ALL</button> <button class="chip" data-bento="LANG">LANG</button> <button class="chip" data-bento="TOOL">TOOL</button> <button class="chip" data-bento="ENV">ENV</button></p>
-  <div class="projGrid" id="bento" style="margin-top:14px"></div>
-  <p><a class="btn" href="/stack/">FULL DOSSIER →</a></p>
-</section>
-
-<section class="blk grainy reveal" id="ghstats"><span class="sec-num" aria-hidden="true">07</span>
-  <div class="sec-head"><span class="sec-idx">07 // GITHUB STATS</span><h2>RECEIPTS</h2></div>
-  <div class="statImgs">
-    <img src="https://github-readme-stats-fast.vercel.app/api?username=g4zwrr&theme=transparent&title_color=ffffff&text_color=ffffff&icon_color=ffffff&bg_color=00000000&hide_border=true" alt="GitHub stats for g4zwrr">
-    <img src="https://github-readme-stats-fast.vercel.app/api/top-langs/?username=g4zwrr&layout=compact&theme=transparent&title_color=ffffff&text_color=ffffff&bg_color=00000000&hide_border=true" alt="Top languages for g4zwrr">
-    <img src="https://streak-stats.demolab.com?user=g4zwrr&theme=transparent&background=00000000&stroke=ffffff&ring=ffffff&fire=ffffff&currStreakLabel=ffffff&sideLabels=ffffff&dates=ffffff" alt="Contribution streak for g4zwrr">
-    <img src="https://komarev.com/ghpvc/?username=g4zwrr&color=white&style=flat-square&label=PROFILE+VIEWS" alt="Profile views badge">
-  </div>
-</section>
-
-<section class="blk reveal" id="talk"><span class="sec-num" aria-hidden="true">08</span>
-  <div class="sec-head"><span class="sec-idx">08 // LET'S TALK</span><h2>BIG CTA</h2></div>
-  <p class="tall" style="font-size:clamp(50px,9vw,120px);font-weight:900;line-height:.9">LET'S<br>TALK →</p>
-  <p><a class="btn solid" href="/contact/">CONTACT →</a> <button class="btn" data-copy>COPY EMAIL</button></p>
-</section>
-</div>
 </main>
 
-<nav id="railL" aria-label="Sections"></nav>
-
-<div id="dock" role="region" aria-label="Now playing" style="display:none">
-  <div class="dhead"><span>♪ TETO-LAIRAC · LOOP</span><span id="dTime" class="num">00:00 / 00:00</span></div>
-  <canvas id="dockViz" width="340" height="64"></canvas>
-  <div class="drow"><button id="dPlay" aria-label="Play or pause">▶</button><button id="dMute" aria-label="Mute">MUTE</button>
-    <div id="seek" role="slider" aria-label="Seek" tabindex="0"><div id="seekFill"></div><span id="seekTip"></span></div></div>
-  <div class="drow"><label class="meta" for="vol">VOL</label><input id="vol" type="range" min="0" max="1" step="0.01" value="0.8">
-    <button id="dViz" aria-label="Cycle visualizer mode">VIZ: SCOPE</button></div>
-  <button id="tapStart">▶ TAP TO START SOUND</button>
+<div id="dock" role="region" aria-label="Now playing">
+  <div class="dr" style="margin:0 0 6px;justify-content:space-between"><span id="dn">♪ 着包み · COSTUME</span><span id="dt">PAUSED</span></div>
+  <canvas id="dv" width="280" height="64"></canvas>
+  <div class="dr"><button class="hb" id="dp" aria-label="Play or pause">▶</button><button class="hb" id="dm" aria-label="Mute">MUTE</button><input id="vol" type="range" min="0" max="1" step="0.01" value="0.7" aria-label="Volume"><button class="hb" id="dz" aria-label="Cycle visualizer">SCOPE</button></div>
+  <div class="dr"><label class="hb" style="cursor:pointer">LOAD AUDIO FILE<input id="af" type="file" accept="audio/*" hidden></label></div>
 </div>
-<div id="ticker"><span id="tickerIn">G4ZWR · </span></div>
+<div id="cfm" role="dialog" aria-modal="true" aria-labelledby="cft"><div id="cfb"><h3 class="disp" id="cft">Are you sure?</h3><span id="cfu"></span><p class="st" id="cfd"></p><button class="btn s" id="cfy">Yes, open it</button><button class="btn" id="cfn">No, stay here</button></div></div>
+<div class="toast" id="toast" role="status"></div>
+<div id="osd" class="g" data-t="" aria-hidden="true" style="display:none;position:fixed;top:calc(74px + env(safe-area-inset-top,0px));left:20px;z-index:61;padding:6px 12px;border:2px solid var(--fg);background:var(--bg);font-weight:700;font-size:clamp(18px,4vw,30px);letter-spacing:.08em"></div>
+<footer><span>© 2026 g4zwr. All rights reserved.</span><span><a href="/" id="replay">↻ Replay intro</a> · Made with ❤</span></footer>
 
-<footer><div class="wrap">
-  <div class="fcols">
-    <div><p class="lbl">SITEMAP</p><p><a href="/">01 HOME</a><br><a href="/projects/">02 PROJECTS</a><br><a href="/stack/">03 STACK</a><br><a href="/about/">04 ABOUT</a><br><a href="/contact/">05 CONTACT</a></p></div>
-    <div><p class="lbl">SOCIALS</p><p id="footSoc"><a href="https://www.roblox.com/users/10841765037" target="_blank" rel="noopener">ROBLOX</a><br><a href="https://www.youtube.com/@g4zwr" target="_blank" rel="noopener">YOUTUBE</a><br><a href="https://www.tiktok.com/@g4zwr" target="_blank" rel="noopener">TIKTOK</a><br><a href="https://discord.com/users/1296500534739734530" target="_blank" rel="noopener">DISCORD</a><br><a href="https://www.reddit.com/user/g4zwr" target="_blank" rel="noopener">REDDIT</a><br><a href="https://x.com/g4zwr_" target="_blank" rel="noopener">X</a><br><a href="mailto:g4zwr@duck.com">EMAIL</a></p></div>
-    <div><p class="lbl">SYSTEM</p><p class="meta num">© <span class="yr">2026</span> g4zwr. All rights reserved.<br>FX <span id="footFx">FULL</span> · <span id="footPush">LAST PUSH …</span><br><a href="/" id="replayIntro">↻ REPLAY INTRO</a></p></div>
-    <div><p class="lbl">TOP</p><p><button class="btn" onclick="scrollTo({top:0,behavior:'smooth'})">↑ TOP</button></p></div>
-  </div>
-  <div class="fine"><span>© <span class="yr">2026</span> g4zwr. All rights reserved.</span><span>Made with ❤</span></div>
-</div></footer>
-<button class="hbtn" id="toTop">↑ TOP</button>
-</div><!-- /pagewrap -->
+<script>
+var $=function(i){return document.getElementById(i)},Q=function(s){return [].slice.call(document.querySelectorAll(s))};
+var P=[["Luau Systems Kit","Reusable modules for Roblox games.","Luau",0],["Gaze Loops","Music loops produced in FL Studio.","Music",0],["ASCII Showcase","Real-time 3D shapes rendered as ASCII.","HTML",0],["CachyOS Dotfiles","Config for a Windows + CachyOS setup.","Shell",0],["Python Tools","Small scripts for asset pipelines.","Python",0],["Animation Reels","Hand drawn 2D animation shorts.","Art",0]];
+var S=[
+["Luau","Lang",90,"Roblox scripting.","What most of my Roblox work is written in: systems, modules and render scripts.","RetroRender-Engine, Midi-Auto-Player"],
+["Python","Lang",60,"Small scripts.","Glue scripts for asset pipelines and repetitive jobs.","Python Tools"],
+["HTML5","Lang",70,"This site.","Canvas, CSS and vanilla JS. This whole site is one file, no framework.","this site, ASCII Showcase"],
+["Roblox Studio","Tool",90,"Where games get built.","Building, scripting and testing my games.","everything Roblox"],
+["opencode","Tool",85,"My main tool.","What I reach for first when I write code.","most of my repos"],
+["FL Studio","Tool",80,"Music.","Loops and ideas, on PC or on my phone.","Gaze Loops"],
+["Blender","Tool",55,"3D art.","Models and 3D art for projects.","3D art"],
+["Git","Tool",70,"Version control.","Everything lives on GitHub.","github.com/g4zwr"],
+["VS Code","Tool",65,"Editor.","For when I want a regular editor.","scripts and web"],
+["Windows","Env",80,"Main PC.","Where Roblox Studio and FL Studio run.","game dev, music"],
+["CachyOS","Env",70,"Linux side.","My other setup, with my dotfiles.","CachyOS Dotfiles"],
+["Mobile DAW","Env",60,"Music on my phone.","For ideas that show up at a bad time.","sketching loops"]];
+var C=[
+["Roblox","https://www.roblox.com/users/10841765037","Where most of my stuff lives.","This is my Roblox profile. Most of what I build ends up here sooner or later, so if you want to see what I've been messing with in game, start here. Fair warning, some of it is half finished.","my Roblox profile"],
+["YouTube","https://www.youtube.com/@g4zwr","Videos, when I get around to them.","My YouTube channel. I don't post on a schedule, I post when I actually have something worth showing. Stuff I made, clips, the occasional experiment.","my YouTube channel"],
+["TikTok","https://www.tiktok.com/@g4zwr","Short clips and random ideas.","Quick clips, mostly. Things I made that look cool in ten seconds, or ideas that popped into my head at a bad time and I just had to share.","my TikTok"],
+["Discord","https://discord.com/users/1296500534739734530","Probably the fastest way to reach me.","If you want to actually talk, this is the best spot. Say hi first and tell me what it's about so I know you're a real person. I might take a while to reply, but I do reply.","my Discord profile"],
+["Reddit","https://www.reddit.com/user/g4zwr","I lurk more than I post.","My Reddit account. I mostly read and scroll, but I'll comment if something's interesting or somebody needs a hand.","my Reddit profile"],
+["X","https://x.com/g4zwr_","Small thoughts and updates.","Quick updates and whatever's on my mind. Not very active, but I check it now and then.","my X profile"],
+["Email","mailto:g4zwr@duck.com","For anything longer than a DM.","Best for longer messages, work stuff, or anything you don't want buried in a chat. I'll get back to you when I can. Opening this will launch your email app.","an email to g4zwr@duck.com"],
+["GitHub","https://github.com/g4zwr","My code, the messy parts included.","All my code is here. Some repos are clean, some are experiments I forgot about. Feel free to poke around, and stars are always nice.","my GitHub"]
+];
+function esc(s){return String(s).replace(/[&<>"]/g,function(c){return{"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]})}
+function toast(m){var t=$("toast");t.textContent=m;t.style.display="block";clearTimeout(toast.i);toast.i=setTimeout(function(){t.style.display="none"},2200)}
 
-<canvas id="fxTrans" aria-hidden="true"></canvas>
-<div id="transBoot" aria-hidden="true"><div class="bw tall">BOOT</div><div id="transBar"><div id="transBarFill"></div></div><div class="term"></div></div>
-<div id="flash" aria-hidden="true"></div>
-<audio id="bgm" src="/assets/audio/teto-lairac.mp3" loop preload="auto"></audio>
+/* glitch: tag headings, random bursts */
+function applyG(){Q(".card h3,.logo,nav a,.hb").forEach(function(e){if(!e.dataset.t&&e.children.length===0){e.dataset.t=e.textContent;e.classList.add("g")}})}
+setInterval(function(){if(document.documentElement.dataset.fx!=="full")return;var a=Q(".g");for(var i=0;i<2;i++){var e=a[Math.floor(Math.random()*a.length)];if(!e)continue;e.classList.add("hit");(function(x){setTimeout(function(){x.classList.remove("hit")},320)})(e)}},1400);
 
-<script defer src="/assets/js/core.js"></script>
-<script defer src="/assets/js/glitch.js"></script>
-<script defer src="/assets/js/fx.js"></script>
-<script defer src="/assets/js/github.js"></script>
-<script defer src="/assets/js/audio.js"></script>
-<script defer src="/assets/js/viz.js"></script>
-<script defer src="/assets/js/sky.js"></script>
-<script defer src="/assets/js/transition.js"></script>
-<script defer src="/assets/js/tv-gate.js"></script>
-<script defer src="/assets/js/ascii.js"></script>
-<script defer src="/assets/js/carousel.js"></script>
-<script defer src="/assets/js/nav.js"></script>
-<script defer src="/assets/js/pages.js"></script>
-<script defer src="/assets/js/boot.js"></script>
+/* repos: live fetch, sample fallback */
+var HIDE=["g4zwr","g4zwr.github.io"],REPOS=[{n:"RetroRender-Engine",d:"A custom render script for Roblox. Drop it into StarterPlayerScripts.",l:"Luau",s:2,u:"https://github.com/g4zwr/RetroRender-Engine"},{n:"Midi-Auto-Player",d:"A virtual piano MIDI player for Roblox piano games.",l:"Lua",s:0,u:"https://github.com/g4zwr/Midi-Auto-Player"}],SRC="SNAPSHOT";
+function rcard(r){return '<a class="card" data-repo="'+esc(r.n)+'" target="_blank" rel="noopener" href="'+esc(r.u)+'"><h3>'+esc(r.n)+'</h3><p>'+esc(r.d)+'</p><span class="tag">'+esc(r.l)+'</span><span class="tag">★ '+r.s+'</span></a>'}
+function pcard(r){return '<div class="card sk" tabindex="0" role="button" aria-expanded="false"><div class="top"><h3>'+esc(r.n)+'</h3><span class="pl disp">+</span></div><p>'+esc(r.d)+'</p><span class="tag">'+esc(r.l)+'</span><span class="tag">★ '+r.s+'</span><div class="bd"><div><p class="st">github.com/g4zwr/'+esc(r.n)+'</p><a class="btn s" data-repo="'+esc(r.n)+'" target="_blank" rel="noopener" href="'+esc(r.u)+'">Open repo</a></div></div></div>'}
+function renderRepos(){
+  var msg=SRC==="LIVE"?"SOURCE: GITHUB API · "+REPOS.length+" REPOS":"SOURCE: GITHUB SNAPSHOT FROM 14 OCT 2026 · updates live when hosted where GitHub requests are allowed";
+  $("hst").textContent=msg;$("pst").textContent=msg;
+  $("hg").innerHTML=REPOS.slice(0,3).map(rcard).join("");
+  var f=($("q").value||"").toLowerCase();
+  $("pg").innerHTML=REPOS.filter(function(r){return(r.n+r.d+r.l).toLowerCase().indexOf(f)>-1}).map(pcard).join("")||"<p>No projects match. Clear the search to see all.</p>";
+  var c={};REPOS.forEach(function(r){c[r.l]=(c[r.l]||0)+1});var k=Object.keys(c);
+  $("lb").innerHTML=k.map(function(x,i){return'<i style="width:'+c[x]/REPOS.length*100+'%;opacity:'+(1-i*.16>.25?1-i*.16:.25)+'"></i>'}).join("");
+  $("ll").textContent=k.map(function(x){return x+" "+c[x]}).join(" · ");applyG();
+}
+$("q").oninput=renderRepos;
+try{var ctl=new AbortController();setTimeout(function(){ctl.abort()},5000);
+fetch("https://api.github.com/users/g4zwr/repos?sort=pushed&per_page=30",{signal:ctl.signal}).then(function(r){if(!r.ok)throw 0;return r.json()}).then(function(j){var l=j.filter(function(r){return!r.fork&&HIDE.indexOf(r.name.toLowerCase())<0}).map(function(r){return{n:r.name,d:r.description||"No description yet.",l:r.language||"Other",s:r.stargazers_count,u:r.html_url}});if(l.length){REPOS=l;SRC="LIVE";renderRepos()}}).catch(function(){})}catch(e){}
+
+/* about log */
+var LOG=[{t:"repo",x:"g4zwr.github.io: 51 commits so far, and this site lives there"},{t:"repo",x:"RetroRender-Engine: a custom render script for Roblox, in Luau"},{t:"repo",x:"Midi-Auto-Player: a virtual piano MIDI player for Roblox piano games"}];
+function ago(d){var m=(Date.now()-new Date(d))/6e4;return m<60?Math.max(1,Math.round(m))+"m":m<1440?Math.round(m/60)+"h":Math.round(m/1440)+"d"}
+function renderLog(l,live){$("lg").innerHTML=l.map(function(e){return"<li><span>"+esc(e.t)+"</span>"+esc(e.x)+"</li>"}).join("");$("lgs").textContent=live?"SOURCE: GITHUB EVENTS · LIVE":"SOURCE: GITHUB SNAPSHOT · live log loads when hosted where GitHub requests are allowed"}
+renderLog(LOG,false);
+try{var c2=new AbortController();setTimeout(function(){c2.abort()},5000);
+fetch("https://api.github.com/users/g4zwr/events/public?per_page=30",{signal:c2.signal}).then(function(r){if(!r.ok)throw 0;return r.json()}).then(function(j){var o=[];j.forEach(function(e){var rn=e.repo.name.split("/")[1],x=null;
+ if(e.type==="PushEvent"&&e.payload.commits&&e.payload.commits.length)x="pushed to "+rn+": "+e.payload.commits[e.payload.commits.length-1].message.split("\n")[0];
+ else if(e.type==="CreateEvent"&&e.payload.ref_type==="repository")x="created "+rn;else if(e.type==="WatchEvent")x="starred "+rn;else if(e.type==="ForkEvent")x="forked "+rn;
+ if(x&&o.length<8)o.push({t:ago(e.created_at),x:x})});if(o.length)renderLog(o,true)}).catch(function(){})}catch(e){}
+
+/* stack + contact */
+var HV=matchMedia("(hover:hover) and (pointer:fine)");
+function hover(box,sel,fn){box.addEventListener("mouseover",function(e){if(!HV.matches)return;var c=e.target.closest(sel);if(c&&!c.contains(e.relatedTarget))fn(c,true)});box.addEventListener("mouseout",function(e){if(!HV.matches)return;var c=e.target.closest(sel);if(c&&!c.contains(e.relatedTarget))fn(c,false)})}
+function rs(f){$("sg").innerHTML=S.filter(function(s){return!f||s[1]===f}).map(function(s){return'<div class="card sk" tabindex="0" role="button" aria-expanded="false"><div class="top"><div><h3>'+esc(s[0])+'</h3><span class="tag">'+s[1]+'</span><span class="tag">'+s[2]+'%</span></div><span class="pl disp">+</span></div><p>'+esc(s[3])+'</p><div class="bar"><i data-w="'+s[2]+'"></i></div><div class="bd"><div><p>'+esc(s[4])+'</p><p class="st">Used in: '+esc(s[5])+'</p></div></div></div>'}).join("");applyG();setTimeout(function(){Q("#sg .bar i").forEach(function(i){i.style.width=i.dataset.w+"%"})},40)}
+function skT(c,f){var o=f===undefined?!c.classList.contains("open"):f;c.classList.toggle("open",o);c.setAttribute("aria-expanded",o)}
+["sg","pg"].forEach(function(id){var b=$(id);
+ b.onclick=function(e){if(e.target.closest("a"))return;var c=e.target.closest(".sk");if(c&&!HV.matches)skT(c)};
+ b.onkeydown=function(e){if((e.key==="Enter"||e.key===" ")&&e.target.classList.contains("sk")){e.preventDefault();skT(e.target)}};
+ hover(b,".sk",skT)});
+$("sc").onclick=function(e){var b=e.target.closest("button");if(!b)return;Q("#sc button").forEach(function(x){x.classList.remove("on")});b.classList.add("on");rs(b.dataset.f)};
+$("cl").innerHTML=C.map(function(c,k){return'<div class="card ct" tabindex="0" role="button" aria-expanded="false" data-i="'+k+'"><h3>'+esc(c[0])+'</h3><div class="dsc"><p class="sh">'+esc(c[2])+'</p><p class="lg">'+esc(c[3])+'</p></div><div class="act"><button class="btn s opn" data-i="'+k+'">Open '+esc(c[0])+'</button></div></div>'}).join("");
+function ctToggle(el,f){var d=el.querySelector(".dsc"),o=f===undefined?!el.classList.contains("open"):f;if(o===el.classList.contains("open"))return;var h0=d.offsetHeight;d.style.height=h0+"px";el.classList.toggle("open",o);el.setAttribute("aria-expanded",o);
+  var h1=(o?d.querySelector(".lg"):d.querySelector(".sh")).offsetHeight+8;d.offsetHeight;d.style.height=h1+"px";clearTimeout(d._t);d._t=setTimeout(function(){d.style.height=""},380)}
+var pend=null,cf=$("cfm");
+function askGo(p,int){pend=p;$("cft").textContent="Open "+p[4]+"?";$("cfu").textContent=int?"g4zwr.dev/projects/":p[1].replace(/^mailto:/,"");$("cfd").textContent=int?"This will take you to the projects page.":(p[1].indexOf("mailto:")===0?"This will open your email app.":"This will open in a new tab, outside this site.");cf.style.display="flex";$("cfy").focus()}
+function askOpen(k){askGo(C[k])}
+function closeCf(){cf.style.display="none";pend=null}
+$("cl").onclick=function(e){var b=e.target.closest(".opn");if(b){e.stopPropagation();askOpen(+b.dataset.i);return}var c=e.target.closest(".ct");if(c&&!HV.matches)ctToggle(c)};
+hover($("cl"),".ct",ctToggle);
+$("cl").onkeydown=function(e){if((e.key==="Enter"||e.key===" ")&&e.target.classList.contains("ct")){e.preventDefault();ctToggle(e.target)}};
+$("cfy").onclick=function(){if(!pend)return;var u=pend[1];closeCf();if(u.charAt(0)==="#")location.hash=u;else if(u.indexOf("mailto:")===0)location.href=u;else window.open(u,"_blank","noopener")};
+$("cfn").onclick=closeCf;cf.onclick=function(e){if(e.target===cf)closeCf()};
+addEventListener("keydown",function(e){if(e.key==="Escape"&&cf.style.display==="flex")closeCf()});
+
+/* fake routing */
+var R={"":"home","projects":"projects","stack":"stack","about":"about","contact":"contact"},cur="home";
+var fxT=document.createElement("canvas");fxT.style.cssText="position:fixed;inset:0;width:100%;height:100%;z-index:60;pointer-events:none;image-rendering:pixelated;display:none";document.body.appendChild(fxT);
+function route(p){p=(p||"").replace(/^#?\/?/,"").replace(/\/$/,"");var k=R.hasOwnProperty(p)?p:"";cur=R[k];
+  Q(".view").forEach(function(v){v.classList.remove("on")});$("v-"+cur).classList.add("on");
+  Q("#nav a").forEach(function(a){var h=a.getAttribute("href").replace(/^\/|\/$/g,"");if(h===k)a.setAttribute("aria-current","page");else a.removeAttribute("aria-current")});
+  $("path").textContent="g4zwr.dev/"+(k?k+"/":"");document.title=(k?k.toUpperCase()+" · ":"")+"g4zwr · aka gaze";scrollTo(0,0)}
+document.addEventListener("click",function(e){if(busy){e.preventDefault();return}var rp=e.target.closest("a[data-repo]");if(rp){e.preventDefault();askGo(["Repo",rp.href,"","","the "+rp.dataset.repo+" repo"]);return}var a=e.target.closest("a[data-r]");if(!a)return;e.preventDefault();var h="#"+a.getAttribute("href");if(location.hash===h)return;location.hash=h});
+
+/* channel-change transition: fade to solid, swap, columns retract */
+var busy=false;
+function chInfo(h){var p=(h||"").replace(/^#?\/?/,"").replace(/\/$/,""),k=R.hasOwnProperty(p)?p:"";return"CH 0"+(Object.keys(R).indexOf(k)+1)+" // "+(k||"home").toUpperCase()}
+function pick(v){var a=[].slice.call($("v-"+v).querySelectorAll("h1,h2,h3,p,.card,table,.btn,#ascii,.spec,input,textarea,.chips,.lb,li,label"));return a.filter(function(e){return!a.some(function(o){return o!==e&&o.contains(e)})})}
+function channel(cb,label){var d=document.documentElement;
+ if(d.dataset.fx==="off"||RM){cb();return}
+ if(busy){pendC=[cb,label];return}
+ busy=true;document.body.classList.add("lock");
+ var pt=$("pt"),pl=$("ptl"),N=innerWidth<600?5:9,E="cubic-bezier(.76,0,.24,1)",G=600,ST=35,HOLD=300,OUT=480,mx=(N-1)/2*ST,a=label.split(" // "),x=fxT.getContext("2d"),cs=getComputedStyle(document.body),fg=cs.color;
+ fxT.width=fxT.height=1;x.fillStyle=fg;x.fillRect(0,0,1,1);fxT.style.display="block";
+ var fa=fxT.animate([{opacity:0},{opacity:1}],{duration:G,easing:E,fill:"forwards"});fa.onfinish=cover;
+ function cover(){pt.innerHTML=new Array(N+1).join("<i></i>");pt.className="on";pl.innerHTML="<small>"+a[0]+"</small><b>"+a[1]+"</b>";pl.style.display="block";
+  [].slice.call(pt.children).forEach(function(b,j){var c=Math.abs(j-(N-1)/2)*ST;b.style.transform="scaleY(1)";
+   b.animate([{transformOrigin:"bottom",transform:"scaleY(1)"},{transformOrigin:"bottom",transform:"scaleY(0)"}],{duration:OUT,delay:HOLD+(mx-c),easing:E,fill:"both"})});
+  fxT.style.display="none";fa.cancel();
+  pl.animate([{opacity:0,transform:"translateY(50px)",letterSpacing:".35em"},{opacity:1,transform:"none",letterSpacing:".02em"}],{duration:380,easing:E,fill:"both"});
+  pl.animate([{opacity:1,transform:"none"},{opacity:0,transform:"translateY(-50px)"}],{duration:300,delay:HOLD+mx-120,easing:E,fill:"forwards"});
+  setTimeout(function(){cb();pick(cur).forEach(function(e,j){e.animate([{transform:"translateY(46px)",opacity:0,clipPath:"inset(0 0 100% 0)"},{transform:"none",opacity:1,clipPath:"inset(0 0 0% 0)"}],{duration:750,delay:HOLD+Math.min(j,14)*40,easing:E,fill:"backwards"})})},60);
+  setTimeout(function(){pt.className="";pt.innerHTML="";pl.style.display="none";busy=false;document.body.classList.remove("lock");if(pendC){var q=pendC;pendC=null;channel(q[0],q[1])}},HOLD+OUT+mx+80)}}
+var pendC=null;
+addEventListener("hashchange",function(){channel(function(){route(location.hash)},chInfo(location.hash))});
+
+/* intro gate */
+var gate=$("gate"),tv=$("tv"),sx=$("stat").getContext("2d"),gOn=false,nRun=false,pw=false,tvRun=false,lastMove=0,tgt={x:0,y:0},cu={x:0,y:0},RM=matchMedia("(prefers-reduced-motion:reduce)").matches;
+function noise(){if(!gate.classList.contains("on")){nRun=false;return}var d=sx.createImageData(80,60),b=d.data;for(var i=0;i<b.length;i+=4){var v=Math.random()*255;b[i]=b[i+1]=b[i+2]=v;b[i+3]=255}sx.putImageData(d,0,0);setTimeout(function(){requestAnimationFrame(noise)},50)}
+function openGate(){gOn=true;pw=false;tv.className="tv";$("scn").className="sc";$("scn").style.transform=$("scn").style.filter=gate.style.transform=gate.style.filter=gate.style.opacity="";$("gc").style.opacity="";gate.className="on"+(ready?"":" ld");if(!nRun){nRun=true;noise()}if(!tvRun){tvRun=true;requestAnimationFrame(tvLoop)}}
+addEventListener("pointermove",function(e){tgt.y=(e.clientX/innerWidth-.5)*2*30;tgt.x=-(e.clientY/innerHeight-.5)*2*18;lastMove=performance.now()});
+function tvLoop(t){if(!gate.classList.contains("on")){tvRun=false;return}
+ if(pw){cu.x*=.85;cu.y*=.85}else{if(!RM&&t-lastMove>2500){tgt.y=Math.sin(t/1500)*24;tgt.x=Math.sin(t/2300)*8}cu.x+=(tgt.x-cu.x)*.1;cu.y+=(tgt.y-cu.y)*.1}
+ var sc=$("scn");sc.style.setProperty("--rx",cu.x.toFixed(2));sc.style.setProperty("--ry",cu.y.toFixed(2));requestAnimationFrame(tvLoop)}
+function tw(D,fn,ez,done){var t0=performance.now();(function f(){var k=Math.min(1,(performance.now()-t0)/D);fn(ez(k),k);if(k<1)requestAnimationFrame(f);else if(done)done()})()}
+function eIO(k){return k<.5?4*k*k*k:1-Math.pow(-2*k+2,3)/2}
+function zoomIn(done){var sc=$("scn");tw(1200,function(e,k){sc.style.transform="scale("+(1+e*e*16).toFixed(3)+")";sc.style.filter="brightness("+(1+e*2.5).toFixed(2)+")";gate.style.opacity=k<.7?1:1-eIO((k-.7)/.3)},eIO,done)}
+function intro(){if(RM||document.documentElement.dataset.fx==="off")return;pick(cur).slice(0,14).forEach(function(e,j){e.animate([{opacity:0,transform:"translateY(34px)"},{opacity:1,transform:"none"}],{duration:900,delay:j*70,easing:"cubic-bezier(.76,0,.24,1)",fill:"backwards"})})}
+function enter(){if(!gOn||!ready)return;gOn=false;pw=true;$("dock").style.display="block";if(!tried){tried=true;startTrack()}
+ tv.className="tv pw";$("gc").style.opacity=0;
+ var fin=function(){gate.className="";gate.style.opacity="";$("scn").style.transform=$("scn").style.filter="";intro()};
+ if(RM){fin();return}
+ setTimeout(function(){zoomIn(fin)},450)}
+gate.onclick=enter;gate.onkeydown=function(e){if(e.key==="Enter"||e.key===" "){e.preventDefault();enter()}};
+$("replay").onclick=function(e){e.preventDefault();openGate();gate.focus()};
+
+/* audio */
+var AC,an,mg,nb,timer,playing=false,synth=true,stp=0,nxt=0,fsrc=null,mode=0,muted=false;
+var BASS=[55,55,82.4,55,65.4,65.4,98,65.4],ARP=[220,261.6,329.6,392,329.6,261.6],MUL=[1,1.335,1.122,.891];
+function init(){if(AC)return;AC=new(window.AudioContext||window.webkitAudioContext)();mg=AC.createGain();mg.gain.value=+$("vol").value;an=AC.createAnalyser();an.fftSize=1024;an.smoothingTimeConstant=.8;mg.connect(an);an.connect(AC.destination);
+  nb=AC.createBuffer(1,AC.sampleRate*.05,AC.sampleRate);var d=nb.getChannelData(0);for(var i=0;i<d.length;i++)d[i]=Math.random()*2-1}
+function env(n,t,dur,v){var g=AC.createGain();g.gain.setValueAtTime(v,t);g.gain.exponentialRampToValueAtTime(.001,t+dur);n.connect(g);g.connect(mg);n.start(t);n.stop(t+dur)}
+function osc(f,t,dur,type,v){var o=AC.createOscillator();o.type=type;o.frequency.value=f;env(o,t,dur,v)}
+function sched(i,t){var m=MUL[(i>>4)&3];
+  if(i%4===0){var o=AC.createOscillator();o.frequency.setValueAtTime(150,t);o.frequency.exponentialRampToValueAtTime(40,t+.12);env(o,t,.2,.9)}
+  if(i%2===1){var h=AC.createBufferSource();h.buffer=nb;env(h,t,.04,.12)}
+  if(i%2===0)osc(BASS[(i>>1)&7]*m,t,.2,"sawtooth",.22);
+  if(i%3===0||i%8===5)osc(ARP[(i*5>>1)%6]*m,t,.14,"square",.07)}
+function tick(){if(!synth)return;while(nxt<AC.currentTime+.15){sched(stp++,nxt);nxt+=.119}}
+function setPlay(p){init();playing=p;if(track){if(p){AC.resume();el.play()}else el.pause()}else if(p){AC.resume();if(!timer){nxt=AC.currentTime+.05;timer=setInterval(tick,25)}}else AC.suspend();$("dp").textContent=p?"❚❚":"▶";$("dt").textContent=p?"PLAYING":"PAUSED"}
+var el=new Audio(),ms=null,track=false,tried=false,ti=0,tk=0,pf=null;
+var TR=[
+ {n:"♪ 着包み · COSTUME",s:[
+   "https://raw.githubusercontent.com/g4zwrr/g4zwrr.github.io/main/%E7%9D%80%E5%8C%85%E3%81%BF%20%5Bo8LRzMaJFls%5D.mp3",
+   "https://g4zwrr.github.io/%E7%9D%80%E5%8C%85%E3%81%BF%20%5Bo8LRzMaJFls%5D.mp3",
+   "https://raw.githubusercontent.com/g4zwrr/g4zwrr.github.io/main/着包み [o8LRzMaJFls].mp3"
+ ]},
+ {n:"♪ TETO-LAIRAC",s:[
+   "https://raw.githubusercontent.com/g4zwrr/g4zwrr.github.io/main/assets/audio/teto-lairac.mp3",
+   "https://g4zwrr.github.io/assets/audio/teto-lairac.mp3",
+   "https://raw.githubusercontent.com/g4zwrr/g4zwrr.github.io/main/teto-lairac.mp3"
+ ]}
+];
+el.crossOrigin="anonymous";el.loop=false;
+var ready=false,loaded=false;
+function showGate(){ready=true;gate.classList.remove("ld")}
+function preload(){var S=TR[0].s;if(ti>=S.length){showGate();return}
+ var k=ti;el.preload="auto";
+ el.onerror=function(){if(k===ti){ti++;preload()}};
+ el.onprogress=function(){try{if(el.duration&&el.buffered.length){var l=$("ld");l.textContent=l.dataset.t="LOADING AUDIO… "+Math.round(el.buffered.end(el.buffered.length-1)/el.duration*100)+"%"}}catch(e){}};
+ el.oncanplaythrough=function(){if(k===ti&&!loaded){loaded=true;showGate()}};
+ el.src=S[k];el.load()}
+setTimeout(function(){if(!ready)showGate()},8000);
+function label(){$("dn").textContent=TR[tk].n}
+function tryTrack(){var S=TR[tk].s;
+ if(ti>=S.length){if(tk<TR.length-1){tk++;ti=0;tryTrack();return}
+  track=false;synth=true;$("dn").textContent="♪ SYNTH LOOP";toast("Couldn't load the tracks here. Playing the built-in loop.");setPlay(true);return}
+ var k=ti;el.onerror=function(){if(k===ti){ti++;tryTrack()}};el.onprogress=el.oncanplaythrough=null;el.src=S[k];label();
+ var pr=el.play();if(pr&&pr.then)pr.then(function(){if(k!==ti)return;track=true;synth=false;label();setPlay(true);prefetch()}).catch(function(e){if(e&&e.name==="NotAllowedError"){track=true;synth=false;setPlay(false)}else if(k===ti){ti++;tryTrack()}})}
+function prefetch(){try{var n=TR[(tk+1)%TR.length];pf=new Audio();pf.preload="auto";pf.src=n.s[0]}catch(e){}}
+el.onended=function(){if(!track)return;tk=(tk+1)%TR.length;ti=0;tryTrack()};
+function startTrack(){init();AC.resume();if(!ms){ms=AC.createMediaElementSource(el);ms.connect(mg)}
+ if(loaded&&tk===0){track=true;synth=false;label();setPlay(true);prefetch();return}
+ tk=0;ti=0;tryTrack()}
+function toggle(){$("dock").style.display="block";if(!tried){tried=true;startTrack();return}setPlay(!playing)}
+$("dp").onclick=function(){setPlay(!playing)};$("heroSnd").onclick=toggle;
+$("vol").oninput=function(){init();mg.gain.value=muted?0:+$("vol").value};
+$("dm").onclick=function(){init();muted=!muted;mg.gain.value=muted?0:+$("vol").value;$("dm").textContent=muted?"UNMUTE":"MUTE"};
+var MN=["SCOPE","BARS","RING"];$("dz").onclick=function(){mode=(mode+1)%3;$("dz").textContent=MN[mode]};
+$("af").onchange=function(e){var f=e.target.files[0];if(!f)return;init();var r=new FileReader();r.onload=function(){AC.decodeAudioData(r.result,function(b){synth=false;if(track){el.pause();track=false}if(fsrc)fsrc.stop();fsrc=AC.createBufferSource();fsrc.buffer=b;fsrc.loop=true;fsrc.connect(mg);fsrc.start();$("dn").textContent="♪ "+f.name.slice(0,22).toUpperCase();setPlay(true)},function(){toast("Couldn't read that audio file.")})};r.readAsArrayBuffer(f)};
+var td=new Uint8Array(1024),fd=new Uint8Array(512);
+function viz(c,a){var x=c.getContext("2d"),w=c.clientWidth||c.width,h=c.clientHeight||c.height;if(c.width!==w)c.width=w;if(c.height!==h)c.height=h;x.clearRect(0,0,w,h);
+  var col=getComputedStyle(document.body).color;x.strokeStyle=x.fillStyle=col;x.lineWidth=2;
+  if(an&&playing){an.getByteTimeDomainData(td);an.getByteFrequencyData(fd)}else{var t=Date.now()/400;for(var i=0;i<1024;i++)td[i]=128+14*Math.sin(i/30+t);for(i=0;i<512;i++)fd[i]=30+20*Math.sin(i/9+t)}
+  if(mode===0){x.beginPath();for(i=0;i<1024;i+=4){var px=i/1024*w,py=td[i]/255*h;i?x.lineTo(px,py):x.moveTo(px,py)}x.stroke()}
+  else if(mode===1){for(i=0;i<40;i++){var v=fd[i*3]/255*h;x.fillRect(i*w/40+1,h-v,w/40-2,v)}}
+  else{x.beginPath();var r0=Math.min(w,h)*.28;for(i=0;i<=128;i++){var an2=i/128*6.2832,r=r0+(td[(i*8)%1024]-128)/128*r0*.7;px=w/2+Math.cos(an2)*r;py=h/2+Math.sin(an2)*r;i?x.lineTo(px,py):x.moveTo(px,py)}x.stroke()}}
+(function loop(){if($("dock").style.display==="block")viz($("dv"));if(!document.hidden)viz($("heroViz"));requestAnimationFrame(loop)})();
+
+/* ascii 3D */
+var SHAPES=[],NM=["DONUT","BALL","BOX"],HD=["oh look, a donut","it's a ball","just a box"],si=0,W=80,H=34,RAMP=" .,-~:;=!*#$@",M=[1,0,0,0,1,0,0,0,1],ASP=1.64,drag=null,moved=0;
+function meas(){var e=document.createElement("span");e.style.cssText='font:9px/9px "Space Mono",monospace;position:absolute;visibility:hidden;white-space:pre';e.textContent=new Array(21).join("M");document.body.appendChild(e);var w=e.getBoundingClientRect().width/20;document.body.removeChild(e);if(w>0)ASP=9/w}
+meas();if(document.fonts&&document.fonts.ready)document.fonts.ready.then(meas);
+function rot(ax,ay){var cx=Math.cos(ax),sx=Math.sin(ax),cy=Math.cos(ay),sy=Math.sin(ay),R=[cy,0,sy,sx*sy,cx,-sx*cy,-cx*sy,sx,cx*cy],N=[];for(var r=0;r<3;r++)for(var c=0;c<3;c++)N[r*3+c]=R[r*3]*M[c]+R[r*3+1]*M[3+c]+R[r*3+2]*M[6+c];M=N}
+(function(){var t=[],s=[],c=[],u,v,i,j,a,b;
+ for(u=0;u<6.283;u+=.08)for(v=0;v<6.283;v+=.2){var cu=Math.cos(u),su=Math.sin(u),cv=Math.cos(v),sv=Math.sin(v);t.push([(1+.45*cv)*cu,(1+.45*cv)*su,.45*sv,cv*cu,cv*su,sv])}
+ for(u=0;u<6.283;u+=.09)for(v=-1.57;v<1.57;v+=.09){var x=Math.cos(v)*Math.cos(u),y=Math.cos(v)*Math.sin(u),z=Math.sin(v);s.push([x*1.3,y*1.3,z*1.3,x,y,z])}
+ for(i=-1;i<=1.001;i+=.075)for(j=-1;j<=1.001;j+=.075){a=i*.85;b=j*.85;c.push([a,b,.85,0,0,1],[a,b,-.85,0,0,-1],[a,.85,b,0,1,0],[a,-.85,b,0,-1,0],[.85,a,b,1,0,0],[-.85,a,b,-1,0,0])}
+ SHAPES=[t,s,c]})();
+function frame(){var pts=SHAPES[si],m=M,zb=new Float32Array(W*H).fill(-9),ch=new Array(W*H).fill(" ");
+ for(var i=0;i<pts.length;i++){var p=pts[i],x=m[0]*p[0]+m[1]*p[1]+m[2]*p[2],y=m[3]*p[0]+m[4]*p[1]+m[5]*p[2],z=m[6]*p[0]+m[7]*p[1]+m[8]*p[2],ny=m[3]*p[3]+m[4]*p[4]+m[5]*p[5],nz=m[6]*p[3]+m[7]*p[4]+m[8]*p[5];
+  var k=6/(6-z),col=Math.round(W/2+x*11*ASP*k),row=Math.round(H/2-y*11*k);if(col<0||col>=W||row<0||row>=H)continue;
+  var idx=row*W+col;if(z<=zb[idx])continue;zb[idx]=z;var l=ny*.5+nz*.85,q=l<0?1:Math.min(12,2+Math.round(l*10));ch[idx]=RAMP[q]}
+ var out="";for(var r=0;r<H;r++)out+=ch.slice(r*W,r*W+W).join("")+"\n";$("ap").textContent=out}
+var lastSw=0;
+function setShape(n){si=n;$("sn").textContent=NM[si];$("si").textContent=(si+1)+" / 3";lastSw=performance.now()}
+var fc=0,ft=0;
+(function sp(t){if(cur==="home"&&!document.hidden){if(!drag){rot(.006,.02);if(t-lastSw>5000)setShape((si+1)%3)}frame();fc++;if(t-ft>800){$("sf").textContent=Math.round(fc*1000/(t-ft))+" fps";fc=0;ft=t}}requestAnimationFrame(sp)})(0);
+var as=$("ascii");
+as.onpointerdown=function(e){drag={x:e.clientX,y:e.clientY};moved=0;as.setPointerCapture(e.pointerId)};
+as.onpointermove=function(e){if(!drag)return;var dx=e.clientX-drag.x,dy=e.clientY-drag.y;moved+=Math.abs(dx)+Math.abs(dy);rot(dy*.012,dx*.012);drag={x:e.clientX,y:e.clientY}};
+as.onpointerup=function(){if(moved<6)setShape((si+1)%3);drag=null};
+
+/* home extras */
+function cnt(){tw(1300,function(e){$("n1").textContent=Math.round(REPOS.length*e);$("n2").textContent=Math.round(S.length*e)},eIO)}
+var io=new IntersectionObserver(function(es){es.forEach(function(e){if(e.isIntersecting){e.target.classList.add("in");if(e.target.id==="stats")cnt();io.unobserve(e.target)}})},{threshold:.15});Q(".rv").forEach(function(e){io.observe(e)});
+$("peek").innerHTML=S.map(function(x){return'<span class="tag">'+esc(x[0])+'</span>'}).join("");
+var TL=["$ whoami","g4zwr aka gaze","$ ls ~/making","roblox/  music/  art/  this-site/","$ cat status.txt","building things. if it's broken, it's on purpose. mostly.","$ ./make-something --now","compiling ideas... ok"];
+(function(){var el=$("tp"),li=0,ci=0,buf="";function step(){if(document.hidden||cur!=="home"){setTimeout(step,500);return}
+ var L=TL[li];if(L.charAt(0)==="$"){ci++;el.textContent=buf+L.slice(0,ci)+"▌";if(ci<L.length){setTimeout(step,45+Math.random()*50);return}buf+=L+"\n";ci=0;li++;setTimeout(step,350);return}
+ buf+=L+"\n";el.textContent=buf+"▌";li++;if(li>=TL.length){setTimeout(function(){buf="";li=0;ci=0;step()},3500);return}setTimeout(step,550)}step()})();
+
+/* boot */
+rs("");renderRepos();applyG();route(location.hash);
+preload();openGate();
+</script>
 </body>
 </html>
