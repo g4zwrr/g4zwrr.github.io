@@ -187,7 +187,7 @@ body.lock,body.lock *{pointer-events:none!important}
       <h1 class="disp g" data-t="G4ZWR">G4ZWR</h1>
       <p class="aka">AKA GAZE · GAMEDEV</p>
       <p>Roblox systems in Luau, music, 2D and 3D art.</p>
-      <a class="btn s" href="/projects/" data-r>View projects</a><a class="btn" href="/contact/" data-r>Contact</a><button class="btn" id="heroSnd">▶/❚❚ Sound</button>
+      <a class="btn s" href="/projects/" data-r>View projects</a><a class="btn" href="/contact/" data-r>Contact</a>
     </div>
   </div>
 
@@ -446,7 +446,7 @@ function startTrack(){init();AC.resume();if(!ms){ms=AC.createMediaElementSource(
  if(loaded&&tk===0){track=true;synth=false;label();setPlay(true);prefetch();return}
  tk=0;ti=0;tryTrack()}
 function toggle(){$("dock").style.display="block";if(!tried){tried=true;startTrack();return}setPlay(!playing)}
-$("dp").onclick=function(){setPlay(!playing)};$("heroSnd").onclick=toggle;
+$("dp").onclick=function(){setPlay(!playing)};
 $("vol").oninput=function(){init();mg.gain.value=muted?0:+$("vol").value};
 $("dm").onclick=function(){init();muted=!muted;mg.gain.value=muted?0:+$("vol").value;$("dm").textContent=muted?"UNMUTE":"MUTE"};
 var MN=["SCOPE","BARS","RING"];$("dz").onclick=function(){mode=(mode+1)%3;$("dz").textContent=MN[mode]};
