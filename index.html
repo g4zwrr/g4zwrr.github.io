@@ -233,7 +233,7 @@ body.lock,body.lock *{pointer-events:none!important}
       <p>When I'm not I'm in FL Studio doing things too, on my PC or on my phone when an idea shows up at a bad time. I also draw a bit i know my drawing isnt good, which is the part that keeps everything else from feeling like worth nothing.</p>
       <p>I run Windows and CachyOS, keep my code on GitHub, and this site is my pile of experiments. If something broken, it's on purpose. Mostly.</p>
       <h3 class="disp g" data-t="FAST FACTS" style="font-size:34px;margin:26px 0 10px">Fast facts</h3>
-      <table><tr><td>What I do</td><td>Gamedev</td></tr><tr><td>Main tool</td><td>opencode</td></tr><tr><td>Music</td><td>FL Studio, PC + mobile</td></tr><tr><td>Runs on</td><td>Windows + CachyOS</td></tr><tr><td>My code</td><td><a href="https://github.com/g4zwr" target="_blank" rel="noopener">github.com/g4zwr</a></td></tr></table>
+      <table><tr><td>What I do</td><td>Gamedev</td></tr><tr><td>Main tool</td><td>opencode</td></tr><tr><td>Music</td><td>FL Studio, PC + mobile</td></tr><tr><td>Runs on</td><td>Windows + CachyOS</td></tr><tr><td>My code</td><td><a href="https://github.com/g4zwrr" target="_blank" rel="noopener">github.com/g4zwrr</a></td></tr></table>
     </div>
     <div>
       <h3 class="disp g" data-t="LOG" style="font-size:34px;margin:0 0 6px">Log</h3>
@@ -271,7 +271,7 @@ var S=[
 ["opencode","Tool",85,"My main tool.","What I reach for first when I write code.","most of my repos"],
 ["FL Studio","Tool",80,"Music.","Loops and ideas, on PC or on my phone.","Gaze Loops"],
 ["Blender","Tool",55,"3D art.","Models and 3D art for projects.","3D art"],
-["Git","Tool",70,"Version control.","Everything lives on GitHub.","github.com/g4zwr"],
+["Git","Tool",70,"Version control.","Everything lives on GitHub.","github.com/g4zwrr"],
 ["VS Code","Tool",65,"Editor.","For when I want a regular editor.","scripts and web"],
 ["Windows","Env",80,"Main PC.","Where Roblox Studio and FL Studio run.","game dev, music"],
 ["CachyOS","Env",70,"Linux side.","My other setup, with my dotfiles.","CachyOS Dotfiles"],
@@ -284,7 +284,7 @@ var C=[
 ["Reddit","https://www.reddit.com/user/g4zwr","I lurk more than I post.","My Reddit account. I mostly read and scroll, but I'll comment if something's interesting or somebody needs a hand.","my Reddit profile"],
 ["X","https://x.com/g4zwr_","Small thoughts and updates.","Quick updates and whatever's on my mind. Not very active, but I check it now and then.","my X profile"],
 ["Email","mailto:g4zwr@duck.com","For anything longer than a DM.","Best for longer messages, work stuff, or anything you don't want buried in a chat. I'll get back to you when I can. Opening this will launch your email app.","an email to g4zwr@duck.com"],
-["GitHub","https://github.com/g4zwr","My code, the messy parts included.","All my code is here. Some repos are clean, some are experiments I forgot about. Feel free to poke around, and stars are always nice.","my GitHub"]
+["GitHub","https://github.com/g4zwrr","My code, the messy parts included.","All my code is here. Some repos are clean, some are experiments I forgot about. Feel free to poke around, and stars are always nice.","my GitHub"]
 ];
 function esc(s){return String(s).replace(/[&<>"]/g,function(c){return{"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]})}
 function toast(m){var t=$("toast");t.textContent=m;t.style.display="block";clearTimeout(toast.i);toast.i=setTimeout(function(){t.style.display="none"},2200)}
@@ -294,9 +294,9 @@ function applyG(){Q(".card h3,.logo,nav a,.hb").forEach(function(e){if(!e.datase
 setInterval(function(){if(document.documentElement.dataset.fx!=="full")return;var a=Q(".g");for(var i=0;i<2;i++){var e=a[Math.floor(Math.random()*a.length)];if(!e)continue;e.classList.add("hit");(function(x){setTimeout(function(){x.classList.remove("hit")},320)})(e)}},1400);
 
 /* repos: live fetch, sample fallback */
-var HIDE=["g4zwr","g4zwr.github.io"],REPOS=[{n:"RetroRender-Engine",d:"A custom render script for Roblox. Drop it into StarterPlayerScripts.",l:"Luau",s:2,u:"https://github.com/g4zwr/RetroRender-Engine"},{n:"Midi-Auto-Player",d:"A virtual piano MIDI player for Roblox piano games.",l:"Lua",s:0,u:"https://github.com/g4zwr/Midi-Auto-Player"}],SRC="SNAPSHOT";
+var HIDE=["g4zwr","g4zwr.github.io"],REPOS=[{n:"RetroRender-Engine",d:"A custom render script for Roblox. Drop it into StarterPlayerScripts.",l:"Luau",s:2,u:"https://github.com/g4zwrr/RetroRender-Engine"},{n:"Midi-Auto-Player",d:"A virtual piano MIDI player for Roblox piano games.",l:"Lua",s:0,u:"https://github.com/g4zwrr/Midi-Auto-Player"}],SRC="SNAPSHOT";
 function rcard(r){return '<a class="card" data-repo="'+esc(r.n)+'" target="_blank" rel="noopener" href="'+esc(r.u)+'"><h3>'+esc(r.n)+'</h3><p>'+esc(r.d)+'</p><span class="tag">'+esc(r.l)+'</span><span class="tag">★ '+r.s+'</span></a>'}
-function pcard(r){return '<div class="card sk" tabindex="0" role="button" aria-expanded="false"><div class="top"><h3>'+esc(r.n)+'</h3><span class="pl disp">+</span></div><p>'+esc(r.d)+'</p><span class="tag">'+esc(r.l)+'</span><span class="tag">★ '+r.s+'</span><div class="bd"><div><p class="st">github.com/g4zwr/'+esc(r.n)+'</p><a class="btn s" data-repo="'+esc(r.n)+'" target="_blank" rel="noopener" href="'+esc(r.u)+'">Open repo</a></div></div></div>'}
+function pcard(r){return '<div class="card sk" tabindex="0" role="button" aria-expanded="false"><div class="top"><h3>'+esc(r.n)+'</h3><span class="pl disp">+</span></div><p>'+esc(r.d)+'</p><span class="tag">'+esc(r.l)+'</span><span class="tag">★ '+r.s+'</span><div class="bd"><div><p class="st">github.com/g4zwrr/'+esc(r.n)+'</p><a class="btn s" data-repo="'+esc(r.n)+'" target="_blank" rel="noopener" href="'+esc(r.u)+'">Open repo</a></div></div></div>'}
 function renderRepos(){
   var msg=SRC==="LIVE"?"SOURCE: GITHUB API · "+REPOS.length+" REPOS":"SOURCE: GITHUB SNAPSHOT FROM 14 OCT 2026 · updates live when hosted where GitHub requests are allowed";
   $("hst").textContent=msg;$("pst").textContent=msg;
