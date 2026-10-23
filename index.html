@@ -9,9 +9,9 @@
 :root{--bg:#000;--fg:#fff;--dim:rgba(255,255,255,.55);--line:rgba(255,255,255,.28);--soft:rgba(255,255,255,.07);box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
 @media(prefers-color-scheme:light){:root:not([data-theme="dark"]){--bg:#efefef;--fg:#000;--dim:rgba(0,0,0,.55);--line:rgba(0,0,0,.3);--soft:rgba(0,0,0,.06)}}
 :root[data-theme="dark"]{--bg:#000;--fg:#fff}
-*{box-sizing:border-box}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
 html{height:100%;scroll-padding-top:env(safe-area-inset-top,0px)}
-body{margin:0;min-height:100%;background:var(--bg);color:var(--fg);font:15px/1.55 "Space Mono",ui-monospace,monospace;overflow-x:hidden}
+body{margin:0;min-height:100%;background:var(--bg);color:var(--fg);font:15px/1.55 "Space Mono",ui-monospace,monospace;overflow-x:hidden;-webkit-tap-highlight-color:transparent}
 #crt{position:fixed;inset:0;pointer-events:none;z-index:30;background:repeating-linear-gradient(0deg,transparent 0 2px,rgba(128,128,128,.08) 2px 3px)}
 a{color:inherit}
 .disp,.card h3,.logo{font-family:"Big Shoulders Display",Impact,sans-serif;font-weight:900;text-transform:uppercase;line-height:.9;margin:0}
@@ -118,9 +118,8 @@ footer{border-top:1px solid var(--line);padding:16px 20px;font-size:12px;color:v
 .slit{width:34px;height:2px;background:var(--fg);box-shadow:0 6px 0 var(--fg),0 12px 0 var(--fg)}
 .tv.pw .scr{animation:crt .65s steps(3) forwards}.tv.pw .scr span{display:none}
 @keyframes crt{0%{transform:none;filter:none}30%{transform:scale(1,.03);filter:brightness(4)}60%{transform:scale(1.03,.03);filter:brightness(9)}100%{transform:none;filter:brightness(2.2)}}
-#gc{letter-spacing:.3em;font-size:13px}
 #ld{display:none;position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);letter-spacing:.3em;font-size:13px;white-space:nowrap}
-#gate.ld #ld{display:block}#gate.ld .sc,#gate.ld #gc{visibility:hidden}
+#gate.ld #ld{display:block}#gate.ld .sc{visibility:hidden}
 
 /* stack cards */
 .sk{cursor:pointer}.sk .top{display:flex;justify-content:space-between;gap:8px}
@@ -143,6 +142,26 @@ footer{border-top:1px solid var(--line);padding:16px 20px;font-size:12px;color:v
 .cta{border:1px solid var(--fg);padding:40px 20px;margin-top:56px;text-align:center}
 .rv{opacity:0;transform:translateY(32px);transition:opacity .9s cubic-bezier(.76,0,.24,1),transform .9s cubic-bezier(.76,0,.24,1)}.rv.in{opacity:1;transform:none}
 [data-fx=off] .rv{opacity:1;transform:none;transition:none}
+
+/* scripts page */
+.lsc{border:1px solid var(--line);background:var(--soft);padding:18px;margin-bottom:22px}
+.lsc-h{display:flex;align-items:center;gap:14px;flex-wrap:wrap}
+.lsc-h h3{font-size:clamp(28px,5.5vw,48px);margin:0}
+.lsc-cp{margin-left:auto;flex:none;font:700 12px/1 "Space Mono",monospace;letter-spacing:.14em;padding:10px 15px;border:1px solid var(--fg);background:none;color:var(--fg);cursor:pointer;transition:background .18s ease,color .18s ease}
+.lsc-cp:hover,.lsc-cp:focus-visible{background:var(--fg);color:var(--bg)}
+.lsc-cp.ok{background:var(--fg);color:var(--bg)}
+.lsc-d{font-size:13px;color:var(--dim);margin:8px 0 14px}
+.lsc-img{width:100%;max-height:360px;object-fit:cover;border:1px solid var(--line);border-bottom:0;display:block;background:#000}
+.lsc-bar{display:flex;justify-content:space-between;gap:12px;align-items:center;border:1px solid var(--line);border-bottom:0;padding:4px 10px;font-size:11px;letter-spacing:.12em;color:var(--dim);background:var(--bg)}
+.lsc-code{margin:0;padding:16px;border:1px solid var(--line);background:var(--bg);overflow-x:auto;white-space:pre;font:13px/1.75 "Space Mono",ui-monospace,monospace;tab-size:2;cursor:text}
+.lsc-code code{font:inherit}
+.lsc-foot{margin-top:12px;display:flex;gap:8px;flex-wrap:wrap}
+.t-c{opacity:.45;font-style:italic}
+.t-s{opacity:.92;text-decoration:underline;text-decoration-color:var(--line);text-decoration-thickness:1px;text-underline-offset:3px}
+.t-k{font-weight:700}
+.t-n{font-weight:700;opacity:.85}
+.t-b{font-weight:700;border-bottom:1px dotted var(--dim)}
+@media(max-width:520px){.lsc-cp{margin-left:0;width:100%}}
 
 /* page transition */
 #pt{position:fixed;inset:0;z-index:60;pointer-events:none;display:none;grid-auto-flow:column;grid-auto-columns:1fr}#pt.on{display:grid}
@@ -168,13 +187,12 @@ body.lock,body.lock *{pointer-events:none!important}
     </div>
     <div class="f bk"></div><div class="f l"></div><div class="f r"></div><div class="f t"></div><div class="f b"></div>
   </div></div>
-  <p id="gc" class="g" data-t="TAP THE TV">TAP THE TV</p>
 </div>
 
 <header>
   <a class="logo" href="/" data-r>G4ZWR</a>
   <nav id="nav" aria-label="Primary">
-    <a href="/" data-r>HOME</a><a href="/projects/" data-r>PROJECTS</a><a href="/stack/" data-r>STACK</a><a href="/about/" data-r>ABOUT</a><a href="/contact/" data-r>CONTACT</a>
+    <a href="/" data-r>HOME</a><a href="/projects/" data-r>PROJECTS</a><a href="/scripts/" data-r>SCRIPTS</a><a href="/stack/" data-r>STACK</a><a href="/about/" data-r>ABOUT</a><a href="/contact/" data-r>CONTACT</a>
   </nav>
 </header>
 <div class="path" id="path">g4zwr.dev/</div>
@@ -216,6 +234,12 @@ body.lock,body.lock *{pointer-events:none!important}
   <div class="lb" id="lb"></div><p class="st" id="ll"></p>
   <input type="text" id="q" placeholder="Search projects…" aria-label="Search projects">
   <div class="grid" id="pg"></div>
+</section>
+
+<section class="view" id="v-scripts">
+  <h2 class="disp g" data-t="SCRIPTS">SCRIPTS</h2>
+  <p class="st">sum of my scripts, u can copy and execute in ur roblox executor or edit. its open sourced</p>
+  <div class="list" id="sl"></div>
 </section>
 
 <section class="view" id="v-stack">
@@ -294,7 +318,7 @@ function applyG(){Q(".card h3,.logo,nav a,.hb").forEach(function(e){if(!e.datase
 setInterval(function(){if(document.documentElement.dataset.fx!=="full")return;var a=Q(".g");for(var i=0;i<2;i++){var e=a[Math.floor(Math.random()*a.length)];if(!e)continue;e.classList.add("hit");(function(x){setTimeout(function(){x.classList.remove("hit")},320)})(e)}},1400);
 
 /* repos: live fetch, sample fallback */
-var HIDE=["g4zwr","g4zwr.github.io"],REPOS=[{n:"RetroRender-Engine",d:"A custom render script for Roblox. Drop it into StarterPlayerScripts.",l:"Luau",s:2,u:"https://github.com/g4zwrr/RetroRender-Engine"},{n:"Midi-Auto-Player",d:"A virtual piano MIDI player for Roblox piano games.",l:"Lua",s:0,u:"https://github.com/g4zwrr/Midi-Auto-Player"}],SRC="SNAPSHOT";
+var HIDE=["g4zwrr","g4zwrr.github.io"],REPOS=[{n:"RetroRender-Engine",d:"A custom render script for Roblox. Drop it into StarterPlayerScripts.",l:"Luau",s:2,u:"https://github.com/g4zwrr/RetroRender-Engine"},{n:"Midi-Auto-Player",d:"A virtual piano MIDI player for Roblox piano games.",l:"Lua",s:0,u:"https://github.com/g4zwrr/Midi-Auto-Player"}],SRC="SNAPSHOT";
 function rcard(r){return '<a class="card" data-repo="'+esc(r.n)+'" target="_blank" rel="noopener" href="'+esc(r.u)+'"><h3>'+esc(r.n)+'</h3><p>'+esc(r.d)+'</p><span class="tag">'+esc(r.l)+'</span><span class="tag">★ '+r.s+'</span></a>'}
 function pcard(r){return '<div class="card sk" tabindex="0" role="button" aria-expanded="false"><div class="top"><h3>'+esc(r.n)+'</h3><span class="pl disp">+</span></div><p>'+esc(r.d)+'</p><span class="tag">'+esc(r.l)+'</span><span class="tag">★ '+r.s+'</span><div class="bd"><div><p class="st">github.com/g4zwrr/'+esc(r.n)+'</p><a class="btn s" data-repo="'+esc(r.n)+'" target="_blank" rel="noopener" href="'+esc(r.u)+'">Open repo</a></div></div></div>'}
 function renderRepos(){
@@ -309,15 +333,23 @@ function renderRepos(){
 }
 $("q").oninput=renderRepos;
 try{var ctl=new AbortController();setTimeout(function(){ctl.abort()},5000);
-fetch("https://api.github.com/users/g4zwr/repos?sort=pushed&per_page=30",{signal:ctl.signal}).then(function(r){if(!r.ok)throw 0;return r.json()}).then(function(j){var l=j.filter(function(r){return!r.fork&&HIDE.indexOf(r.name.toLowerCase())<0}).map(function(r){return{n:r.name,d:r.description||"No description yet.",l:r.language||"Other",s:r.stargazers_count,u:r.html_url}});if(l.length){REPOS=l;SRC="LIVE";renderRepos()}}).catch(function(){})}catch(e){}
+fetch("https://api.github.com/users/g4zwrr/repos?sort=pushed&per_page=30",{signal:ctl.signal}).then(function(r){if(!r.ok)throw 0;return r.json()}).then(function(j){
+  var l=j.filter(function(r){
+    var name=r.name.toLowerCase();
+    return !r.fork && HIDE.indexOf(name)<0 && name.indexOf("redirect")===-1;
+  }).map(function(r){
+    return{n:r.name,d:r.description||"No description yet.",l:r.language||"Other",s:r.stargazers_count,u:r.html_url}
+  });
+  if(l.length){REPOS=l;SRC="LIVE";renderRepos()}
+}).catch(function(){})}catch(e){}
 
 /* about log */
-var LOG=[{t:"repo",x:"g4zwr.github.io: 51 commits so far, and this site lives there"},{t:"repo",x:"RetroRender-Engine: a custom render script for Roblox, in Luau"},{t:"repo",x:"Midi-Auto-Player: a virtual piano MIDI player for Roblox piano games"}];
+var LOG=[{t:"repo",x:"g4zwrr.github.io: 51 commits so far, and this site lives there"},{t:"repo",x:"RetroRender-Engine: a custom render script for Roblox, in Luau"},{t:"repo",x:"Midi-Auto-Player: a virtual piano MIDI player for Roblox piano games"}];
 function ago(d){var m=(Date.now()-new Date(d))/6e4;return m<60?Math.max(1,Math.round(m))+"m":m<1440?Math.round(m/60)+"h":Math.round(m/1440)+"d"}
 function renderLog(l,live){$("lg").innerHTML=l.map(function(e){return"<li><span>"+esc(e.t)+"</span>"+esc(e.x)+"</li>"}).join("");$("lgs").textContent=live?"SOURCE: GITHUB EVENTS · LIVE":"SOURCE: GITHUB SNAPSHOT · live log loads when hosted where GitHub requests are allowed"}
 renderLog(LOG,false);
 try{var c2=new AbortController();setTimeout(function(){c2.abort()},5000);
-fetch("https://api.github.com/users/g4zwr/events/public?per_page=30",{signal:c2.signal}).then(function(r){if(!r.ok)throw 0;return r.json()}).then(function(j){var o=[];j.forEach(function(e){var rn=e.repo.name.split("/")[1],x=null;
+fetch("https://api.github.com/users/g4zwrr/events/public?per_page=30",{signal:c2.signal}).then(function(r){if(!r.ok)throw 0;return r.json()}).then(function(j){var o=[];j.forEach(function(e){var rn=e.repo.name.split("/")[1],x=null;
  if(e.type==="PushEvent"&&e.payload.commits&&e.payload.commits.length)x="pushed to "+rn+": "+e.payload.commits[e.payload.commits.length-1].message.split("\n")[0];
  else if(e.type==="CreateEvent"&&e.payload.ref_type==="repository")x="created "+rn;else if(e.type==="WatchEvent")x="starred "+rn;else if(e.type==="ForkEvent")x="forked "+rn;
  if(x&&o.length<8)o.push({t:ago(e.created_at),x:x})});if(o.length)renderLog(o,true)}).catch(function(){})}catch(e){}
@@ -347,7 +379,7 @@ $("cfn").onclick=closeCf;cf.onclick=function(e){if(e.target===cf)closeCf()};
 addEventListener("keydown",function(e){if(e.key==="Escape"&&cf.style.display==="flex")closeCf()});
 
 /* fake routing */
-var R={"":"home","projects":"projects","stack":"stack","about":"about","contact":"contact"},cur="home";
+var R={"":"home","projects":"projects","scripts":"scripts","stack":"stack","about":"about","contact":"contact"},cur="home";
 var fxT=document.createElement("canvas");fxT.style.cssText="position:fixed;inset:0;width:100%;height:100%;z-index:60;pointer-events:none;image-rendering:pixelated;display:none";document.body.appendChild(fxT);
 function route(p){p=(p||"").replace(/^#?\/?/,"").replace(/\/$/,"");var k=R.hasOwnProperty(p)?p:"";cur=R[k];
   Q(".view").forEach(function(v){v.classList.remove("on")});$("v-"+cur).classList.add("on");
@@ -358,7 +390,7 @@ document.addEventListener("click",function(e){if(busy){e.preventDefault();return
 /* channel-change transition: fade to solid, swap, columns retract */
 var busy=false;
 function chInfo(h){var p=(h||"").replace(/^#?\/?/,"").replace(/\/$/,""),k=R.hasOwnProperty(p)?p:"";return"CH 0"+(Object.keys(R).indexOf(k)+1)+" // "+(k||"home").toUpperCase()}
-function pick(v){var a=[].slice.call($("v-"+v).querySelectorAll("h1,h2,h3,p,.card,table,.btn,#ascii,.spec,input,textarea,.chips,.lb,li,label"));return a.filter(function(e){return!a.some(function(o){return o!==e&&o.contains(e)})})}
+function pick(v){var a=[].slice.call($("v-"+v).querySelectorAll("h1,h2,h3,p,.card,.lsc,table,.btn,#ascii,.spec,input,textarea,.chips,.lb,li,label"));return a.filter(function(e){return!a.some(function(o){return o!==e&&o.contains(e)})})}
 function channel(cb,label){var d=document.documentElement;
  if(d.dataset.fx==="off"||RM){cb();return}
  if(busy){pendC=[cb,label];return}
@@ -380,7 +412,7 @@ addEventListener("hashchange",function(){channel(function(){route(location.hash)
 /* intro gate */
 var gate=$("gate"),tv=$("tv"),sx=$("stat").getContext("2d"),gOn=false,nRun=false,pw=false,tvRun=false,lastMove=0,tgt={x:0,y:0},cu={x:0,y:0},RM=matchMedia("(prefers-reduced-motion:reduce)").matches;
 function noise(){if(!gate.classList.contains("on")){nRun=false;return}var d=sx.createImageData(80,60),b=d.data;for(var i=0;i<b.length;i+=4){var v=Math.random()*255;b[i]=b[i+1]=b[i+2]=v;b[i+3]=255}sx.putImageData(d,0,0);setTimeout(function(){requestAnimationFrame(noise)},50)}
-function openGate(){gOn=true;pw=false;tv.className="tv";$("scn").className="sc";$("scn").style.transform=$("scn").style.filter=gate.style.transform=gate.style.filter=gate.style.opacity="";$("gc").style.opacity="";gate.className="on"+(ready?"":" ld");if(!nRun){nRun=true;noise()}if(!tvRun){tvRun=true;requestAnimationFrame(tvLoop)}}
+function openGate(){gOn=true;pw=false;tv.className="tv";$("scn").className="sc";$("scn").style.transform=$("scn").style.filter=gate.style.transform=gate.style.filter=gate.style.opacity="";gate.className="on"+(ready?"":" ld");if(!nRun){nRun=true;noise()}if(!tvRun){tvRun=true;requestAnimationFrame(tvLoop)}}
 addEventListener("pointermove",function(e){tgt.y=(e.clientX/innerWidth-.5)*2*30;tgt.x=-(e.clientY/innerHeight-.5)*2*18;lastMove=performance.now()});
 function tvLoop(t){if(!gate.classList.contains("on")){tvRun=false;return}
  if(pw){cu.x*=.85;cu.y*=.85}else{if(!RM&&t-lastMove>2500){tgt.y=Math.sin(t/1500)*24;tgt.x=Math.sin(t/2300)*8}cu.x+=(tgt.x-cu.x)*.1;cu.y+=(tgt.y-cu.y)*.1}
@@ -390,7 +422,7 @@ function eIO(k){return k<.5?4*k*k*k:1-Math.pow(-2*k+2,3)/2}
 function zoomIn(done){var sc=$("scn");tw(1200,function(e,k){sc.style.transform="scale("+(1+e*e*16).toFixed(3)+")";sc.style.filter="brightness("+(1+e*2.5).toFixed(2)+")";gate.style.opacity=k<.7?1:1-eIO((k-.7)/.3)},eIO,done)}
 function intro(){if(RM||document.documentElement.dataset.fx==="off")return;pick(cur).slice(0,14).forEach(function(e,j){e.animate([{opacity:0,transform:"translateY(34px)"},{opacity:1,transform:"none"}],{duration:900,delay:j*70,easing:"cubic-bezier(.76,0,.24,1)",fill:"backwards"})})}
 function enter(){if(!gOn||!ready)return;gOn=false;pw=true;$("dock").style.display="block";if(!tried){tried=true;startTrack()}
- tv.className="tv pw";$("gc").style.opacity=0;
+ tv.className="tv pw";
  var fin=function(){gate.className="";gate.style.opacity="";$("scn").style.transform=$("scn").style.filter="";intro()};
  if(RM){fin();return}
  setTimeout(function(){zoomIn(fin)},450)}
@@ -493,8 +525,108 @@ var TL=["$ whoami","g4zwr aka gaze","$ ls ~/making","roblox/  music/  art/  this
  var L=TL[li];if(L.charAt(0)==="$"){ci++;el.textContent=buf+L.slice(0,ci)+"▌";if(ci<L.length){setTimeout(step,45+Math.random()*50);return}buf+=L+"\n";ci=0;li++;setTimeout(step,350);return}
  buf+=L+"\n";el.textContent=buf+"▌";li++;if(li>=TL.length){setTimeout(function(){buf="";li=0;ci=0;step()},3500);return}setTimeout(step,550)}step()})();
 
+/* ================= SCRIPTS PAGE ================= */
+var LKW={and:1,break:1,do:1,else:1,elseif:1,end:1,false:1,for:1,function:1,goto:1,if:1,in:1,local:1,nil:1,not:1,or:1,repeat:1,return:1,then:1,true:1,until:1,while:1};
+var LBUILTIN={game:1,workspace:1,script:1,loadstring:1,HttpGet:1,HttpGetAsync:1,Instance:1,Enum:1,task:1,print:1,warn:1,error:1,pairs:1,ipairs:1,require:1,typeof:1,tostring:1,tonumber:1,pcall:1,xpcall:1,setmetatable:1,getmetatable:1,getgenv:1,getrenv:1,wait:1,spawn:1,delay:1,tick:1,os:1,string:1,table:1,math:1,Vector3:1,CFrame:1,Color3:1,UDim2:1,BrickColor:1,Players:1,HttpService:1,RunService:1,UserInputService:1,TweenService:1,ReplicatedStorage:1,StarterGui:1,Lighting:1,Debris:1};
+function ltok(cls,txt){return '<span class="t-'+cls+'">'+esc(txt)+'</span>'}
+function lhl(src){
+  var re=/--\[\[[\s\S]*?\]\]|--[^\n]*|\[\[[\s\S]*?\]\]|"(?:\\.|[^"\\\n])*"|'(?:\\.|[^'\\\n])*'|0[xX][0-9a-fA-F]+|\d+(?:\.\d+)?(?:[eE][+-]?\d+)?|[A-Za-z_]\w*|[\s\S]/g,out="",m;
+  while((m=re.exec(src))){
+    var t=m[0];
+    if(t.charAt(0)==="-"&&t.charAt(1)==="-") out+=ltok("c",t);
+    else if(/^\[\[/.test(t)||/^["']/.test(t)) out+=ltok("s",t);
+    else if(/^[0-9]/.test(t)) out+=ltok("n",t);
+    else if(LKW.hasOwnProperty(t)) out+=ltok("k",t);
+    else if(LBUILTIN.hasOwnProperty(t)) out+=ltok("b",t);
+    else out+=esc(t);
+  }
+  return out;
+}
+
+var SCRIPTS=[
+  {
+    id:"fe-ugc",
+    name:"Fe UGC Animation",
+    file:"fe_ugc.lua",
+    desc:"Loads the FE UGC animation script straight from the host.",
+    code:'loadstring(game:HttpGet("https://g4zwr.is-a.dev/FE_UGC.lua"))()',
+    link:"https://g4zwr.is-a.dev/FE_UGC.lua",
+    linkLabel:"Open source",
+    image:"https://raw.githubusercontent.com/g4zwrr/g4zwrr.github.io/main/Screenshot_20261023-114943.jpg"
+  },
+  {
+    id:"emotes",
+    name:"Gaze emotes Continued",
+    file:"emotes.lua",
+    desc:"The continued emotes script. Loads straight from the host.",
+    code:'loadstring(game:HttpGet("https://g4zwr.is-a.dev/emotes.lua"))()',
+    link:"https://g4zwr.is-a.dev/emotes.lua",
+    linkLabel:"Open source",
+    image:"https://scriptblox.com/images/script/0-1790451504604.jpg"
+  }
+];
+
+function renderScripts(){
+  $("sl").innerHTML=SCRIPTS.map(function(s){
+    return '<article class="lsc" id="s-'+s.id+'">'
+      + '<div class="lsc-h"><h3 class="disp g" data-t="'+esc(s.name)+'">'+esc(s.name)+'</h3>'
+      + '<button class="lsc-cp" type="button" data-id="'+s.id+'" aria-label="Copy the '+esc(s.name)+' script">COPY</button></div>'
+      + '<p class="lsc-d">'+esc(s.desc)+'</p>'
+      + (s.image ? '<img class="lsc-img" src="'+esc(s.image)+'" alt="'+esc(s.name)+' screenshot" loading="lazy">' : '')
+      + '<div class="lsc-bar"><span>LUA</span><span>'+esc(s.file)+'</span></div>'
+      + '<pre class="lsc-code"><code>'+lhl(s.code)+'</code></pre>'
+      + '<div class="lsc-foot"><a class="btn" href="'+esc(s.link)+'" target="_blank" rel="noopener">'+esc(s.linkLabel)+'</a></div>'
+      + '</article>';
+  }).join("");
+}
+
+function fallbackCopy(t){
+  try{
+    var ta=document.createElement("textarea");
+    ta.value=t;ta.setAttribute("readonly","");
+    ta.style.cssText="position:fixed;top:0;left:-9999px;opacity:0";
+    document.body.appendChild(ta);
+    ta.select();ta.setSelectionRange(0,t.length);
+    var ok=document.execCommand("copy");
+    document.body.removeChild(ta);
+    return ok;
+  }catch(e){return false}
+}
+function copyText(t){
+  if(navigator.clipboard&&window.isSecureContext){
+    return navigator.clipboard.writeText(t).then(function(){return true}).catch(function(){return fallbackCopy(t)});
+  }
+  return Promise.resolve(fallbackCopy(t));
+}
+
+document.addEventListener("click",function(e){
+  var btn=e.target.closest(".lsc-cp");
+  if(btn){
+    var s=null;
+    for(var i=0;i<SCRIPTS.length;i++) if(SCRIPTS[i].id===btn.dataset.id) s=SCRIPTS[i];
+    if(!s) return;
+    copyText(s.code).then(function(ok){
+      if(ok){
+        btn.classList.add("ok");btn.textContent="COPIED";toast("COPIED TO CLIPBOARD");
+        clearTimeout(btn._t);
+        btn._t=setTimeout(function(){btn.classList.remove("ok");btn.textContent="COPY"},1600);
+      } else {
+        toast("COPY FAILED — SELECT THE CODE MANUALLY");
+      }
+    });
+    return;
+  }
+  var pre=e.target.closest(".lsc-code");
+  if(pre){
+    try{
+      var r=document.createRange();r.selectNodeContents(pre);
+      var sel=getSelection();sel.removeAllRanges();sel.addRange(r);
+    }catch(err){}
+  }
+});
+
 /* boot */
-rs("");renderRepos();applyG();route(location.hash);
+rs("");renderRepos();renderScripts();applyG();route(location.hash);
 preload();openGate();
 </script>
 </body>
