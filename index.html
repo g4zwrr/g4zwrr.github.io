@@ -4,6 +4,8 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>g4zwr · aka gaze — Gamedev</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Big+Shoulders+Display:wght@700;900&family=Space+Mono:wght@400;700&display=swap">
 <style>
 :root{--bg:#000;--fg:#fff;--dim:rgba(255,255,255,.55);--line:rgba(255,255,255,.28);--soft:rgba(255,255,255,.07);box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
@@ -147,8 +149,10 @@ footer{border-top:1px solid var(--line);padding:16px 20px;font-size:12px;color:v
 .lsc{border:1px solid var(--line);background:var(--soft);padding:18px;margin-bottom:22px}
 .lsc-h{display:flex;align-items:center;gap:14px;flex-wrap:wrap}
 .lsc-h h3{font-size:clamp(28px,5.5vw,48px);margin:0}
-.lsc-cp{margin-left:auto;flex:none;font:700 12px/1 "Space Mono",monospace;letter-spacing:.14em;padding:10px 15px;border:1px solid var(--fg);background:none;color:var(--fg);cursor:pointer;transition:background .18s ease,color .18s ease}
-.lsc-cp:hover,.lsc-cp:focus-visible{background:var(--fg);color:var(--bg)}
+.lsc-cp{}
+.lsc-os{opacity:.6;transition:opacity .18s ease}
+.lsc-os:hover{opacity:1}
+.lsc-cp:focus-visible{background:var(--fg);color:var(--bg)}
 .lsc-cp.ok{background:var(--fg);color:var(--bg)}
 .lsc-d{font-size:13px;color:var(--dim);margin:8px 0 14px}
 .lsc-img{width:100%;max-height:360px;object-fit:cover;border:1px solid var(--line);border-bottom:0;display:block;background:#000}
@@ -161,7 +165,7 @@ footer{border-top:1px solid var(--line);padding:16px 20px;font-size:12px;color:v
 .t-k{font-weight:700}
 .t-n{font-weight:700;opacity:.85}
 .t-b{font-weight:700;border-bottom:1px dotted var(--dim)}
-@media(max-width:520px){.lsc-cp{margin-left:0;width:100%}}
+@media(max-width:520px){.lsc-foot .btn,.lsc-cp{flex:1 1 100%;text-align:center}}
 
 /* page transition */
 #pt{position:fixed;inset:0;z-index:60;pointer-events:none;display:none;grid-auto-flow:column;grid-auto-columns:1fr}#pt.on{display:grid}
@@ -170,6 +174,8 @@ footer{border-top:1px solid var(--line);padding:16px 20px;font-size:12px;color:v
 #ptl small{display:block;font:700 14px "Space Mono",monospace;letter-spacing:.4em}
 body.lock,body.lock *{pointer-events:none!important}
 .scr{box-shadow:0 0 26px rgba(255,255,255,.22)}
+.tv.zm .f.bk,.tv.zm .f.l,.tv.zm .f.r,.tv.zm .f.t,.tv.zm .f.b{visibility:hidden}
+html.gc .g::before,html.gc .g::after,html.gc .marq span,html.gc .ol{animation-play-state:paused}
 </style>
 </head>
 <body>
@@ -195,7 +201,7 @@ body.lock,body.lock *{pointer-events:none!important}
     <a href="/" data-r>HOME</a><a href="/projects/" data-r>PROJECTS</a><a href="/scripts/" data-r>SCRIPTS</a><a href="/stack/" data-r>STACK</a><a href="/about/" data-r>ABOUT</a><a href="/contact/" data-r>CONTACT</a>
   </nav>
 </header>
-<div class="path" id="path">g4zwr.dev/</div>
+<div class="path" id="path">g4zwr.is-a.dev/</div>
 <div class="marq" aria-hidden="true"><span>G4ZWR · AKA GAZE · GAMEDEV · ROBLOX · LUAU · MUSIC · 2D/3D ART · G4ZWR · AKA GAZE · GAMEDEV · ROBLOX · LUAU · MUSIC · 2D/3D ART · </span></div>
 
 <main>
@@ -253,9 +259,10 @@ body.lock,body.lock *{pointer-events:none!important}
   <div class="two">
     <div>
       <p>hey, Im gaze.</p>
-      <p>I mostly do things in Roblox. Right now,</p>
-      <p>When I'm not I'm in FL Studio doing things too, on my PC or on my phone when an idea shows up at a bad time. I also draw a bit i know my drawing isnt good, which is the part that keeps everything else from feeling like worth nothing.</p>
-      <p>I run Windows and CachyOS, keep my code on GitHub, and this site is my pile of experiments. If something broken, it's on purpose. Mostly.</p>
+      <p>I mostly do things in Roblox.</p>
+      <p>When I'm not im drawing thingz 
+<br>(which is im not good at) </p>
+      <p>I run Windows and CachyOS, I keep my code on GitHub or rubis.. or pastebin, If something broken, it's on purpose. Mostly.</p>
       <h3 class="disp g" data-t="FAST FACTS" style="font-size:34px;margin:26px 0 10px">Fast facts</h3>
       <table><tr><td>What I do</td><td>Gamedev</td></tr><tr><td>Main tool</td><td>opencode</td></tr><tr><td>Music</td><td>FL Studio, PC + mobile</td></tr><tr><td>Runs on</td><td>Windows + CachyOS</td></tr><tr><td>My code</td><td><a href="https://github.com/g4zwrr" target="_blank" rel="noopener">github.com/g4zwrr</a></td></tr></table>
     </div>
@@ -285,6 +292,8 @@ body.lock,body.lock *{pointer-events:none!important}
 <footer><span>© 2026 g4zwr. All rights reserved.</span><span><a href="/" id="replay">↻ Replay intro</a> · Made with ❤</span></footer>
 
 <script>
+var gc=true;document.documentElement.classList.add("gc");
+function setGc(v){if(gc===v)return;gc=v;document.documentElement.classList.toggle("gc",v)}
 var $=function(i){return document.getElementById(i)},Q=function(s){return [].slice.call(document.querySelectorAll(s))};
 var P=[["Luau Systems Kit","Reusable modules for Roblox games.","Luau",0],["Gaze Loops","Music loops produced in FL Studio.","Music",0],["ASCII Showcase","Real-time 3D shapes rendered as ASCII.","HTML",0],["CachyOS Dotfiles","Config for a Windows + CachyOS setup.","Shell",0],["Python Tools","Small scripts for asset pipelines.","Python",0],["Animation Reels","Hand drawn 2D animation shorts.","Art",0]];
 var S=[
@@ -315,7 +324,7 @@ function toast(m){var t=$("toast");t.textContent=m;t.style.display="block";clear
 
 /* glitch: tag headings, random bursts */
 function applyG(){Q(".card h3,.logo,nav a,.hb").forEach(function(e){if(!e.dataset.t&&e.children.length===0){e.dataset.t=e.textContent;e.classList.add("g")}})}
-setInterval(function(){if(document.documentElement.dataset.fx!=="full")return;var a=Q(".g");for(var i=0;i<2;i++){var e=a[Math.floor(Math.random()*a.length)];if(!e)continue;e.classList.add("hit");(function(x){setTimeout(function(){x.classList.remove("hit")},320)})(e)}},1400);
+setInterval(function(){if(gc||document.documentElement.dataset.fx!=="full")return;var a=Q(".g");for(var i=0;i<2;i++){var e=a[Math.floor(Math.random()*a.length)];if(!e)continue;e.classList.add("hit");(function(x){setTimeout(function(){x.classList.remove("hit")},320)})(e)}},1400);
 
 /* repos: live fetch, sample fallback */
 var HIDE=["g4zwrr","g4zwrr.github.io"],REPOS=[{n:"RetroRender-Engine",d:"A custom render script for Roblox. Drop it into StarterPlayerScripts.",l:"Luau",s:2,u:"https://github.com/g4zwrr/RetroRender-Engine"},{n:"Midi-Auto-Player",d:"A virtual piano MIDI player for Roblox piano games.",l:"Lua",s:0,u:"https://github.com/g4zwrr/Midi-Auto-Player"}],SRC="SNAPSHOT";
@@ -368,7 +377,7 @@ $("cl").innerHTML=C.map(function(c,k){return'<div class="card ct" tabindex="0" r
 function ctToggle(el,f){var d=el.querySelector(".dsc"),o=f===undefined?!el.classList.contains("open"):f;if(o===el.classList.contains("open"))return;var h0=d.offsetHeight;d.style.height=h0+"px";el.classList.toggle("open",o);el.setAttribute("aria-expanded",o);
   var h1=(o?d.querySelector(".lg"):d.querySelector(".sh")).offsetHeight+8;d.offsetHeight;d.style.height=h1+"px";clearTimeout(d._t);d._t=setTimeout(function(){d.style.height=""},380)}
 var pend=null,cf=$("cfm");
-function askGo(p,int){pend=p;$("cft").textContent="Open "+p[4]+"?";$("cfu").textContent=int?"g4zwr.dev/projects/":p[1].replace(/^mailto:/,"");$("cfd").textContent=int?"This will take you to the projects page.":(p[1].indexOf("mailto:")===0?"This will open your email app.":"This will open in a new tab, outside this site.");cf.style.display="flex";$("cfy").focus()}
+function askGo(p,int){pend=p;$("cft").textContent="Open "+p[4]+"?";$("cfu").textContent=int?"g4zwr.is-a.dev/projects/":p[1].replace(/^mailto:/,"");$("cfd").textContent=int?"This will take you to the projects page.":(p[1].indexOf("mailto:")===0?"This will open your email app.":"This will open in a new tab, outside this site.");cf.style.display="flex";$("cfy").focus()}
 function askOpen(k){askGo(C[k])}
 function closeCf(){cf.style.display="none";pend=null}
 $("cl").onclick=function(e){var b=e.target.closest(".opn");if(b){e.stopPropagation();askOpen(+b.dataset.i);return}var c=e.target.closest(".ct");if(c&&!HV.matches)ctToggle(c)};
@@ -384,7 +393,7 @@ var fxT=document.createElement("canvas");fxT.style.cssText="position:fixed;inset
 function route(p){p=(p||"").replace(/^#?\/?/,"").replace(/\/$/,"");var k=R.hasOwnProperty(p)?p:"";cur=R[k];
   Q(".view").forEach(function(v){v.classList.remove("on")});$("v-"+cur).classList.add("on");
   Q("#nav a").forEach(function(a){var h=a.getAttribute("href").replace(/^\/|\/$/g,"");if(h===k)a.setAttribute("aria-current","page");else a.removeAttribute("aria-current")});
-  $("path").textContent="g4zwr.dev/"+(k?k+"/":"");document.title=(k?k.toUpperCase()+" · ":"")+"g4zwr · aka gaze";scrollTo(0,0)}
+  $("path").textContent="g4zwr.is-a.dev/"+(k?k+"/":"");document.title=(k?k.toUpperCase()+" · ":"")+"g4zwr · aka gaze";scrollTo(0,0)}
 document.addEventListener("click",function(e){if(busy){e.preventDefault();return}var rp=e.target.closest("a[data-repo]");if(rp){e.preventDefault();askGo(["Repo",rp.href,"","","the "+rp.dataset.repo+" repo"]);return}var a=e.target.closest("a[data-r]");if(!a)return;e.preventDefault();var h="#"+a.getAttribute("href");if(location.hash===h)return;location.hash=h});
 
 /* channel-change transition: fade to solid, swap, columns retract */
@@ -411,22 +420,24 @@ addEventListener("hashchange",function(){channel(function(){route(location.hash)
 
 /* intro gate */
 var gate=$("gate"),tv=$("tv"),sx=$("stat").getContext("2d"),gOn=false,nRun=false,pw=false,tvRun=false,lastMove=0,tgt={x:0,y:0},cu={x:0,y:0},RM=matchMedia("(prefers-reduced-motion:reduce)").matches;
-function noise(){if(!gate.classList.contains("on")){nRun=false;return}var d=sx.createImageData(80,60),b=d.data;for(var i=0;i<b.length;i+=4){var v=Math.random()*255;b[i]=b[i+1]=b[i+2]=v;b[i+3]=255}sx.putImageData(d,0,0);setTimeout(function(){requestAnimationFrame(noise)},50)}
-function openGate(){gOn=true;pw=false;tv.className="tv";$("scn").className="sc";$("scn").style.transform=$("scn").style.filter=gate.style.transform=gate.style.filter=gate.style.opacity="";gate.className="on"+(ready?"":" ld");if(!nRun){nRun=true;noise()}if(!tvRun){tvRun=true;requestAnimationFrame(tvLoop)}}
+var ND=sx.createImageData(80,60);
+function noise(){if(!gate.classList.contains("on")){nRun=false;return}var d=ND,b=d.data;for(var i=0;i<b.length;i+=4){var v=Math.random()*255;b[i]=b[i+1]=b[i+2]=v;b[i+3]=255}sx.putImageData(d,0,0);setTimeout(function(){requestAnimationFrame(noise)},50)}
+function openGate(){gOn=true;pw=false;setGc(true);$("scn").style.willChange="";tv.classList.remove("zm");tv.className="tv";$("scn").className="sc";$("scn").style.transform=$("scn").style.filter=gate.style.transform=gate.style.filter=gate.style.opacity="";gate.className="on"+(ready?"":" ld");if(!nRun){nRun=true;noise()}if(!tvRun){tvRun=true;requestAnimationFrame(tvLoop)}}
 addEventListener("pointermove",function(e){tgt.y=(e.clientX/innerWidth-.5)*2*30;tgt.x=-(e.clientY/innerHeight-.5)*2*18;lastMove=performance.now()});
+var lrx="",lry="",SCN=$("scn");
 function tvLoop(t){if(!gate.classList.contains("on")){tvRun=false;return}
  if(pw){cu.x*=.85;cu.y*=.85}else{if(!RM&&t-lastMove>2500){tgt.y=Math.sin(t/1500)*24;tgt.x=Math.sin(t/2300)*8}cu.x+=(tgt.x-cu.x)*.1;cu.y+=(tgt.y-cu.y)*.1}
- var sc=$("scn");sc.style.setProperty("--rx",cu.x.toFixed(2));sc.style.setProperty("--ry",cu.y.toFixed(2));requestAnimationFrame(tvLoop)}
+ var a=cu.x.toFixed(2),b=cu.y.toFixed(2);if(a!==lrx){lrx=a;SCN.style.setProperty("--rx",a)}if(b!==lry){lry=b;SCN.style.setProperty("--ry",b)}requestAnimationFrame(tvLoop)}
 function tw(D,fn,ez,done){var t0=performance.now();(function f(){var k=Math.min(1,(performance.now()-t0)/D);fn(ez(k),k);if(k<1)requestAnimationFrame(f);else if(done)done()})()}
 function eIO(k){return k<.5?4*k*k*k:1-Math.pow(-2*k+2,3)/2}
-function zoomIn(done){var sc=$("scn");tw(1200,function(e,k){sc.style.transform="scale("+(1+e*e*16).toFixed(3)+")";sc.style.filter="brightness("+(1+e*2.5).toFixed(2)+")";gate.style.opacity=k<.7?1:1-eIO((k-.7)/.3)},eIO,done)}
+function zoomIn(done){var sc=$("scn");sc.style.willChange="transform, filter";if(Math.abs(cu.x)+Math.abs(cu.y)<2)tv.classList.add("zm");tw(1200,function(e,k){sc.style.transform="scale("+(1+e*e*16).toFixed(3)+")";sc.style.filter="brightness("+(1+e*2.5).toFixed(2)+")";if(k>=.7)setGc(false);gate.style.opacity=k<.7?1:1-eIO((k-.7)/.3)},eIO,function(){sc.style.willChange="";tv.classList.remove("zm");if(done)done()})}
 function intro(){if(RM||document.documentElement.dataset.fx==="off")return;pick(cur).slice(0,14).forEach(function(e,j){e.animate([{opacity:0,transform:"translateY(34px)"},{opacity:1,transform:"none"}],{duration:900,delay:j*70,easing:"cubic-bezier(.76,0,.24,1)",fill:"backwards"})})}
 function enter(){if(!gOn||!ready)return;gOn=false;pw=true;$("dock").style.display="block";if(!tried){tried=true;startTrack()}
  tv.className="tv pw";
- var fin=function(){gate.className="";gate.style.opacity="";$("scn").style.transform=$("scn").style.filter="";intro()};
+ var fin=function(){setGc(false);gate.className="";gate.style.opacity="";$("scn").style.transform=$("scn").style.filter="";intro()};
  if(RM){fin();return}
  setTimeout(function(){zoomIn(fin)},450)}
-gate.onclick=enter;gate.onkeydown=function(e){if(e.key==="Enter"||e.key===" "){e.preventDefault();enter()}};
+gate.onclick=enter;gate.addEventListener("pointerdown",function(){if(ready){try{init()}catch(e){}}},{passive:true});gate.onkeydown=function(e){if(e.key==="Enter"||e.key===" "){e.preventDefault();enter()}};
 $("replay").onclick=function(e){e.preventDefault();openGate();gate.focus()};
 
 /* audio */
@@ -484,13 +495,15 @@ $("dm").onclick=function(){init();muted=!muted;mg.gain.value=muted?0:+$("vol").v
 var MN=["SCOPE","BARS","RING"];$("dz").onclick=function(){mode=(mode+1)%3;$("dz").textContent=MN[mode]};
 $("af").onchange=function(e){var f=e.target.files[0];if(!f)return;init();var r=new FileReader();r.onload=function(){AC.decodeAudioData(r.result,function(b){synth=false;if(track){el.pause();track=false}if(fsrc)fsrc.stop();fsrc=AC.createBufferSource();fsrc.buffer=b;fsrc.loop=true;fsrc.connect(mg);fsrc.start();$("dn").textContent="♪ "+f.name.slice(0,22).toUpperCase();setPlay(true)},function(){toast("Couldn't read that audio file.")})};r.readAsArrayBuffer(f)};
 var td=new Uint8Array(1024),fd=new Uint8Array(512);
-function viz(c,a){var x=c.getContext("2d"),w=c.clientWidth||c.width,h=c.clientHeight||c.height;if(c.width!==w)c.width=w;if(c.height!==h)c.height=h;x.clearRect(0,0,w,h);
-  var col=getComputedStyle(document.body).color;x.strokeStyle=x.fillStyle=col;x.lineWidth=2;
+var colT=0,colV="#fff";function vcol(){var n=performance.now();if(n-colT>300){colT=n;colV=getComputedStyle(document.body).color}return colV}
+var RO=window.ResizeObserver?new ResizeObserver(function(es){es.forEach(function(e){var t=e.target;t._w=Math.round(e.contentRect.width);t._h=Math.round(e.contentRect.height)})}):null;
+function viz(c,a){if(RO&&!c._ro){c._ro=1;RO.observe(c)}var x=c.getContext("2d"),w=c._w||c.clientWidth||c.width,h=c._h||c.clientHeight||c.height;if(c.width!==w)c.width=w;if(c.height!==h)c.height=h;x.clearRect(0,0,w,h);
+  var col=vcol();x.strokeStyle=x.fillStyle=col;x.lineWidth=2;
   if(an&&playing){an.getByteTimeDomainData(td);an.getByteFrequencyData(fd)}else{var t=Date.now()/400;for(var i=0;i<1024;i++)td[i]=128+14*Math.sin(i/30+t);for(i=0;i<512;i++)fd[i]=30+20*Math.sin(i/9+t)}
   if(mode===0){x.beginPath();for(i=0;i<1024;i+=4){var px=i/1024*w,py=td[i]/255*h;i?x.lineTo(px,py):x.moveTo(px,py)}x.stroke()}
   else if(mode===1){for(i=0;i<40;i++){var v=fd[i*3]/255*h;x.fillRect(i*w/40+1,h-v,w/40-2,v)}}
   else{x.beginPath();var r0=Math.min(w,h)*.28;for(i=0;i<=128;i++){var an2=i/128*6.2832,r=r0+(td[(i*8)%1024]-128)/128*r0*.7;px=w/2+Math.cos(an2)*r;py=h/2+Math.sin(an2)*r;i?x.lineTo(px,py):x.moveTo(px,py)}x.stroke()}}
-(function loop(){if($("dock").style.display==="block")viz($("dv"));if(!document.hidden)viz($("heroViz"));requestAnimationFrame(loop)})();
+(function loop(){if($("dock").style.display==="block")viz($("dv"));if(!document.hidden&&!gc)viz($("heroViz"));requestAnimationFrame(loop)})();
 
 /* ascii 3D */
 var SHAPES=[],NM=["DONUT","BALL","BOX"],HD=["oh look, a donut","it's a ball","just a box"],si=0,W=80,H=34,RAMP=" .,-~:;=!*#$@",M=[1,0,0,0,1,0,0,0,1],ASP=1.64,drag=null,moved=0;
@@ -502,16 +515,19 @@ function rot(ax,ay){var cx=Math.cos(ax),sx=Math.sin(ax),cy=Math.cos(ay),sy=Math.
  for(u=0;u<6.283;u+=.09)for(v=-1.57;v<1.57;v+=.09){var x=Math.cos(v)*Math.cos(u),y=Math.cos(v)*Math.sin(u),z=Math.sin(v);s.push([x*1.3,y*1.3,z*1.3,x,y,z])}
  for(i=-1;i<=1.001;i+=.075)for(j=-1;j<=1.001;j+=.075){a=i*.85;b=j*.85;c.push([a,b,.85,0,0,1],[a,b,-.85,0,0,-1],[a,.85,b,0,1,0],[a,-.85,b,0,-1,0],[.85,a,b,1,0,0],[-.85,a,b,-1,0,0])}
  SHAPES=[t,s,c]})();
-function frame(){var pts=SHAPES[si],m=M,zb=new Float32Array(W*H).fill(-9),ch=new Array(W*H).fill(" ");
+var ZB=new Float32Array(W*H),CHB=new Array(W*H),AP=$("ap"),SF=$("sf");
+function frame(){var pts=SHAPES[si],m=M,zb=ZB,ch=CHB;zb.fill(-9);ch.fill(" ");
  for(var i=0;i<pts.length;i++){var p=pts[i],x=m[0]*p[0]+m[1]*p[1]+m[2]*p[2],y=m[3]*p[0]+m[4]*p[1]+m[5]*p[2],z=m[6]*p[0]+m[7]*p[1]+m[8]*p[2],ny=m[3]*p[3]+m[4]*p[4]+m[5]*p[5],nz=m[6]*p[3]+m[7]*p[4]+m[8]*p[5];
   var k=6/(6-z),col=Math.round(W/2+x*11*ASP*k),row=Math.round(H/2-y*11*k);if(col<0||col>=W||row<0||row>=H)continue;
   var idx=row*W+col;if(z<=zb[idx])continue;zb[idx]=z;var l=ny*.5+nz*.85,q=l<0?1:Math.min(12,2+Math.round(l*10));ch[idx]=RAMP[q]}
- var out="";for(var r=0;r<H;r++)out+=ch.slice(r*W,r*W+W).join("")+"\n";$("ap").textContent=out}
+ var out="";for(var r=0;r<H;r++){var o=r*W;for(var c2=0;c2<W;c2++)out+=ch[o+c2];out+="\n"}AP.textContent=out}
 var lastSw=0;
 function setShape(n){si=n;$("sn").textContent=NM[si];$("si").textContent=(si+1)+" / 3";lastSw=performance.now()}
 var fc=0,ft=0;
-(function sp(t){if(cur==="home"&&!document.hidden){if(!drag){rot(.006,.02);if(t-lastSw>5000)setShape((si+1)%3)}frame();fc++;if(t-ft>800){$("sf").textContent=Math.round(fc*1000/(t-ft))+" fps";fc=0;ft=t}}requestAnimationFrame(sp)})(0);
+var asVis=true;
+(function sp(t){if(cur==="home"&&!document.hidden&&!gc&&asVis){if(!drag){rot(.006,.02);if(t-lastSw>5000)setShape((si+1)%3)}frame();fc++;if(t-ft>800){SF.textContent=Math.round(fc*1000/(t-ft))+" fps";fc=0;ft=t}}else{fc=0;ft=t}requestAnimationFrame(sp)})(0);
 var as=$("ascii");
+if(window.IntersectionObserver)new IntersectionObserver(function(es){asVis=es[es.length-1].isIntersecting}).observe(as);
 as.onpointerdown=function(e){drag={x:e.clientX,y:e.clientY};moved=0;as.setPointerCapture(e.pointerId)};
 as.onpointermove=function(e){if(!drag)return;var dx=e.clientX-drag.x,dy=e.clientY-drag.y;moved+=Math.abs(dx)+Math.abs(dy);rot(dy*.012,dx*.012);drag={x:e.clientX,y:e.clientY}};
 as.onpointerup=function(){if(moved<6)setShape((si+1)%3);drag=null};
@@ -521,7 +537,7 @@ function cnt(){tw(1300,function(e){$("n1").textContent=Math.round(REPOS.length*e
 var io=new IntersectionObserver(function(es){es.forEach(function(e){if(e.isIntersecting){e.target.classList.add("in");if(e.target.id==="stats")cnt();io.unobserve(e.target)}})},{threshold:.15});Q(".rv").forEach(function(e){io.observe(e)});
 $("peek").innerHTML=S.map(function(x){return'<span class="tag">'+esc(x[0])+'</span>'}).join("");
 var TL=["$ whoami","g4zwr aka gaze","$ ls ~/making","roblox/  music/  art/  this-site/","$ cat status.txt","building things. if it's broken, it's on purpose. mostly.","$ ./make-something --now","compiling ideas... ok"];
-(function(){var el=$("tp"),li=0,ci=0,buf="";function step(){if(document.hidden||cur!=="home"){setTimeout(step,500);return}
+(function(){var el=$("tp"),li=0,ci=0,buf="";function step(){if(document.hidden||gc||cur!=="home"){setTimeout(step,500);return}
  var L=TL[li];if(L.charAt(0)==="$"){ci++;el.textContent=buf+L.slice(0,ci)+"▌";if(ci<L.length){setTimeout(step,45+Math.random()*50);return}buf+=L+"\n";ci=0;li++;setTimeout(step,350);return}
  buf+=L+"\n";el.textContent=buf+"▌";li++;if(li>=TL.length){setTimeout(function(){buf="";li=0;ci=0;step()},3500);return}setTimeout(step,550)}step()})();
 
@@ -570,12 +586,12 @@ function renderScripts(){
   $("sl").innerHTML=SCRIPTS.map(function(s){
     return '<article class="lsc" id="s-'+s.id+'">'
       + '<div class="lsc-h"><h3 class="disp g" data-t="'+esc(s.name)+'">'+esc(s.name)+'</h3>'
-      + '<button class="lsc-cp" type="button" data-id="'+s.id+'" aria-label="Copy the '+esc(s.name)+' script">COPY</button></div>'
+      + '</div>'
       + '<p class="lsc-d">'+esc(s.desc)+'</p>'
       + (s.image ? '<img class="lsc-img" src="'+esc(s.image)+'" alt="'+esc(s.name)+' screenshot" loading="lazy">' : '')
       + '<div class="lsc-bar"><span>LUA</span><span>'+esc(s.file)+'</span></div>'
       + '<pre class="lsc-code"><code>'+lhl(s.code)+'</code></pre>'
-      + '<div class="lsc-foot"><a class="btn" href="'+esc(s.link)+'" target="_blank" rel="noopener">'+esc(s.linkLabel)+'</a></div>'
+      + '<div class="lsc-foot"><button class="btn lsc-cp" type="button" data-id="'+s.id+'" aria-label="Copy loadstring for '+esc(s.name)+'">COPY LOADSTRING</button><a class="btn lsc-os" data-name="'+esc(s.name)+'" href="'+esc(s.link)+'" target="_blank" rel="noopener">'+esc(s.linkLabel)+'</a></div>'
       + '</article>';
   }).join("");
 }
@@ -600,6 +616,12 @@ function copyText(t){
 }
 
 document.addEventListener("click",function(e){
+  var os=e.target.closest(".lsc-os");
+  if(os){
+    e.preventDefault();
+    askGo([null,os.getAttribute("href"),null,null,os.dataset.name+" source"]);
+    return;
+  }
   var btn=e.target.closest(".lsc-cp");
   if(btn){
     var s=null;
@@ -609,7 +631,7 @@ document.addEventListener("click",function(e){
       if(ok){
         btn.classList.add("ok");btn.textContent="COPIED";toast("COPIED TO CLIPBOARD");
         clearTimeout(btn._t);
-        btn._t=setTimeout(function(){btn.classList.remove("ok");btn.textContent="COPY"},1600);
+        btn._t=setTimeout(function(){btn.classList.remove("ok");btn.textContent="COPY LOADSTRING"},1600);
       } else {
         toast("COPY FAILED — SELECT THE CODE MANUALLY");
       }
