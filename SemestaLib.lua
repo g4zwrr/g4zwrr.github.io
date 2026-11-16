@@ -8,6 +8,7 @@
       • Font size slider
       • Background opacity slider
       • Theme picker now outlines the selected preview (rounded, smooth)
+      • Minimize button swaps to a maximize square while collapsed
 
     Window options (Semesta:CreateWindow):
       Title, Size (Vector2), Layout ("Sidebar" | "Topbar"), Theme (preset name or table),
@@ -188,7 +189,6 @@ end
 ---------------------------------------------------------------------------
 -- Themes
 ---------------------------------------------------------------------------
--- Gradient themes use { Gradient = { A=Color3, B=Color3, Rotation=number? } }
 local PRESETS = {
 	-- Core
 	Midnight = { Bg = rgb(17, 17, 23), Panel = rgb(24, 24, 33), Item = rgb(33, 33, 44), Line = rgb(52, 52, 68), Accent = rgb(124, 111, 255), Text = rgb(240, 240, 245), Dim = rgb(150, 150, 166), On = rgb(255, 255, 255) },
@@ -923,7 +923,18 @@ function Semesta:CreateWindow(cfg)
 		return b
 	end
 	hbtn(-10, "x", function() Win:Toggle(false) end)
-	hbtn(-40, "minus", function() Win:Minimize() end)
+
+	-- Minimize / maximize toggle (icon swaps with state)
+	local minBtn = new("TextButton", {
+		Text = "", AutoButtonColor = false, BackgroundTransparency = 1, Active = true,
+		AnchorPoint = Vector2.new(1, 0.5), Position = UDim2.new(1, -40, 0.5, 0), Size = UDim2.fromOffset(28, 28),
+	}, header)
+	local minIconMinus = Icons.make(minBtn, "minus", 16, "Dim")
+	minIconMinus.AnchorPoint = Vector2.new(0.5, 0.5); minIconMinus.Position = UDim2.fromScale(0.5, 0.5)
+	local minIconMax = Icons.make(minBtn, "square", 14, "Dim")
+	minIconMax.AnchorPoint = Vector2.new(0.5, 0.5); minIconMax.Position = UDim2.fromScale(0.5, 0.5)
+	minIconMax.Visible = false
+	minBtn.MouseButton1Click:Connect(function() Win:Minimize() end)
 
 	local body = new("Frame", {
 		Name = "Body", Position = UDim2.fromOffset(0, HEAD_H + 1), Size = UDim2.new(1, 0, 1, -(HEAD_H + 1)),
@@ -1742,7 +1753,7 @@ function Semesta:CreateWindow(cfg)
 		end
 
 		-----------------------------------------------------------------
-		-- Theme preview picker (mini window cards) — smooth outline select
+		-- Theme preview picker (mini window cards) — outline selection
 		-----------------------------------------------------------------
 		function Tab:AddThemePreview(o)
 			o = o or {}
@@ -1778,19 +1789,16 @@ function Semesta:CreateWindow(cfg)
 						BackgroundTransparency = 1, LayoutOrder = i, Active = true,
 					}, scroll)
 
-					-- Preview panel (this is what gets outlined)
 					local preview = new("Frame", {
 						Size = UDim2.new(1, 0, 0, 66), BorderSizePixel = 0, BackgroundColor3 = preset.Bg,
 					}, card)
 					cornerOf(preview, 8)
 
-					-- Base thin border (Line color) — bound so theme changes keep it in sync
 					local baseStroke = new("UIStroke", {
 						Thickness = 1, ApplyStrokeMode = Enum.ApplyStrokeMode.Border,
 						Color = preset.Line,
 					}, preview)
 
-					-- Selection outline (accent color) — animates in/out
 					local selStroke = new("UIStroke", {
 						Thickness = 2, ApplyStrokeMode = Enum.ApplyStrokeMode.Border,
 						Transparency = name == current and 0 or 1,
@@ -1801,7 +1809,7 @@ function Semesta:CreateWindow(cfg)
 						Size = UDim2.new(0, 22, 1, 0), BorderSizePixel = 0, BackgroundColor3 = preset.Panel,
 					}, preview)
 					cornerOf(side, 8)
-					local sideFix = new("Frame", {
+					new("Frame", {
 						Size = UDim2.new(0, 8, 1, 0), Position = UDim2.new(1, -8, 0, 0),
 						BackgroundColor3 = preset.Panel, BorderSizePixel = 0,
 					}, side)
@@ -1828,7 +1836,6 @@ function Semesta:CreateWindow(cfg)
 						end
 					end
 
-					-- Gradient swatch indicator for gradient themes
 					if preset.Gradient then
 						local gradChip = new("Frame", {
 							AnchorPoint = Vector2.new(1, 0), Position = UDim2.new(1, -4, 0, 4),
@@ -2093,6 +2100,9 @@ function Semesta:CreateWindow(cfg)
 		end
 		Win.Minimized = v
 		body.Visible = not v
+		-- Swap minimize (minus) ⇄ maximize (square) icon
+		minIconMinus.Visible = not v
+		minIconMax.Visible = v
 		Anim.to(main, { Size = UDim2.fromOffset(W, v and HEAD_H or H) }, 0.3, "Back")
 	end
 
