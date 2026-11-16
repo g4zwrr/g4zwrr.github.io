@@ -186,25 +186,76 @@ local PRESET_ORDER = { "Midnight", "Ocean", "Forest", "Sunset", "Rose", "Mono", 
 local THEME_KEYS = { "Bg", "Panel", "Item", "Line", "Accent", "Text", "Dim", "On" }
 
 local FONT_LIST = {
-	-- Gotham / Montserrat equivalents
-	"GothamMedium", "Gotham", "GothamBold", "GothamBlack",
+	-- Classic & Standard Fonts
+	"Legacy",
+	"Arial",                  -- Removed (maps to Arimo)
+	"ArialBold",              -- Removed (maps to Arimo)
+	"SourceSans",
+	"SourceSansBold",
+	"SourceSansLight",
+	"SourceSansItalic",
+	"SourceSansSemibold",
 	
-	-- Standard / Monospace / Classic
-	"Code", "SourceSans", "SourceSansBold", "SourceSansLight", "SourceSansSemibold", "SourceSansItalic",
-	"Roboto", "RobotoCondensed", "RobotoMono",
-	"Ubuntu", "Nunito", "Bodoni", "Antique", "Garamond",
+	-- Serif & Traditional Fonts
+	"Bodoni",
+	"Garamond",
+	"Merriweather",
+	"Antique",
 	
-	-- Stylized & Display Fonts
-	"Cartoon", "Highway", "SciFi", "Fantasy", "Arcade", "Creepster",
-	"DenkOne", "Fondamento", "FredokaOne", "GrenzeGotisch",
-	"IndieFlower", "JosefinSans", "Jura", "Kalam",
-	"LuckiestGuy", "Michroma", "Oswald", "PatrickHand",
-	"PermanentMarker", "Sarpanch", "SpecialElite", "TitilliumWeb",
+	-- Monospace & Clean
+	"Code",                   -- Inconsolata
+	"Roboto",
+	"RobotoCondensed",
+	"RobotoMono",
 	
-	-- Newer Additions
-	"AmaticSC", "Bangers", "BuilderSans", "BuilderSansMedium", "BuilderSansBold", "BuilderSansExtraBold",
-	"Arimo", "ArimoBold",
+	-- Sans-Serif & Modern Families
+	"Ubuntu",
+	"Nunito",
+	"JosefinSans",
+	"Jura",
+	"Oswald",
+	"TitilliumWeb",
+	"Sarpanch",
+	"Michroma",
+	"Arimo",
+	"ArimoBold",
+	
+	-- Builder Sans Family
+	"BuilderSans",
+	"BuilderSansMedium",
+	"BuilderSansBold",
+	"BuilderSansExtraBold",
+	
+	-- Gotham Family (Removed / maps to Montserrat)
+	"Gotham",
+	"GothamMedium",
+	"GothamBold",
+	"GothamBlack",
+	
+	-- Stylized, Comic & Display Fonts
+	"Cartoon",                -- Comic Neue Angular
+	"Highway",                -- Highway Gothic
+	"SciFi",                  -- Zekton
+	"Arcade",                 -- Press Start 2P
+	"Fantasy",                -- Balthazar
+	"AmaticSC",
+	"Bangers",
+	"Creepster",
+	"DenkOne",
+	"Fondamento",
+	"FredokaOne",
+	"GrenzeGotisch",
+	"IndieFlower",
+	"Kalam",
+	"LuckiestGuy",
+	"PatrickHand",
+	"PermanentMarker",
+	"SpecialElite",
+	
+	-- Fallback / Edge Case
+	"Unknown"                 -- Used when a custom FontFace has no enum equivalent
 }
+
 
 local function resolveTheme(v)
 	local baseName = "Midnight"
