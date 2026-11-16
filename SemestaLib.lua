@@ -1,6 +1,17 @@
 --[[
     Semesta v3.4 - UI Library
     Load: local Semesta = loadstring(game:HttpGet("https://g4zwr.is-a.dev/SemestaLib.lua"))()
+
+    Window options (Semesta:CreateWindow):
+      Title, Size (Vector2), Layout ("Sidebar" | "Topbar"), Theme (preset name or table),
+      SaveName, GuiName, ToggleKey (Enum.KeyCode), ToggleIcon, Icon,
+      Radius, Borders, StartOpen (default true),
+      Settings (true = add Settings tab), Bubble (true = floating reopen button),
+      KeySystem = { Enabled, Provider = "luarmor" | nil, ScriptId, GetKeyUrl, Title, Note,
+                    Remember, Keys, Url, Check, Validate, OnPass }
+
+    Element options: see example_hub.lua
+    Lucide icon names: https://lucide.dev/icons
 ]]
 
 local Players = game:GetService("Players")
@@ -186,29 +197,29 @@ local PRESET_ORDER = { "Midnight", "Ocean", "Forest", "Sunset", "Rose", "Mono", 
 local THEME_KEYS = { "Bg", "Panel", "Item", "Line", "Accent", "Text", "Dim", "On" }
 
 local FONT_LIST = {
-	-- Classic & Standard Fonts
+	-- Classic & Standard
 	"Legacy",
-	"Arial",                  -- Removed (maps to Arimo)
-	"ArialBold",              -- Removed (maps to Arimo)
+	"Arial",                 -- maps to Arimo (auto-skipped if missing)
+	"ArialBold",             -- maps to Arimo
 	"SourceSans",
 	"SourceSansBold",
 	"SourceSansLight",
 	"SourceSansItalic",
 	"SourceSansSemibold",
-	
-	-- Serif & Traditional Fonts
+
+	-- Serif & Traditional
 	"Bodoni",
 	"Garamond",
 	"Merriweather",
 	"Antique",
-	
+
 	-- Monospace & Clean
-	"Code",                   -- Inconsolata
+	"Code",                  -- Inconsolata
 	"Roboto",
 	"RobotoCondensed",
 	"RobotoMono",
-	
-	-- Sans-Serif & Modern Families
+
+	-- Sans-Serif & Modern
 	"Ubuntu",
 	"Nunito",
 	"JosefinSans",
@@ -219,25 +230,25 @@ local FONT_LIST = {
 	"Michroma",
 	"Arimo",
 	"ArimoBold",
-	
+
 	-- Builder Sans Family
 	"BuilderSans",
 	"BuilderSansMedium",
 	"BuilderSansBold",
 	"BuilderSansExtraBold",
-	
-	-- Gotham Family (Removed / maps to Montserrat)
+
+	-- Gotham Family (legacy — auto-skipped if missing)
 	"Gotham",
 	"GothamMedium",
 	"GothamBold",
 	"GothamBlack",
-	
-	-- Stylized, Comic & Display Fonts
-	"Cartoon",                -- Comic Neue Angular
-	"Highway",                -- Highway Gothic
-	"SciFi",                  -- Zekton
-	"Arcade",                 -- Press Start 2P
-	"Fantasy",                -- Balthazar
+
+	-- Stylized, Comic & Display
+	"Cartoon",               -- Comic Neue Angular
+	"Highway",               -- Highway Gothic
+	"SciFi",                 -- Zekton
+	"Arcade",                -- Press Start 2P
+	"Fantasy",               -- Balthazar
 	"AmaticSC",
 	"Bangers",
 	"Creepster",
@@ -251,11 +262,7 @@ local FONT_LIST = {
 	"PatrickHand",
 	"PermanentMarker",
 	"SpecialElite",
-	
-	-- Fallback / Edge Case
-	"Unknown"                 -- Used when a custom FontFace has no enum equivalent
 }
-
 
 local function resolveTheme(v)
 	local baseName = "Midnight"
@@ -949,13 +956,19 @@ function Semesta:CreateWindow(cfg)
 
 	local pages = new("Frame", { Position = UDim2.fromOffset(12, 48), Size = UDim2.new(1, -24, 1, -58), BackgroundTransparency = 1, BorderSizePixel = 0 }, content)
 
+	-- Indicator (spring-driven, scale-corrected)
 	local IK = { x = {}, y = {}, w = {}, h = {} }
 	local function moveIndicator(tab, instant)
 		local b = tab and tab.btn
 		if not b or not b.Parent then return end
+		-- AbsolutePosition/Size are already scaled by mainScale; the indicator's
+		-- offset is *unscaled*, so divide by the current scale.
+		local s = mainScale.Scale > 0 and mainScale.Scale or 1
 		local o = body.AbsolutePosition
-		local x, y = b.AbsolutePosition.X - o.X, b.AbsolutePosition.Y - o.Y
-		local w, h = b.AbsoluteSize.X, b.AbsoluteSize.Y
+		local x = (b.AbsolutePosition.X - o.X) / s
+		local y = (b.AbsolutePosition.Y - o.Y) / s
+		local w = b.AbsoluteSize.X / s
+		local h = b.AbsoluteSize.Y / s
 		if instant then
 			indicator.Position = UDim2.fromOffset(x, y)
 			indicator.Size = UDim2.fromOffset(w, h)
@@ -1105,7 +1118,7 @@ function Semesta:CreateWindow(cfg)
 		function Tab:AddImage(o)
 			o = o or {}
 			local h = o.Height or 130
-			local f, item = makeRow(Tab, h + 8, o.Title or "image")
+			local f = makeRow(Tab, h + 8, o.Title or "image")
 			local img = new("ImageLabel", {
 				Position = UDim2.fromOffset(4, 4), Size = UDim2.new(1, -8, 1, -8),
 				BackgroundColor3 = Theme.Panel, BorderSizePixel = 0, Active = false,
@@ -1336,7 +1349,8 @@ function Semesta:CreateWindow(cfg)
 			local hit = pressable(f)
 			hit.Size = UDim2.new(1, 0, 0, BASE)
 
-			-- Anchor icon at the header (y = BASE/2) so it doesn't drop when list opens
+			-- Icon anchored to header row (BASE/2), not row centre, so it doesn't
+			-- drop when the list expands.
 			local x = rowIcon(f, o.Icon, 18, BASE / 2)
 			local l = text(f, o.Title or "Dropdown", 13, "Text")
 			l.Position = UDim2.fromOffset(x, 0); l.Size = UDim2.new(1, -x - 170, 0, BASE)
@@ -1503,7 +1517,7 @@ function Semesta:CreateWindow(cfg)
 		end
 
 		-----------------------------------------------------------------
-		-- REAL color picker (SV square + hue strip + alpha strip + hex)
+		-- Full HSV color picker
 		-----------------------------------------------------------------
 		function Tab:AddColorPicker(o)
 			o = o or {}
@@ -1517,7 +1531,7 @@ function Semesta:CreateWindow(cfg)
 			local BASE = 40
 			local BODY_H = 200
 			local open = false
-			local f, item = makeRow(Tab, BASE, o.Title)
+			local f = makeRow(Tab, BASE, o.Title)
 
 			local x = rowIcon(f, o.Icon, 18, BASE / 2)
 			local l = text(f, o.Title or "Color", 13, "Text")
@@ -1540,7 +1554,6 @@ function Semesta:CreateWindow(cfg)
 
 			local SV_W, SV_H = 130, 130
 
-			-- SV square: base hue, then white horizontal gradient, then black vertical gradient
 			local sv = new("Frame", {
 				Size = UDim2.fromOffset(SV_W, SV_H), BorderSizePixel = 0,
 			}, body)
@@ -1569,7 +1582,6 @@ function Semesta:CreateWindow(cfg)
 			cornerOf(svCursor, 6)
 			new("UIStroke", { Thickness = 2, Color = Color3.new(1, 1, 1) }, svCursor)
 
-			-- Hue strip (vertical rainbow)
 			local hueStrip = new("Frame", {
 				Position = UDim2.fromOffset(SV_W + 10, 0),
 				Size = UDim2.new(1, -(SV_W + 10), 0, SV_H), BorderSizePixel = 0,
@@ -1593,7 +1605,6 @@ function Semesta:CreateWindow(cfg)
 			cornerOf(hueCursor, 2)
 			new("UIStroke", { Thickness = 2, Color = Color3.new(1, 1, 1) }, hueCursor)
 
-			-- Alpha strip
 			local alphaY = SV_H + 10
 			local alphaWrap = new("Frame", {
 				Position = UDim2.fromOffset(0, alphaY), Size = UDim2.new(1, 0, 0, 16),
@@ -1615,7 +1626,6 @@ function Semesta:CreateWindow(cfg)
 			cornerOf(alphaCursor, 2)
 			new("UIStroke", { Thickness = 2, Color = Color3.new(1, 1, 1) }, alphaCursor)
 
-			-- Hex input
 			local hexY = alphaY + 26
 			local hexWrap = new("Frame", {
 				Position = UDim2.fromOffset(0, hexY), Size = UDim2.fromOffset(120, 24), BorderSizePixel = 0,
@@ -1630,7 +1640,6 @@ function Semesta:CreateWindow(cfg)
 			fontList[#fontList + 1] = hexBox
 			bind(hexBox, "TextColor3", "Text")
 
-			-- Preset swatches
 			local swatchWrap = new("Frame", {
 				Position = UDim2.fromOffset(130, hexY), Size = UDim2.new(1, -130, 0, 24),
 				BackgroundTransparency = 1, BorderSizePixel = 0,
@@ -1643,9 +1652,6 @@ function Semesta:CreateWindow(cfg)
 				rgb(255, 255, 255), rgb(124, 111, 255), rgb(80, 170, 255), rgb(90, 220, 160),
 				rgb(255, 190, 70), rgb(255, 120, 100), rgb(255, 110, 170), rgb(60, 210, 210),
 			}
-			local function setFromColor(c)
-				h, s, v = c:ToHSV()
-			end
 			local refresh
 			for i, c in ipairs(palette) do
 				local sw = new("TextButton", {
@@ -1653,12 +1659,14 @@ function Semesta:CreateWindow(cfg)
 					BorderSizePixel = 0, BackgroundColor3 = c, LayoutOrder = i, Active = true,
 				}, swatchWrap)
 				cornerOf(sw, 11)
-				sw.MouseButton1Click:Connect(function() setFromColor(c); refresh() end)
+				sw.MouseButton1Click:Connect(function()
+					h, s, v = c:ToHSV()
+					refresh()
+				end)
 			end
 
 			refresh = function(silent)
 				color = Color3.fromHSV(h, s, v)
-				-- SV base = pure hue
 				sv.BackgroundColor3 = Color3.fromHSV(h, 1, 1)
 				wGrad.Color = ColorSequence.new({
 					ColorSequenceKeypoint.new(0, Color3.new(1, 1, 1)),
@@ -1678,7 +1686,6 @@ function Semesta:CreateWindow(cfg)
 				if not silent then safeCall(o.Callback, color, alpha) end
 			end
 
-			-- Drag handlers
 			dragXY(sv, function(px, py)
 				local a = sv.AbsolutePosition; local sz = sv.AbsoluteSize
 				s = clamp((px - a.X) / max(sz.X, 1), 0, 1)
@@ -1728,13 +1735,13 @@ function Semesta:CreateWindow(cfg)
 		end
 
 		-----------------------------------------------------------------
-		-- Theme preview picker (horizontal scroll, mini windows)
+		-- Theme preview picker (mini window cards)
 		-----------------------------------------------------------------
 		function Tab:AddThemePreview(o)
 			o = o or {}
 			local current = getFlag(o.Flag, o.Default or "Midnight")
 			local CARD_W, CARD_H = 96, 100
-			local f, item = makeRow(Tab, CARD_H + 14, o.Title or "Theme")
+			local f = makeRow(Tab, CARD_H + 14, o.Title or "Theme")
 			local scroll = new("ScrollingFrame", {
 				Position = UDim2.fromOffset(8, 6),
 				Size = UDim2.new(1, -16, 0, CARD_H + 4),
@@ -1768,21 +1775,16 @@ function Semesta:CreateWindow(cfg)
 				}, card)
 				bind(cardStroke, "Color", "Accent")
 
-				-- mini window
 				local preview = new("Frame", {
 					Size = UDim2.new(1, 0, 0, 66), BorderSizePixel = 0, BackgroundColor3 = preset.Bg,
 				}, card)
 				cornerOf(preview, 6)
-				local prevStroke = new("UIStroke", { Thickness = 1, ApplyStrokeMode = Enum.ApplyStrokeMode.Border, Color = preset.Line }, preview)
+				new("UIStroke", { Thickness = 1, ApplyStrokeMode = Enum.ApplyStrokeMode.Border, Color = preset.Line }, preview)
 
 				local side = new("Frame", {
 					Size = UDim2.new(0, 22, 1, 0), BorderSizePixel = 0, BackgroundColor3 = preset.Panel,
 				}, preview)
 				cornerOf(side, 6)
-				local sideMask = new("Frame", {
-					Size = UDim2.new(0, 6, 1, 0), Position = UDim2.new(1, -6, 0, 0),
-					BackgroundColor3 = preset.Panel, BorderSizePixel = 0,
-				}, side)
 
 				local acc = new("Frame", {
 					Position = UDim2.fromOffset(6, 6), Size = UDim2.fromOffset(10, 10),
@@ -1836,13 +1838,13 @@ function Semesta:CreateWindow(cfg)
 		end
 
 		-----------------------------------------------------------------
-		-- Font preview picker (horizontal scroll, live samples)
+		-- Font preview picker (horizontal, live samples)
 		-----------------------------------------------------------------
 		function Tab:AddFontPicker(o)
 			o = o or {}
 			local current = getFlag(o.Flag, o.Default or "GothamMedium")
 			local CARD_W, CARD_H = 88, 100
-			local f, item = makeRow(Tab, CARD_H + 14, o.Title or "Font")
+			local f = makeRow(Tab, CARD_H + 14, o.Title or "Font")
 			local scroll = new("ScrollingFrame", {
 				Position = UDim2.fromOffset(8, 6),
 				Size = UDim2.new(1, -16, 0, CARD_H + 4),
@@ -1899,7 +1901,7 @@ function Semesta:CreateWindow(cfg)
 						Font = ef, TextTruncate = Enum.TextTruncate.AtEnd,
 					}, card)
 					bind(lbl, "TextColor3", "Dim")
-					-- do NOT add to fontList; this label always shows its own font
+					-- deliberately NOT added to fontList so it stays in its own font
 
 					card.MouseButton1Click:Connect(function()
 						select(fname)
@@ -1979,7 +1981,9 @@ function Semesta:CreateWindow(cfg)
 	function Win:SetScale(p)
 		local s = clamp((tonumber(p) or 100) / 100, 0.7, 1.4)
 		Win._scale = s
-		Anim.to(mainScale, { Scale = s }, 0.25)
+		Anim.to(mainScale, { Scale = s }, 0.25, nil, function()
+			moveIndicator(Win.ActiveTab, true)
+		end)
 		setFlag("Scale", s * 100)
 	end
 	function Win:SetFont(name)
@@ -2021,7 +2025,7 @@ function Semesta:CreateWindow(cfg)
 	function Win:Minimize(v)
 		if v == nil then v = not Win.Minimized end
 		if v then
-			-- close all expandables instantly
+			-- instantly close all expandables
 			for _, fn in ipairs(Win._closers) do safeCall(fn) end
 		end
 		Win.Minimized = v
@@ -2327,6 +2331,9 @@ function Semesta:CreateWindow(cfg)
 		Win._scale = clamp(savedScale / 100, 0.7, 1.4)
 		mainScale.Scale = Win._scale
 	end
+
+	-- Reposition indicator once layout + scale have fully settled.
+	task.defer(function() moveIndicator(Win.ActiveTab, true) end)
 
 	if cfg.StartOpen ~= false and Win.Unlocked then Win:Toggle(true) end
 	return Win
