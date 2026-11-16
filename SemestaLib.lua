@@ -1,6 +1,13 @@
 --[[
-    Semesta v3.4 - UI Library
+    Semesta v3.5 - UI Library
     Load: local Semesta = loadstring(game:HttpGet("https://g4zwr.is-a.dev/SemestaLib.lua"))()
+
+    New in 3.5:
+      • More themes (Catppuccin, Dracula, Nord, Tokyo Night, Gruvbox, Everforest, Pine, Sakura…)
+      • Gradient themes (Cyber, Aurora, Ember, Nebula, Twilight)
+      • Font size slider
+      • Background opacity slider
+      • Theme picker now outlines the selected preview (rounded, smooth)
 
     Window options (Semesta:CreateWindow):
       Title, Size (Vector2), Layout ("Sidebar" | "Topbar"), Theme (preset name or table),
@@ -9,9 +16,6 @@
       Settings (true = add Settings tab), Bubble (true = floating reopen button),
       KeySystem = { Enabled, Provider = "luarmor" | nil, ScriptId, GetKeyUrl, Title, Note,
                     Remember, Keys, Url, Check, Validate, OnPass }
-
-    Element options: see example_hub.lua
-    Lucide icon names: https://lucide.dev/icons
 ]]
 
 local Players = game:GetService("Players")
@@ -25,7 +29,7 @@ local floor, min, max, abs, sqrt, ceil = math.floor, math.min, math.max, math.ab
 local clamp = math.clamp
 local atan2, rad, deg, cos, sin = math.atan2, math.rad, math.deg, math.cos, math.sin
 
-local Semesta = { Version = "3.4" }
+local Semesta = { Version = "3.5" }
 local SIDE_W, SIDE_MINI, HEAD_H = 150, 54, 42
 local LUARMOR_LIB = "https://sdkapi-public.luarmor.net/library.lua"
 
@@ -184,84 +188,66 @@ end
 ---------------------------------------------------------------------------
 -- Themes
 ---------------------------------------------------------------------------
+-- Gradient themes use { Gradient = { A=Color3, B=Color3, Rotation=number? } }
 local PRESETS = {
+	-- Core
 	Midnight = { Bg = rgb(17, 17, 23), Panel = rgb(24, 24, 33), Item = rgb(33, 33, 44), Line = rgb(52, 52, 68), Accent = rgb(124, 111, 255), Text = rgb(240, 240, 245), Dim = rgb(150, 150, 166), On = rgb(255, 255, 255) },
 	Ocean = { Bg = rgb(10, 22, 34), Panel = rgb(15, 32, 48), Item = rgb(23, 46, 66), Line = rgb(38, 68, 94), Accent = rgb(80, 170, 255), Text = rgb(230, 242, 255), Dim = rgb(130, 160, 186), On = rgb(255, 255, 255) },
 	Forest = { Bg = rgb(14, 24, 18), Panel = rgb(20, 34, 26), Item = rgb(30, 50, 38), Line = rgb(46, 72, 56), Accent = rgb(90, 220, 140), Text = rgb(232, 245, 236), Dim = rgb(140, 170, 150), On = rgb(10, 30, 18) },
+	Everforest = { Bg = rgb(42, 47, 44), Panel = rgb(51, 58, 53), Item = rgb(66, 74, 67), Line = rgb(85, 92, 82), Accent = rgb(167, 192, 128), Text = rgb(211, 198, 170), Dim = rgb(146, 153, 139), On = rgb(42, 47, 44) },
+	Pine = { Bg = rgb(19, 31, 24), Panel = rgb(24, 39, 30), Item = rgb(32, 50, 39), Line = rgb(43, 66, 51), Accent = rgb(120, 200, 130), Text = rgb(196, 224, 200), Dim = rgb(130, 160, 138), On = rgb(12, 25, 16) },
 	Sunset = { Bg = rgb(26, 16, 18), Panel = rgb(36, 23, 26), Item = rgb(52, 33, 37), Line = rgb(80, 52, 58), Accent = rgb(255, 140, 70), Text = rgb(255, 240, 235), Dim = rgb(180, 140, 135), On = rgb(255, 255, 255) },
 	Rose = { Bg = rgb(24, 14, 22), Panel = rgb(34, 21, 32), Item = rgb(50, 31, 47), Line = rgb(78, 48, 72), Accent = rgb(255, 110, 160), Text = rgb(255, 238, 246), Dim = rgb(175, 135, 162), On = rgb(255, 255, 255) },
+	Sakura = { Bg = rgb(253, 244, 248), Panel = rgb(248, 234, 240), Item = rgb(255, 255, 255), Line = rgb(232, 205, 218), Accent = rgb(220, 110, 165), Text = rgb(70, 45, 58), Dim = rgb(150, 120, 135), On = rgb(255, 255, 255) },
+
+	-- Catppuccin
+	Mocha = { Bg = rgb(30, 30, 46), Panel = rgb(24, 24, 37), Item = rgb(49, 50, 68), Line = rgb(69, 71, 90), Accent = rgb(203, 166, 247), Text = rgb(205, 214, 244), Dim = rgb(166, 173, 200), On = rgb(17, 17, 27) },
+	Frappe = { Bg = rgb(48, 52, 70), Panel = rgb(41, 44, 60), Item = rgb(65, 69, 89), Line = rgb(81, 87, 109), Accent = rgb(202, 158, 230), Text = rgb(198, 208, 245), Dim = rgb(165, 173, 206), On = rgb(35, 38, 52) },
+	Macchiato = { Bg = rgb(36, 39, 58), Panel = rgb(30, 32, 48), Item = rgb(54, 58, 79), Line = rgb(73, 77, 100), Accent = rgb(198, 160, 246), Text = rgb(202, 211, 245), Dim = rgb(165, 173, 203), On = rgb(24, 25, 38) },
+	Latte = { Bg = rgb(239, 241, 245), Panel = rgb(230, 233, 239), Item = rgb(220, 224, 232), Line = rgb(188, 192, 204), Accent = rgb(136, 57, 239), Text = rgb(76, 79, 105), Dim = rgb(140, 143, 161), On = rgb(255, 255, 255) },
+
+	-- Editors / dev
+	Dracula = { Bg = rgb(40, 42, 54), Panel = rgb(45, 47, 62), Item = rgb(68, 71, 90), Line = rgb(85, 89, 112), Accent = rgb(189, 147, 249), Text = rgb(248, 248, 242), Dim = rgb(139, 143, 160), On = rgb(40, 42, 54) },
+	Nord = { Bg = rgb(46, 52, 64), Panel = rgb(59, 66, 82), Item = rgb(67, 76, 94), Line = rgb(76, 86, 106), Accent = rgb(136, 192, 208), Text = rgb(236, 239, 244), Dim = rgb(216, 222, 233), On = rgb(46, 52, 64) },
+	Tokyo = { Bg = rgb(26, 27, 38), Panel = rgb(36, 40, 59), Item = rgb(41, 46, 66), Line = rgb(61, 69, 100), Accent = rgb(187, 154, 247), Text = rgb(192, 202, 245), Dim = rgb(115, 122, 162), On = rgb(26, 27, 38) },
+	Gruvbox = { Bg = rgb(40, 40, 40), Panel = rgb(60, 56, 54), Item = rgb(80, 73, 69), Line = rgb(102, 92, 84), Accent = rgb(254, 128, 25), Text = rgb(235, 219, 178), Dim = rgb(168, 153, 132), On = rgb(40, 40, 40) },
+
+	-- Neutrals
 	Mono = { Bg = rgb(12, 12, 12), Panel = rgb(20, 20, 20), Item = rgb(30, 30, 30), Line = rgb(52, 52, 52), Accent = rgb(230, 230, 230), Text = rgb(245, 245, 245), Dim = rgb(150, 150, 150), On = rgb(10, 10, 10) },
 	Light = { Bg = rgb(240, 242, 246), Panel = rgb(228, 231, 238), Item = rgb(255, 255, 255), Line = rgb(200, 205, 216), Accent = rgb(80, 110, 255), Text = rgb(30, 32, 40), Dim = rgb(110, 115, 130), On = rgb(255, 255, 255) },
+
+	-- Gradient themes
+	Cyber = { Bg = rgb(15, 15, 35), Panel = rgb(20, 20, 45), Item = rgb(30, 30, 60), Line = rgb(70, 70, 120), Accent = rgb(0, 230, 255), Text = rgb(230, 240, 255), Dim = rgb(140, 150, 180), On = rgb(10, 10, 25), Gradient = { A = rgb(25, 20, 60), B = rgb(10, 30, 60), Rotation = 45 } },
+	Aurora = { Bg = rgb(20, 30, 40), Panel = rgb(25, 40, 50), Item = rgb(35, 55, 65), Line = rgb(60, 85, 95), Accent = rgb(100, 230, 180), Text = rgb(230, 245, 245), Dim = rgb(150, 175, 180), On = rgb(15, 25, 30), Gradient = { A = rgb(20, 60, 60), B = rgb(40, 30, 70), Rotation = 45 } },
+	Ember = { Bg = rgb(30, 18, 15), Panel = rgb(40, 25, 20), Item = rgb(55, 35, 28), Line = rgb(90, 55, 45), Accent = rgb(255, 130, 70), Text = rgb(255, 235, 225), Dim = rgb(185, 145, 130), On = rgb(20, 10, 10), Gradient = { A = rgb(50, 20, 15), B = rgb(30, 15, 30), Rotation = 45 } },
+	Nebula = { Bg = rgb(25, 18, 40), Panel = rgb(35, 25, 55), Item = rgb(48, 35, 72), Line = rgb(80, 60, 110), Accent = rgb(220, 130, 255), Text = rgb(240, 230, 255), Dim = rgb(170, 150, 195), On = rgb(20, 12, 30), Gradient = { A = rgb(50, 20, 70), B = rgb(25, 25, 60), Rotation = 45 } },
+	Twilight = { Bg = rgb(25, 25, 45), Panel = rgb(35, 35, 60), Item = rgb(50, 50, 80), Line = rgb(80, 80, 120), Accent = rgb(180, 150, 255), Text = rgb(235, 235, 255), Dim = rgb(170, 170, 195), On = rgb(20, 20, 35), Gradient = { A = rgb(40, 25, 70), B = rgb(25, 30, 55), Rotation = 90 } },
 }
-local PRESET_ORDER = { "Midnight", "Ocean", "Forest", "Sunset", "Rose", "Mono", "Light" }
+
+local PRESET_ORDER = {
+	"Midnight", "Ocean", "Forest", "Everforest", "Pine",
+	"Sunset", "Rose", "Sakura",
+	"Mocha", "Frappe", "Macchiato", "Latte",
+	"Dracula", "Nord", "Tokyo", "Gruvbox",
+	"Mono", "Light",
+	"Cyber", "Aurora", "Ember", "Nebula", "Twilight",
+}
 local THEME_KEYS = { "Bg", "Panel", "Item", "Line", "Accent", "Text", "Dim", "On" }
 
 local FONT_LIST = {
-	-- Classic & Standard
 	"Legacy",
-	"Arial",                 -- maps to Arimo (auto-skipped if missing)
-	"ArialBold",             -- maps to Arimo
-	"SourceSans",
-	"SourceSansBold",
-	"SourceSansLight",
-	"SourceSansItalic",
-	"SourceSansSemibold",
-
-	-- Serif & Traditional
-	"Bodoni",
-	"Garamond",
-	"Merriweather",
-	"Antique",
-
-	-- Monospace & Clean
-	"Code",                  -- Inconsolata
-	"Roboto",
-	"RobotoCondensed",
-	"RobotoMono",
-
-	-- Sans-Serif & Modern
-	"Ubuntu",
-	"Nunito",
-	"JosefinSans",
-	"Jura",
-	"Oswald",
-	"TitilliumWeb",
-	"Sarpanch",
-	"Michroma",
-	"Arimo",
-	"ArimoBold",
-
-	-- Builder Sans Family
-	"BuilderSans",
-	"BuilderSansMedium",
-	"BuilderSansBold",
-	"BuilderSansExtraBold",
-
-	-- Gotham Family (legacy — auto-skipped if missing)
-	"Gotham",
-	"GothamMedium",
-	"GothamBold",
-	"GothamBlack",
-
-	-- Stylized, Comic & Display
-	"Cartoon",               -- Comic Neue Angular
-	"Highway",               -- Highway Gothic
-	"SciFi",                 -- Zekton
-	"Arcade",                -- Press Start 2P
-	"Fantasy",               -- Balthazar
-	"AmaticSC",
-	"Bangers",
-	"Creepster",
-	"DenkOne",
-	"Fondamento",
-	"FredokaOne",
-	"GrenzeGotisch",
-	"IndieFlower",
-	"Kalam",
-	"LuckiestGuy",
-	"PatrickHand",
-	"PermanentMarker",
-	"SpecialElite",
+	"Arial", "ArialBold",
+	"SourceSans", "SourceSansBold", "SourceSansLight", "SourceSansItalic", "SourceSansSemibold",
+	"Bodoni", "Garamond", "Merriweather", "Antique",
+	"Code", "Roboto", "RobotoCondensed", "RobotoMono",
+	"Ubuntu", "Nunito", "JosefinSans", "Jura", "Oswald", "TitilliumWeb", "Sarpanch", "Michroma",
+	"Arimo", "ArimoBold",
+	"BuilderSans", "BuilderSansMedium", "BuilderSansBold", "BuilderSansExtraBold",
+	"Gotham", "GothamMedium", "GothamBold", "GothamBlack",
+	"Cartoon", "Highway", "SciFi", "Arcade", "Fantasy",
+	"AmaticSC", "Bangers", "Creepster", "DenkOne", "Fondamento", "FredokaOne",
+	"GrenzeGotisch", "IndieFlower", "Kalam", "LuckiestGuy", "PatrickHand",
+	"PermanentMarker", "SpecialElite",
 }
 
 local function resolveTheme(v)
@@ -272,8 +258,11 @@ local function resolveTheme(v)
 	for k, c in pairs(PRESETS[baseName]) do t[k] = c end
 	if type(v) == "table" then
 		for k, c in pairs(v) do
-			if t[k] ~= nil and typeof(c) == "Color3" then t[k] = c end
+			if k ~= "Base" and k ~= "Gradient" and t[k] ~= nil and typeof(c) == "Color3" then
+				t[k] = c
+			end
 		end
+		if v.Gradient ~= nil then t.Gradient = v.Gradient end
 	end
 	return t
 end
@@ -282,8 +271,18 @@ local Theme = resolveTheme("Midnight")
 local groups = {}
 local fnGroup = {}
 local fontList = {}
+local fontScale = 1
 local CurrentFont = Enum.Font.GothamMedium
 local iconParts = setmetatable({}, { __mode = "k" })
+
+local function scaledFontSize(base)
+	return max(8, floor(base * fontScale + 0.5))
+end
+
+local function regFont(obj, baseSize)
+	obj.TextSize = scaledFontSize(baseSize)
+	fontList[#fontList + 1] = { obj, baseSize }
+end
 
 local function prune(list)
 	local n = 0
@@ -343,16 +342,31 @@ local function repaint(keys, animate)
 end
 
 local function setTheme(t)
-	for k, c in pairs(t) do Theme[k] = c end
+	for _, k in ipairs(THEME_KEYS) do Theme[k] = t[k] end
+	Theme.Gradient = t.Gradient
+end
+
+local function applyGradient(frame, theme)
+	local g = frame:FindFirstChild("_themeGrad")
+	if theme.Gradient then
+		if not g then
+			g = new("UIGradient", { Name = "_themeGrad" }, frame)
+		end
+		g.Color = ColorSequence.new(theme.Gradient.A, theme.Gradient.B)
+		g.Rotation = theme.Gradient.Rotation or 90
+	elseif g then
+		g:Destroy()
+	end
 end
 
 local function text(parent, str, size, key, align)
+	local base = size or 13
 	local l = new("TextLabel", {
-		BackgroundTransparency = 1, Text = str or "", TextSize = size or 13, Font = CurrentFont,
+		BackgroundTransparency = 1, Text = str or "", Font = CurrentFont,
 		TextXAlignment = align or Enum.TextXAlignment.Left, TextYAlignment = Enum.TextYAlignment.Center,
 		TextTruncate = Enum.TextTruncate.AtEnd,
 	}, parent)
-	fontList[#fontList + 1] = l
+	regFont(l, base)
 	bind(l, "TextColor3", key or "Text")
 	return l
 end
@@ -806,6 +820,7 @@ function Semesta:CreateWindow(cfg)
 		Collapsed = false, Minimized = false, Visible = false, Unlocked = false,
 		Radius = cfg.Radius or 12, Borders = cfg.Borders ~= false,
 		W = W, H = H, _corners = {}, _strokes = {}, _closers = {},
+		_bgOpacity = 1, _scale = 1,
 	}
 
 	if isfile and readfile then
@@ -948,21 +963,19 @@ function Semesta:CreateWindow(cfg)
 	local search = new("TextBox", {
 		BackgroundTransparency = 1, Position = UDim2.fromOffset(32, 0), Size = UDim2.new(1, -40, 1, 0),
 		Text = "", PlaceholderText = "Search this tab...", TextXAlignment = Enum.TextXAlignment.Left,
-		TextSize = 13, ClearTextOnFocus = false, Font = CurrentFont,
+		ClearTextOnFocus = false, Font = CurrentFont,
 	}, searchBox)
+	regFont(search, 13)
 	bind(search, "TextColor3", "Text")
 	bind(search, "PlaceholderColor3", "Dim")
-	fontList[#fontList + 1] = search
 
 	local pages = new("Frame", { Position = UDim2.fromOffset(12, 48), Size = UDim2.new(1, -24, 1, -58), BackgroundTransparency = 1, BorderSizePixel = 0 }, content)
 
-	-- Indicator (spring-driven, scale-corrected)
+	-- Indicator (scale-corrected)
 	local IK = { x = {}, y = {}, w = {}, h = {} }
 	local function moveIndicator(tab, instant)
 		local b = tab and tab.btn
 		if not b or not b.Parent then return end
-		-- AbsolutePosition/Size are already scaled by mainScale; the indicator's
-		-- offset is *unscaled*, so divide by the current scale.
 		local s = mainScale.Scale > 0 and mainScale.Scale or 1
 		local o = body.AbsolutePosition
 		local x = (b.AbsolutePosition.X - o.X) / s
@@ -1015,7 +1028,7 @@ function Semesta:CreateWindow(cfg)
 			lb.Position = UDim2.fromOffset(34, 0)
 			lb.Size = UDim2.new(1, -38, 1, 0)
 			if top then
-				local tw = TextService:GetTextSize(t.Name, 13, CurrentFont, Vector2.new(1e4, 1e4)).X
+				local tw = TextService:GetTextSize(t.Name, scaledFontSize(13), CurrentFont, Vector2.new(1e4, 1e4)).X
 				b.Size = UDim2.fromOffset(tw + 46, 30)
 				ic.AnchorPoint = Vector2.new(0, 0.5); ic.Position = UDim2.new(0, 12, 0.5, 0)
 				lb.Visible = true
@@ -1077,10 +1090,10 @@ function Semesta:CreateWindow(cfg)
 		local ic = Icons.make(btn, iconName or "circle", 16, function(T) return Win.ActiveTab == Tab and T.On or T.Dim end)
 		ic.ZIndex = 2
 		local lbl = new("TextLabel", {
-			BackgroundTransparency = 1, Text = name, TextSize = 13, Font = CurrentFont,
+			BackgroundTransparency = 1, Text = name, Font = CurrentFont,
 			TextXAlignment = Enum.TextXAlignment.Left, TextTruncate = Enum.TextTruncate.AtEnd, ZIndex = 2,
 		}, btn)
-		fontList[#fontList + 1] = lbl
+		regFont(lbl, 13)
 		bind(lbl, "TextColor3", function(T) return Win.ActiveTab == Tab and T.On or T.Dim end)
 
 		local page = new("ScrollingFrame", {
@@ -1269,10 +1282,9 @@ function Semesta:CreateWindow(cfg)
 			cornerOf(wrap, 6)
 			local box = new("TextBox", {
 				BackgroundTransparency = 1, Position = UDim2.fromOffset(6, 0), Size = UDim2.new(1, -12, 1, 0),
-				Text = "", ClearTextOnFocus = false, TextSize = 12,
-				TextXAlignment = Enum.TextXAlignment.Right, Font = CurrentFont,
+				Text = "", ClearTextOnFocus = false, TextXAlignment = Enum.TextXAlignment.Right, Font = CurrentFont,
 			}, wrap)
-			fontList[#fontList + 1] = box
+			regFont(box, 12)
 			bind(box, "TextColor3", "Text")
 
 			local track = new("Frame", { Position = UDim2.new(0, 12, 1, -16), Size = UDim2.new(1, -24, 0, 6), BorderSizePixel = 0 }, f)
@@ -1349,8 +1361,6 @@ function Semesta:CreateWindow(cfg)
 			local hit = pressable(f)
 			hit.Size = UDim2.new(1, 0, 0, BASE)
 
-			-- Icon anchored to header row (BASE/2), not row centre, so it doesn't
-			-- drop when the list expands.
 			local x = rowIcon(f, o.Icon, 18, BASE / 2)
 			local l = text(f, o.Title or "Dropdown", 13, "Text")
 			l.Position = UDim2.fromOffset(x, 0); l.Size = UDim2.new(1, -x - 170, 0, BASE)
@@ -1382,10 +1392,10 @@ function Semesta:CreateWindow(cfg)
 
 			for i, opt in ipairs(opts) do
 				local b = new("TextButton", {
-					Size = UDim2.new(1, 0, 0, ITEM_H), Text = tostring(opt), TextSize = 12, Font = CurrentFont,
+					Size = UDim2.new(1, 0, 0, ITEM_H), Text = tostring(opt), Font = CurrentFont,
 					AutoButtonColor = false, BorderSizePixel = 0, LayoutOrder = i, Active = true, ZIndex = 3,
 				}, list)
-				fontList[#fontList + 1] = b
+				regFont(b, 12)
 				cornerOf(b, 6)
 				bind(b, "BackgroundColor3", "Panel")
 				bind(b, "TextColor3", function(T) return value == opt and T.Accent or T.Text end)
@@ -1434,10 +1444,10 @@ function Semesta:CreateWindow(cfg)
 			local tb = new("TextBox", {
 				BackgroundTransparency = 1, Position = UDim2.fromOffset(8, 0), Size = UDim2.new(1, -16, 1, 0),
 				Text = start ~= nil and tostring(start) or "", PlaceholderText = o.Placeholder or "...",
-				ClearTextOnFocus = false, TextSize = 12, TextXAlignment = Enum.TextXAlignment.Left,
+				ClearTextOnFocus = false, TextXAlignment = Enum.TextXAlignment.Left,
 				Font = CurrentFont, TextTruncate = Enum.TextTruncate.AtEnd,
 			}, wrap)
-			fontList[#fontList + 1] = tb
+			regFont(tb, 12)
 			bind(tb, "TextColor3", "Text")
 			bind(tb, "PlaceholderColor3", "Dim")
 
@@ -1487,9 +1497,9 @@ function Semesta:CreateWindow(cfg)
 			l.Position = UDim2.fromOffset(x, 0); l.Size = UDim2.new(1, -x - 120, 1, 0)
 			local btn = new("TextButton", {
 				AnchorPoint = Vector2.new(1, 0.5), Position = UDim2.new(1, -10, 0.5, 0), Size = UDim2.fromOffset(100, 26),
-				AutoButtonColor = false, BorderSizePixel = 0, TextSize = 12, Font = CurrentFont, Active = true,
+				AutoButtonColor = false, BorderSizePixel = 0, Font = CurrentFont, Active = true,
 			}, f)
-			fontList[#fontList + 1] = btn
+			regFont(btn, 12)
 			cornerOf(btn, 6)
 			bind(btn, "BackgroundColor3", "Panel")
 			bind(btn, "TextColor3", "Accent")
@@ -1517,7 +1527,7 @@ function Semesta:CreateWindow(cfg)
 		end
 
 		-----------------------------------------------------------------
-		-- Full HSV color picker
+		-- HSV color picker
 		-----------------------------------------------------------------
 		function Tab:AddColorPicker(o)
 			o = o or {}
@@ -1546,7 +1556,7 @@ function Semesta:CreateWindow(cfg)
 			local pStroke = new("UIStroke", { Thickness = 1, ApplyStrokeMode = Enum.ApplyStrokeMode.Border }, preview)
 			bind(pStroke, "Color", "Line")
 
-			local body = new("Frame", {
+			local bodyC = new("Frame", {
 				Position = UDim2.fromOffset(10, BASE + 4),
 				Size = UDim2.new(1, -20, 0, BODY_H),
 				BackgroundTransparency = 1, Visible = false,
@@ -1554,9 +1564,7 @@ function Semesta:CreateWindow(cfg)
 
 			local SV_W, SV_H = 130, 130
 
-			local sv = new("Frame", {
-				Size = UDim2.fromOffset(SV_W, SV_H), BorderSizePixel = 0,
-			}, body)
+			local sv = new("Frame", { Size = UDim2.fromOffset(SV_W, SV_H), BorderSizePixel = 0 }, bodyC)
 			cornerOf(sv, 6)
 
 			local svWhite = new("Frame", {
@@ -1585,7 +1593,7 @@ function Semesta:CreateWindow(cfg)
 			local hueStrip = new("Frame", {
 				Position = UDim2.fromOffset(SV_W + 10, 0),
 				Size = UDim2.new(1, -(SV_W + 10), 0, SV_H), BorderSizePixel = 0,
-			}, body)
+			}, bodyC)
 			cornerOf(hueStrip, 6)
 			local hGrad = new("UIGradient", { Rotation = 90 }, hueStrip)
 			hGrad.Color = ColorSequence.new({
@@ -1609,7 +1617,7 @@ function Semesta:CreateWindow(cfg)
 			local alphaWrap = new("Frame", {
 				Position = UDim2.fromOffset(0, alphaY), Size = UDim2.new(1, 0, 0, 16),
 				BackgroundColor3 = Color3.new(0.45, 0.45, 0.45), BorderSizePixel = 0,
-			}, body)
+			}, bodyC)
 			cornerOf(alphaWrap, 4)
 			local alphaFill = new("Frame", { Size = UDim2.fromScale(1, 1), BorderSizePixel = 0 }, alphaWrap)
 			cornerOf(alphaFill, 4)
@@ -1629,21 +1637,21 @@ function Semesta:CreateWindow(cfg)
 			local hexY = alphaY + 26
 			local hexWrap = new("Frame", {
 				Position = UDim2.fromOffset(0, hexY), Size = UDim2.fromOffset(120, 24), BorderSizePixel = 0,
-			}, body)
+			}, bodyC)
 			bind(hexWrap, "BackgroundColor3", "Panel")
 			cornerOf(hexWrap, 6)
 			local hexBox = new("TextBox", {
 				BackgroundTransparency = 1, Size = UDim2.fromScale(1, 1), Text = "#FFFFFF",
-				ClearTextOnFocus = false, TextSize = 12, TextXAlignment = Enum.TextXAlignment.Center,
+				ClearTextOnFocus = false, TextXAlignment = Enum.TextXAlignment.Center,
 				Font = CurrentFont,
 			}, hexWrap)
-			fontList[#fontList + 1] = hexBox
+			regFont(hexBox, 12)
 			bind(hexBox, "TextColor3", "Text")
 
 			local swatchWrap = new("Frame", {
 				Position = UDim2.fromOffset(130, hexY), Size = UDim2.new(1, -130, 0, 24),
 				BackgroundTransparency = 1, BorderSizePixel = 0,
-			}, body)
+			}, bodyC)
 			new("UIListLayout", {
 				FillDirection = Enum.FillDirection.Horizontal,
 				Padding = UDim.new(0, 4), SortOrder = Enum.SortOrder.LayoutOrder,
@@ -1709,15 +1717,14 @@ function Semesta:CreateWindow(cfg)
 					local r = tonumber(hex:sub(1, 2), 16) or 0
 					local g = tonumber(hex:sub(3, 4), 16) or 0
 					local b = tonumber(hex:sub(5, 6), 16) or 0
-					local c = Color3.fromRGB(r, g, b)
-					h, s, v = c:ToHSV()
+					h, s, v = Color3.fromRGB(r, g, b):ToHSV()
 				end
 				refresh()
 			end)
 
 			local function setOpen(val2)
 				open = val2
-				body.Visible = val2
+				bodyC.Visible = val2
 				Anim.to(f, { Size = UDim2.new(1, 0, 0, val2 and (BASE + BODY_H + 8) or BASE) }, 0.3, "Back")
 			end
 			preview.MouseButton1Click:Connect(function() setOpen(not open) end)
@@ -1735,7 +1742,7 @@ function Semesta:CreateWindow(cfg)
 		end
 
 		-----------------------------------------------------------------
-		-- Theme preview picker (mini window cards)
+		-- Theme preview picker (mini window cards) — smooth outline select
 		-----------------------------------------------------------------
 		function Tab:AddThemePreview(o)
 			o = o or {}
@@ -1755,81 +1762,109 @@ function Semesta:CreateWindow(cfg)
 			}, scroll)
 
 			local cards = {}
-			local function select(name)
-				current = name
+			local function refreshSelection()
 				for _, c in pairs(cards) do
-					Anim.to(c.stroke, { Transparency = c.name == current and 0 or 1 }, 0.2)
+					local sel = c.name == current
+					Anim.to(c.stroke, { Transparency = sel and 0 or 1 }, 0.2)
 				end
 			end
 
 			for i, name in ipairs(PRESET_ORDER) do
 				local preset = PRESETS[name]
-				local card = new("TextButton", {
-					Size = UDim2.fromOffset(CARD_W, CARD_H),
-					Text = "", AutoButtonColor = false, BorderSizePixel = 0,
-					BackgroundTransparency = 1, LayoutOrder = i, Active = true,
-				}, scroll)
-				local cardStroke = new("UIStroke", {
-					Thickness = 2, ApplyStrokeMode = Enum.ApplyStrokeMode.Border,
-					Transparency = name == current and 0 or 1,
-				}, card)
-				bind(cardStroke, "Color", "Accent")
+				if preset then
+					local card = new("TextButton", {
+						Size = UDim2.fromOffset(CARD_W, CARD_H),
+						Text = "", AutoButtonColor = false, BorderSizePixel = 0,
+						BackgroundTransparency = 1, LayoutOrder = i, Active = true,
+					}, scroll)
 
-				local preview = new("Frame", {
-					Size = UDim2.new(1, 0, 0, 66), BorderSizePixel = 0, BackgroundColor3 = preset.Bg,
-				}, card)
-				cornerOf(preview, 6)
-				new("UIStroke", { Thickness = 1, ApplyStrokeMode = Enum.ApplyStrokeMode.Border, Color = preset.Line }, preview)
+					-- Preview panel (this is what gets outlined)
+					local preview = new("Frame", {
+						Size = UDim2.new(1, 0, 0, 66), BorderSizePixel = 0, BackgroundColor3 = preset.Bg,
+					}, card)
+					cornerOf(preview, 8)
 
-				local side = new("Frame", {
-					Size = UDim2.new(0, 22, 1, 0), BorderSizePixel = 0, BackgroundColor3 = preset.Panel,
-				}, preview)
-				cornerOf(side, 6)
-
-				local acc = new("Frame", {
-					Position = UDim2.fromOffset(6, 6), Size = UDim2.fromOffset(10, 10),
-					BackgroundColor3 = preset.Accent, BorderSizePixel = 0,
-				}, preview)
-				cornerOf(acc, 5)
-
-				for j = 1, 3 do
-					local it = new("Frame", {
-						Position = UDim2.fromOffset(28, 8 + (j - 1) * 14),
-						Size = UDim2.new(1, -34, 0, 10),
-						BackgroundColor3 = preset.Item, BorderSizePixel = 0,
+					-- Base thin border (Line color) — bound so theme changes keep it in sync
+					local baseStroke = new("UIStroke", {
+						Thickness = 1, ApplyStrokeMode = Enum.ApplyStrokeMode.Border,
+						Color = preset.Line,
 					}, preview)
-					cornerOf(it, 3)
-					if j == 1 then
-						local dot = new("Frame", {
-							AnchorPoint = Vector2.new(1, 0.5), Position = UDim2.new(1, -4, 0.5, 0),
-							Size = UDim2.fromOffset(4, 4), BackgroundColor3 = preset.Accent, BorderSizePixel = 0,
-						}, it)
-						cornerOf(dot, 2)
+
+					-- Selection outline (accent color) — animates in/out
+					local selStroke = new("UIStroke", {
+						Thickness = 2, ApplyStrokeMode = Enum.ApplyStrokeMode.Border,
+						Transparency = name == current and 0 or 1,
+					}, preview)
+					bind(selStroke, "Color", "Accent")
+
+					local side = new("Frame", {
+						Size = UDim2.new(0, 22, 1, 0), BorderSizePixel = 0, BackgroundColor3 = preset.Panel,
+					}, preview)
+					cornerOf(side, 8)
+					local sideFix = new("Frame", {
+						Size = UDim2.new(0, 8, 1, 0), Position = UDim2.new(1, -8, 0, 0),
+						BackgroundColor3 = preset.Panel, BorderSizePixel = 0,
+					}, side)
+
+					local acc = new("Frame", {
+						Position = UDim2.fromOffset(6, 6), Size = UDim2.fromOffset(10, 10),
+						BackgroundColor3 = preset.Accent, BorderSizePixel = 0,
+					}, preview)
+					cornerOf(acc, 5)
+
+					for j = 1, 3 do
+						local it = new("Frame", {
+							Position = UDim2.fromOffset(28, 8 + (j - 1) * 14),
+							Size = UDim2.new(1, -34, 0, 10),
+							BackgroundColor3 = preset.Item, BorderSizePixel = 0,
+						}, preview)
+						cornerOf(it, 3)
+						if j == 1 then
+							local dot = new("Frame", {
+								AnchorPoint = Vector2.new(1, 0.5), Position = UDim2.new(1, -4, 0.5, 0),
+								Size = UDim2.fromOffset(4, 4), BackgroundColor3 = preset.Accent, BorderSizePixel = 0,
+							}, it)
+							cornerOf(dot, 2)
+						end
 					end
+
+					-- Gradient swatch indicator for gradient themes
+					if preset.Gradient then
+						local gradChip = new("Frame", {
+							AnchorPoint = Vector2.new(1, 0), Position = UDim2.new(1, -4, 0, 4),
+							Size = UDim2.fromOffset(16, 8), BorderSizePixel = 0,
+							BackgroundColor3 = preset.Gradient.A,
+						}, preview)
+						cornerOf(gradChip, 2)
+						local gg = new("UIGradient", { Rotation = 0 }, gradChip)
+						gg.Color = ColorSequence.new(preset.Gradient.A, preset.Gradient.B)
+					end
+
+					local lbl = new("TextLabel", {
+						BackgroundTransparency = 1, Position = UDim2.fromOffset(0, 70),
+						Size = UDim2.new(1, 0, 0, 16), Text = name,
+						Font = CurrentFont, TextTruncate = Enum.TextTruncate.AtEnd,
+					}, card)
+					regFont(lbl, 12)
+					bind(lbl, "TextColor3", "Dim")
+
+					card.MouseButton1Click:Connect(function()
+						current = name
+						refreshSelection()
+						setFlag(o.Flag, name)
+						Win:SetTheme(name)
+						safeCall(o.Callback, name)
+					end)
+
+					cards[name] = { name = name, stroke = selStroke, base = baseStroke }
 				end
-
-				local lbl = new("TextLabel", {
-					BackgroundTransparency = 1, Position = UDim2.fromOffset(0, 70),
-					Size = UDim2.new(1, 0, 0, 16), Text = name, TextSize = 12,
-					Font = CurrentFont, TextTruncate = Enum.TextTruncate.AtEnd,
-				}, card)
-				fontList[#fontList + 1] = lbl
-				bind(lbl, "TextColor3", "Dim")
-
-				card.MouseButton1Click:Connect(function()
-					select(name)
-					setFlag(o.Flag, name)
-					Win:SetTheme(name)
-					safeCall(o.Callback, name)
-				end)
-
-				cards[name] = { name = name, stroke = cardStroke }
 			end
 
 			return {
 				Set = function(_, name, silent)
 					if not cards[name] then return end
-					select(name)
+					current = name
+					refreshSelection()
 					setFlag(o.Flag, name)
 					if not silent then safeCall(o.Callback, name) end
 				end,
@@ -1838,7 +1873,7 @@ function Semesta:CreateWindow(cfg)
 		end
 
 		-----------------------------------------------------------------
-		-- Font preview picker (horizontal, live samples)
+		-- Font preview picker
 		-----------------------------------------------------------------
 		function Tab:AddFontPicker(o)
 			o = o or {}
@@ -1858,8 +1893,7 @@ function Semesta:CreateWindow(cfg)
 			}, scroll)
 
 			local cards = {}
-			local function select(name)
-				current = name
+			local function refreshSelection()
 				for _, c in pairs(cards) do
 					Anim.to(c.stroke, { Transparency = c.name == current and 0 or 1 }, 0.2)
 				end
@@ -1873,20 +1907,11 @@ function Semesta:CreateWindow(cfg)
 						Text = "", AutoButtonColor = false, BorderSizePixel = 0,
 						BackgroundTransparency = 1, LayoutOrder = i, Active = true,
 					}, scroll)
-					local stroke = new("UIStroke", {
-						Thickness = 2, ApplyStrokeMode = Enum.ApplyStrokeMode.Border,
-						Transparency = fname == current and 0 or 1,
-					}, card)
-					bind(stroke, "Color", "Accent")
 
-					local prev = new("Frame", {
-						Size = UDim2.new(1, 0, 0, 66), BorderSizePixel = 0,
-					}, card)
+					local prev = new("Frame", { Size = UDim2.new(1, 0, 0, 66), BorderSizePixel = 0 }, card)
 					bind(prev, "BackgroundColor3", "Item")
-					cornerOf(prev, 6)
-					local prevStroke = new("UIStroke", {
-						Thickness = 1, ApplyStrokeMode = Enum.ApplyStrokeMode.Border,
-					}, prev)
+					cornerOf(prev, 8)
+					local prevStroke = new("UIStroke", { Thickness = 1, ApplyStrokeMode = Enum.ApplyStrokeMode.Border }, prev)
 					bind(prevStroke, "Color", "Line")
 
 					local sample = new("TextLabel", {
@@ -1895,29 +1920,36 @@ function Semesta:CreateWindow(cfg)
 					}, prev)
 					bind(sample, "TextColor3", "Text")
 
+					local selStroke = new("UIStroke", {
+						Thickness = 2, ApplyStrokeMode = Enum.ApplyStrokeMode.Border,
+						Transparency = fname == current and 0 or 1,
+					}, prev)
+					bind(selStroke, "Color", "Accent")
+
 					local lbl = new("TextLabel", {
 						BackgroundTransparency = 1, Position = UDim2.fromOffset(0, 70),
 						Size = UDim2.new(1, 0, 0, 16), Text = fname, TextSize = 11,
 						Font = ef, TextTruncate = Enum.TextTruncate.AtEnd,
 					}, card)
 					bind(lbl, "TextColor3", "Dim")
-					-- deliberately NOT added to fontList so it stays in its own font
 
 					card.MouseButton1Click:Connect(function()
-						select(fname)
+						current = fname
+						refreshSelection()
 						setFlag(o.Flag, fname)
 						Win:SetFont(fname)
 						safeCall(o.Callback, fname)
 					end)
 
-					cards[fname] = { name = fname, stroke = stroke }
+					cards[fname] = { name = fname, stroke = selStroke }
 				end
 			end
 
 			return {
 				Set = function(_, name, silent)
 					if not cards[name] then return end
-					select(name)
+					current = name
+					refreshSelection()
 					setFlag(o.Flag, name)
 					if not silent then safeCall(o.Callback, name) end
 				end,
@@ -1961,6 +1993,7 @@ function Semesta:CreateWindow(cfg)
 	function Win:SetTheme(v, animate)
 		setTheme(resolveTheme(v))
 		repaint(THEME_KEYS, animate ~= false)
+		applyGradient(main, Theme)
 		if type(v) == "string" then setFlag("Theme", v) end
 	end
 
@@ -1976,8 +2009,16 @@ function Semesta:CreateWindow(cfg)
 		end
 	end
 
-	function Win:SetBorders(on) setAllBorders(on and true or false); setFlag("Borders", on and true or false) end
-	function Win:SetRadius(r) setAllRadius(clamp(tonumber(r) or 12, 0, 20)); setFlag("Radius", Win.Radius) end
+	function Win:SetBorders(on)
+		setAllBorders(on and true or false)
+		setFlag("Borders", on and true or false)
+	end
+
+	function Win:SetRadius(r)
+		setAllRadius(clamp(tonumber(r) or 12, 0, 20))
+		setFlag("Radius", Win.Radius)
+	end
+
 	function Win:SetScale(p)
 		local s = clamp((tonumber(p) or 100) / 100, 0.7, 1.4)
 		Win._scale = s
@@ -1986,14 +2027,37 @@ function Semesta:CreateWindow(cfg)
 		end)
 		setFlag("Scale", s * 100)
 	end
+
+	function Win:SetBgOpacity(p)
+		local o = clamp((tonumber(p) or 100) / 100, 0, 1)
+		Win._bgOpacity = o
+		main.BackgroundTransparency = 1 - o
+		setFlag("BgOpacity", p)
+	end
+
+	function Win:SetFontSize(p)
+		fontScale = clamp((tonumber(p) or 100) / 100, 0.7, 1.6)
+		local n = 0
+		for i = 1, #fontList do
+			local e = fontList[i]
+			if e[1].Parent then
+				n += 1; fontList[n] = e
+				e[1].TextSize = scaledFontSize(e[2])
+			end
+		end
+		for i = #fontList, n + 1, -1 do fontList[i] = nil end
+		layout(true)
+		setFlag("FontSize", p)
+	end
+
 	function Win:SetFont(name)
 		local f = Enum.Font[name]
 		if not f then return end
 		CurrentFont = f
 		local n = 0
 		for i = 1, #fontList do
-			local o = fontList[i]
-			if o.Parent then n += 1; fontList[n] = o; o.Font = f end
+			local e = fontList[i]
+			if e[1].Parent then n += 1; fontList[n] = e; e[1].Font = f end
 		end
 		for i = #fontList, n + 1, -1 do fontList[i] = nil end
 		layout(true)
@@ -2025,7 +2089,6 @@ function Semesta:CreateWindow(cfg)
 	function Win:Minimize(v)
 		if v == nil then v = not Win.Minimized end
 		if v then
-			-- instantly close all expandables
 			for _, fn in ipairs(Win._closers) do safeCall(fn) end
 		end
 		Win.Minimized = v
@@ -2187,10 +2250,10 @@ function Semesta:CreateWindow(cfg)
 		cornerOf(boxF, 8)
 		local box = new("TextBox", {
 			BackgroundTransparency = 1, Position = UDim2.fromOffset(10, 0), Size = UDim2.new(1, -20, 1, 0),
-			Text = "", PlaceholderText = "Paste your key", ClearTextOnFocus = false, TextSize = 13,
+			Text = "", PlaceholderText = "Paste your key", ClearTextOnFocus = false,
 			TextXAlignment = Enum.TextXAlignment.Left, Font = CurrentFont,
 		}, boxF)
-		fontList[#fontList + 1] = box
+		regFont(box, 13)
 		bind(box, "TextColor3", "Text")
 		bind(box, "PlaceholderColor3", "Dim")
 
@@ -2204,10 +2267,10 @@ function Semesta:CreateWindow(cfg)
 		local verify = new("TextButton", {
 			Position = UDim2.fromOffset(20, 170),
 			Size = UDim2.new(ks.GetKeyUrl and 0.5 or 1, ks.GetKeyUrl and -26 or -40, 0, 38),
-			Text = "Verify", TextSize = 14, Font = Enum.Font.GothamBold, AutoButtonColor = false,
+			Text = "Verify", Font = Enum.Font.GothamBold, AutoButtonColor = false,
 			BorderSizePixel = 0, Active = true,
 		}, card)
-		fontList[#fontList + 1] = verify
+		regFont(verify, 14)
 		cornerOf(verify, 8)
 		bind(verify, "BackgroundColor3", "Accent")
 		bind(verify, "TextColor3", "On")
@@ -2215,10 +2278,10 @@ function Semesta:CreateWindow(cfg)
 		if ks.GetKeyUrl then
 			local getk = new("TextButton", {
 				Position = UDim2.new(0.5, 6, 0, 170), Size = UDim2.new(0.5, -26, 0, 38),
-				Text = "Get key", TextSize = 14, Font = CurrentFont, AutoButtonColor = false,
+				Text = "Get key", Font = CurrentFont, AutoButtonColor = false,
 				BorderSizePixel = 0, Active = true,
 			}, card)
-			fontList[#fontList + 1] = getk
+			regFont(getk, 14)
 			cornerOf(getk, 8)
 			bind(getk, "BackgroundColor3", "Item")
 			bind(getk, "TextColor3", "Text")
@@ -2280,7 +2343,7 @@ function Semesta:CreateWindow(cfg)
 	---------------------------------------------------------------------
 	if cfg.Settings then
 		local S = Win:AddTab("Settings", "settings")
-		S:AddSection("Appearance")
+		S:AddSection("Theme")
 		S:AddThemePreview({
 			Title = "Theme", Flag = "Theme",
 			Default = type(cfg.Theme) == "string" and cfg.Theme or "Midnight",
@@ -2299,40 +2362,62 @@ function Semesta:CreateWindow(cfg)
 			Default = Win.Radius, Callback = function(v) Win:SetRadius(v) end,
 		})
 		S:AddSlider({
+			Title = "Background opacity", Icon = "droplet", Min = 0, Max = 100, Step = 5, Suffix = "%",
+			Flag = "BgOpacity", Default = 100,
+			Callback = function(v) Win:SetBgOpacity(v) end,
+		})
+		S:AddSlider({
 			Title = "UI scale", Icon = "maximize-2", Min = 70, Max = 140, Step = 5, Suffix = "%", Flag = "Scale",
 			Default = 100, Callback = function(v) Win:SetScale(v) end,
 		})
+
+		S:AddSection("Typography")
+		S:AddFontPicker({
+			Title = "Font", Flag = "Font", Default = "GothamMedium",
+			Callback = function(v) Win:SetFont(v) end,
+		})
+		S:AddSlider({
+			Title = "Font size", Icon = "type", Min = 70, Max = 160, Step = 5, Suffix = "%", Flag = "FontSize",
+			Default = 100, Callback = function(v) Win:SetFontSize(v) end,
+		})
+
 		S:AddSection("Layout")
 		S:AddDropdown({
 			Title = "Navigation", Icon = "layout-panel-left", Flag = "Layout",
 			Options = { "Sidebar", "Topbar" }, Default = Win.Layout,
 			Callback = function(v) Win:SetLayout(v) end,
 		})
-		S:AddFontPicker({
-			Title = "Font", Flag = "Font", Default = "GothamMedium",
-			Callback = function(v) Win:SetFont(v) end,
-		})
+
 		S:AddSection("Window")
 		S:AddKeybind({
 			Title = "Toggle key", Icon = "keyboard", Flag = "ToggleKey", Default = defaultToggle,
 		})
 	end
 
+	-- Apply saved settings
 	Win:SetTheme(getFlag("Theme", cfg.Theme or "Midnight"), false)
 	if getFlag("AccentCycle", false) then Win:SetAccentCycle(true) end
 	if getFlag("Borders", nil) ~= nil then setAllBorders(getFlag("Borders", true) == true) end
 	if getFlag("Radius", nil) then setAllRadius(getFlag("Radius", Win.Radius)) end
+
 	local savedFont = getFlag("Font", nil)
 	if savedFont and Enum.Font[savedFont] then Win:SetFont(savedFont) end
+
+	local savedFontSize = getFlag("FontSize", nil)
+	if savedFontSize then Win:SetFontSize(savedFontSize) end
+
+	local savedBgOp = getFlag("BgOpacity", nil)
+	if savedBgOp ~= nil then Win:SetBgOpacity(savedBgOp) end
+
 	Win.Layout = getFlag("Layout", Win.Layout) == "Topbar" and "Topbar" or "Sidebar"
 	layout(true)
+
 	local savedScale = getFlag("Scale", nil)
 	if savedScale then
 		Win._scale = clamp(savedScale / 100, 0.7, 1.4)
 		mainScale.Scale = Win._scale
 	end
 
-	-- Reposition indicator once layout + scale have fully settled.
 	task.defer(function() moveIndicator(Win.ActiveTab, true) end)
 
 	if cfg.StartOpen ~= false and Win.Unlocked then Win:Toggle(true) end
