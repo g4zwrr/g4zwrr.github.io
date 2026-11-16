@@ -186,15 +186,24 @@ local PRESET_ORDER = { "Midnight", "Ocean", "Forest", "Sunset", "Rose", "Mono", 
 local THEME_KEYS = { "Bg", "Panel", "Item", "Line", "Accent", "Text", "Dim", "On" }
 
 local FONT_LIST = {
+	-- Gotham / Montserrat equivalents
 	"GothamMedium", "Gotham", "GothamBold", "GothamBlack",
-	"Code", "SourceSans", "SourceSansBold", "SourceSansLight",
+	
+	-- Standard / Monospace / Classic
+	"Code", "SourceSans", "SourceSansBold", "SourceSansLight", "SourceSansSemibold", "SourceSansItalic",
 	"Roboto", "RobotoCondensed", "RobotoMono",
-	"Ubuntu", "Nunito", "Balthazar", "Bodoni", "Antique",
+	"Ubuntu", "Nunito", "Bodoni", "Antique", "Garamond",
+	
+	-- Stylized & Display Fonts
 	"Cartoon", "Highway", "SciFi", "Fantasy", "Arcade", "Creepster",
 	"DenkOne", "Fondamento", "FredokaOne", "GrenzeGotisch",
 	"IndieFlower", "JosefinSans", "Jura", "Kalam",
 	"LuckiestGuy", "Michroma", "Oswald", "PatrickHand",
-	"PermanentMarker", "Sarpanch", "SpecialElite", "TitilliumWeb", "Garuda",
+	"PermanentMarker", "Sarpanch", "SpecialElite", "TitilliumWeb",
+	
+	-- Newer Additions
+	"AmaticSC", "Bangers", "BuilderSans", "BuilderSansMedium", "BuilderSansBold", "BuilderSansExtraBold",
+	"Arimo", "ArimoBold",
 }
 
 local function resolveTheme(v)
