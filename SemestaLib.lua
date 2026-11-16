@@ -1,22 +1,6 @@
 --[[
-    Semesta v3.3 - UI Library
+    Semesta v3.4 - UI Library
     Load: local Semesta = loadstring(game:HttpGet("https://g4zwr.is-a.dev/SemestaLib.lua"))()
-
-    Window options (Semesta:CreateWindow):
-      Title, Size (Vector2), Layout ("Sidebar" | "Topbar"), Theme (preset name or table),
-      SaveName, GuiName, ToggleKey (Enum.KeyCode), ToggleIcon, Icon,
-      Radius, Borders, StartOpen (default true),
-      Settings (true = add Settings tab), Bubble (true = floating reopen button),
-      KeySystem = {
-          Enabled, Provider = "luarmor" | nil, ScriptId (luarmor), GetKeyUrl,
-          Title, Note, Remember (default true),
-          Keys = {...}, Url = "https://site/check?key=%s", Check = function(body) end,
-          Validate = function(key) return ok, msg end,
-          OnPass = function(Win) ... end,
-      }
-
-    Element options: see example_hub.lua
-    Lucide icon names: https://lucide.dev/icons
 ]]
 
 local Players = game:GetService("Players")
@@ -30,7 +14,7 @@ local floor, min, max, abs, sqrt, ceil = math.floor, math.min, math.max, math.ab
 local clamp = math.clamp
 local atan2, rad, deg, cos, sin = math.atan2, math.rad, math.deg, math.cos, math.sin
 
-local Semesta = { Version = "3.3" }
+local Semesta = { Version = "3.4" }
 local SIDE_W, SIDE_MINI, HEAD_H = 150, 54, 42
 local LUARMOR_LIB = "https://sdkapi-public.luarmor.net/library.lua"
 
@@ -56,9 +40,13 @@ local function safeCall(fn, ...)
 	if not ok then warn("[Semesta] " .. tostring(err)) end
 end
 
+local function hexOf(c)
+	return string.format("#%02X%02X%02X",
+		floor(c.R * 255 + 0.5), floor(c.G * 255 + 0.5), floor(c.B * 255 + 0.5))
+end
+
 ---------------------------------------------------------------------------
--- Animation engine: own tweens, spring physics, colour cyclers.
--- One Heartbeat loop, which stops when nothing is animating.
+-- Animation engine
 ---------------------------------------------------------------------------
 local Anim = { jobs = {}, springs = {}, cyclers = {}, byObj = setmetatable({}, { __mode = "k" }) }
 local loopConn
@@ -197,6 +185,18 @@ local PRESETS = {
 local PRESET_ORDER = { "Midnight", "Ocean", "Forest", "Sunset", "Rose", "Mono", "Light" }
 local THEME_KEYS = { "Bg", "Panel", "Item", "Line", "Accent", "Text", "Dim", "On" }
 
+local FONT_LIST = {
+	"GothamMedium", "Gotham", "GothamBold", "GothamBlack",
+	"Code", "SourceSans", "SourceSansBold", "SourceSansLight",
+	"Roboto", "RobotoCondensed", "RobotoMono",
+	"Ubuntu", "Nunito", "Balthazar", "Bodoni", "Antique",
+	"Cartoon", "Highway", "SciFi", "Fantasy", "Arcade", "Creepster",
+	"DenkOne", "Fondamento", "FredokaOne", "GrenzeGotisch",
+	"IndieFlower", "JosefinSans", "Jura", "Kalam",
+	"LuckiestGuy", "Michroma", "Oswald", "PatrickHand",
+	"PermanentMarker", "Sarpanch", "SpecialElite", "TitilliumWeb", "Garuda",
+}
+
 local function resolveTheme(v)
 	local baseName = "Midnight"
 	if type(v) == "string" and PRESETS[v] then baseName = v
@@ -211,7 +211,6 @@ local function resolveTheme(v)
 	return t
 end
 
--- Binding registry: each themed object registers once.
 local Theme = resolveTheme("Midnight")
 local groups = {}
 local fnGroup = {}
@@ -292,7 +291,7 @@ local function text(parent, str, size, key, align)
 end
 
 ---------------------------------------------------------------------------
--- Icons (Lucide SVG -> frame segments, parsed once and cached)
+-- Icons
 ---------------------------------------------------------------------------
 local Icons = { cache = {}, dir = "Semesta_icons" }
 local ICON_URL = "https://unpkg.com/lucide-static/icons/%s.svg"
@@ -543,7 +542,6 @@ function Icons.get(name)
 	return tpl or nil
 end
 
--- key: theme key string, or function(Theme) -> Color3
 function Icons.make(parent, name, size, key)
 	local holder = new("Frame", {
 		Name = "Icon_" .. tostring(name), BackgroundTransparency = 1, BorderSizePixel = 0,
@@ -573,8 +571,6 @@ end
 ---------------------------------------------------------------------------
 local function checkKey(ks, key)
 	if not key or key == "" then return false, "Enter a key" end
-
-	-- Luarmor
 	if ks.Provider == "luarmor" then
 		if not ks.ScriptId then return false, "Missing ScriptId in KeySystem" end
 		if not ks._lib then
@@ -593,29 +589,23 @@ local function checkKey(ks, key)
 		end
 		local map = {
 			KEY_INCORRECT = "Invalid key",
-			KEY_HWID_LOCKED = "Key is locked to another device. Reset HWID in Luarmor.",
+			KEY_HWID_LOCKED = "Key is locked to another device.",
 			KEY_EXPIRED = "This key has expired",
 			KEY_BANNED = "This key is banned",
 		}
 		return false, map[status.code] or status.message or ("Error: " .. tostring(status.code))
 	end
-
-	-- Your own function
 	if ks.Validate then
 		local ok, res, msg = pcall(ks.Validate, key)
 		if not ok then return false, "Validation error" end
 		return res == true, msg or (res and "Key accepted" or "Invalid key")
 	end
-
-	-- Local list
 	if ks.Keys then
 		for _, k in ipairs(ks.Keys) do
 			if k == key then return true, "Key accepted" end
 		end
 		return false, "Invalid key"
 	end
-
-	-- Any key site with an endpoint (%s = key)
 	if ks.Url then
 		local okReq, body = pcall(game.HttpGet, game, ks.Url:format(HttpService:UrlEncode(key)))
 		if not okReq then return false, "Could not reach key server" end
@@ -632,12 +622,11 @@ local function checkKey(ks, key)
 		local good = body == "valid" or body == "true"
 		return good, good and "Key accepted" or "Invalid key"
 	end
-
 	return false, "No key provider configured"
 end
 
 ---------------------------------------------------------------------------
--- Row + element helpers
+-- Row helpers
 ---------------------------------------------------------------------------
 local function makeRow(Tab, h, name, noBg)
 	local Win = Tab.Win
@@ -667,7 +656,18 @@ local function rowIcon(f, name, size, yOff)
 	return 12 + size + 10
 end
 
--- Full-row invisible button with a liquid press squish
+local function thumb(f, image, x, y, size)
+	local img = new("ImageLabel", {
+		Position = UDim2.fromOffset(x, y),
+		Size = UDim2.fromOffset(size, size),
+		BackgroundColor3 = Theme.Panel, BorderSizePixel = 0, Active = false,
+		Image = image, ScaleType = Enum.ScaleType.Crop,
+	}, f)
+	cornerOf(img, 5)
+	bind(img, "BackgroundColor3", "Panel")
+	return img
+end
+
 local function pressable(f)
 	local sc = new("UIScale", {}, f)
 	local hit = new("TextButton", {
@@ -703,6 +703,23 @@ local function dragTo(hitFrame, onX)
 	end)
 end
 
+local function dragXY(hitFrame, onXY)
+	hitFrame.InputBegan:Connect(function(i)
+		local ut = i.UserInputType
+		if ut ~= Enum.UserInputType.MouseButton1 and ut ~= Enum.UserInputType.Touch then return end
+		onXY(i.Position.X, i.Position.Y)
+		local mv, up
+		mv = UIS.InputChanged:Connect(function(m)
+			if m.UserInputType == Enum.UserInputType.MouseMovement or m.UserInputType == Enum.UserInputType.Touch then
+				onXY(m.Position.X, m.Position.Y)
+			end
+		end)
+		up = UIS.InputEnded:Connect(function(e)
+			if e.UserInputType == ut then mv:Disconnect(); up:Disconnect() end
+		end)
+	end)
+end
+
 ---------------------------------------------------------------------------
 -- Window
 ---------------------------------------------------------------------------
@@ -721,10 +738,9 @@ function Semesta:CreateWindow(cfg)
 		Layout = cfg.Layout == "Topbar" and "Topbar" or "Sidebar",
 		Collapsed = false, Minimized = false, Visible = false, Unlocked = false,
 		Radius = cfg.Radius or 12, Borders = cfg.Borders ~= false,
-		W = W, H = H, _corners = {}, _strokes = {},
+		W = W, H = H, _corners = {}, _strokes = {}, _closers = {},
 	}
 
-	-- Saved flags
 	if isfile and readfile then
 		pcall(function()
 			local p = saveName .. ".json"
@@ -751,8 +767,8 @@ function Semesta:CreateWindow(cfg)
 	end
 	function Win:GetFlag(n, d) return getFlag(n, d) end
 	function Win:SetFlag(n, v) setFlag(n, v) end
+	function Win:AddCloser(fn) Win._closers[#Win._closers + 1] = fn end
 
-	-- Host
 	local host
 	local okH, hh = pcall(function() return gethui and gethui() end)
 	if okH and hh then host = hh end
@@ -771,7 +787,6 @@ function Semesta:CreateWindow(cfg)
 	end
 	Win.Gui = gui
 
-	-- Main frame: never clips, so the outline is never cut
 	local main = new("CanvasGroup", {
 		Name = "Main", AnchorPoint = Vector2.new(0.5, 0.5), Position = UDim2.fromScale(0.5, 0.5),
 		Size = UDim2.fromOffset(W, H), BorderSizePixel = 0, Visible = false, GroupTransparency = 0,
@@ -784,7 +799,6 @@ function Semesta:CreateWindow(cfg)
 	local mainScale = new("UIScale", { Scale = 1 }, main)
 	Win.Main = main
 
-	-- Header + dragging
 	local header = new("Frame", { Name = "Header", Size = UDim2.new(1, 0, 0, HEAD_H), BackgroundTransparency = 1, Active = true }, main)
 	local hdiv = new("Frame", { Position = UDim2.new(0, 0, 0, HEAD_H), Size = UDim2.new(1, 0, 0, 1), BorderSizePixel = 0 }, main)
 	bind(hdiv, "BackgroundColor3", "Line")
@@ -829,7 +843,6 @@ function Semesta:CreateWindow(cfg)
 	hbtn(-10, "x", function() Win:Toggle(false) end)
 	hbtn(-40, "minus", function() Win:Minimize() end)
 
-	-- Body
 	local body = new("Frame", {
 		Name = "Body", Position = UDim2.fromOffset(0, HEAD_H + 1), Size = UDim2.new(1, 0, 1, -(HEAD_H + 1)),
 		BackgroundTransparency = 1, BorderSizePixel = 0,
@@ -876,7 +889,6 @@ function Semesta:CreateWindow(cfg)
 
 	local pages = new("Frame", { Position = UDim2.fromOffset(12, 48), Size = UDim2.new(1, -24, 1, -58), BackgroundTransparency = 1, BorderSizePixel = 0 }, content)
 
-	-- Indicator (spring-driven)
 	local IK = { x = {}, y = {}, w = {}, h = {} }
 	local function moveIndicator(tab, instant)
 		local b = tab and tab.btn
@@ -895,7 +907,6 @@ function Semesta:CreateWindow(cfg)
 		Anim.spring(IK.h, h, function(v) indicator.Size = UDim2.fromOffset(indicator.Size.X.Offset, v) end, indicator.Size.Y.Offset)
 	end
 
-	-- Layout (sidebar or topbar, optional collapsed sidebar)
 	local function layout(instant)
 		local top = Win.Layout == "Topbar"
 		local mini = Win.Collapsed and not top
@@ -926,7 +937,6 @@ function Semesta:CreateWindow(cfg)
 		collapseBtn.Visible = not top
 		colIcL.Visible = not mini
 		colIcR.Visible = mini
-
 		for _, t in ipairs(Win.Tabs) do
 			local b, lb, ic = t.btn, t.lbl, t.ic
 			lb.Position = UDim2.fromOffset(34, 0)
@@ -946,14 +956,11 @@ function Semesta:CreateWindow(cfg)
 				end
 			end
 		end
-
-		-- Keep the indicator glued to its tab while things tween
 		local h = Anim.cycle(function() moveIndicator(Win.ActiveTab, false) end, 60)
 		task.delay(0.5, function() h.dead = true end)
 		task.defer(function() moveIndicator(Win.ActiveTab, instant) end)
 	end
 
-	-- Search (current tab only)
 	local function applyFilter()
 		local q = search.Text:lower()
 		for _, it in ipairs(Win.Items) do
@@ -1035,6 +1042,23 @@ function Semesta:CreateWindow(cfg)
 			return { Set = function(_, v) l.Text = tostring(v) end }
 		end
 
+		function Tab:AddImage(o)
+			o = o or {}
+			local h = o.Height or 130
+			local f, item = makeRow(Tab, h + 8, o.Title or "image")
+			local img = new("ImageLabel", {
+				Position = UDim2.fromOffset(4, 4), Size = UDim2.new(1, -8, 1, -8),
+				BackgroundColor3 = Theme.Panel, BorderSizePixel = 0, Active = false,
+				Image = o.Image or "", ScaleType = o.ScaleType or Enum.ScaleType.Crop,
+			}, f)
+			cornerOf(img, 8)
+			bind(img, "BackgroundColor3", "Panel")
+			return {
+				Set = function(_, url) img.Image = tostring(url) end,
+				Get = function() return img.Image end,
+			}
+		end
+
 		function Tab:AddParagraph(o)
 			o = o or {}
 			local f, item = makeRow(Tab, 0, o.Title)
@@ -1043,25 +1067,52 @@ function Semesta:CreateWindow(cfg)
 				PaddingTop = UDim.new(0, 10), PaddingBottom = UDim.new(0, 10),
 				PaddingLeft = UDim.new(0, 12), PaddingRight = UDim.new(0, 12),
 			}, f)
-			new("UIListLayout", { Padding = UDim.new(0, 4), SortOrder = Enum.SortOrder.LayoutOrder }, f)
-			local t = text(f, o.Title or "", 13, "Text")
-			t.Size = UDim2.new(1, 0, 0, 0); t.AutomaticSize = Enum.AutomaticSize.Y
-			t.TextWrapped = true; t.TextTruncate = Enum.TextTruncate.None; t.LayoutOrder = 1
+			new("UIListLayout", { Padding = UDim.new(0, 6), SortOrder = Enum.SortOrder.LayoutOrder }, f)
+			local order = 0
+			if o.Image then
+				order += 1
+				local img = new("ImageLabel", {
+					Size = UDim2.new(1, 0, 0, o.ImageHeight or 130),
+					BackgroundColor3 = Theme.Panel, BorderSizePixel = 0, Active = false,
+					Image = o.Image, ScaleType = Enum.ScaleType.Crop, LayoutOrder = order,
+				}, f)
+				cornerOf(img, 8)
+				bind(img, "BackgroundColor3", "Panel")
+			end
+			if o.Title then
+				order += 1
+				local t = text(f, o.Title, 13, "Text")
+				t.Size = UDim2.new(1, 0, 0, 0); t.AutomaticSize = Enum.AutomaticSize.Y
+				t.TextWrapped = true; t.TextTruncate = Enum.TextTruncate.None; t.LayoutOrder = order
+			end
+			order += 1
 			local c = text(f, o.Content or "", 12, "Dim")
 			c.Size = UDim2.new(1, 0, 0, 0); c.AutomaticSize = Enum.AutomaticSize.Y
-			c.TextWrapped = true; c.TextTruncate = Enum.TextTruncate.None; c.LayoutOrder = 2
+			c.TextWrapped = true; c.TextTruncate = Enum.TextTruncate.None; c.LayoutOrder = order
 			return {
 				SetContent = function(_, v) c.Text = tostring(v) end,
-				SetTitle = function(_, v) t.Text = tostring(v); item.name = tostring(v):lower() end,
+				SetTitle = function(_, v) item.name = tostring(v):lower() end,
 			}
 		end
 
 		function Tab:AddButton(o)
 			o = o or {}
 			local f, item = makeRow(Tab, 40, o.Title)
-			local x = rowIcon(f, o.Icon)
+			local x = 12
+			if o.Image then
+				thumb(f, o.Image, 10, 6, 28)
+				x = 48
+			elseif o.Icon then
+				x = rowIcon(f, o.Icon)
+			end
 			local l = text(f, o.Title or "Button", 13, "Text")
 			l.Position = UDim2.fromOffset(x, 0); l.Size = UDim2.new(1, -x - 36, 1, 0)
+			if o.Description then
+				l.Size = UDim2.new(1, -x - 36, 0, 16)
+				l.Position = UDim2.fromOffset(x, 4)
+				local d = text(f, o.Description, 11, "Dim")
+				d.Position = UDim2.fromOffset(x, 22); d.Size = UDim2.new(1, -x - 36, 0, 14)
+			end
 			local arrow = Icons.make(f, "chevron-right", 16, "Dim")
 			arrow.AnchorPoint = Vector2.new(1, 0.5); arrow.Position = UDim2.new(1, -12, 0.5, 0)
 			local hit = pressable(f)
@@ -1108,7 +1159,6 @@ function Semesta:CreateWindow(cfg)
 			}
 		end
 
-		-- Strips characters that don't fit the textbox mode
 		local function filterText(s, mode, maxLen, dec)
 			if mode == "Number" then
 				local neg = s:sub(1, 1) == "-"
@@ -1138,7 +1188,6 @@ function Semesta:CreateWindow(cfg)
 			local l = text(f, o.Title or "Slider", 13, "Text")
 			l.Position = UDim2.fromOffset(x, 8); l.Size = UDim2.new(1, -x - 96, 0, 18)
 
-			-- Value box (type a number here)
 			local wrap = new("Frame", {
 				AnchorPoint = Vector2.new(1, 0), Position = UDim2.new(1, -12, 0, 6),
 				Size = UDim2.fromOffset(76, 22), BorderSizePixel = 0,
@@ -1195,7 +1244,6 @@ function Semesta:CreateWindow(cfg)
 			}, f)
 			dragTo(hit, fromX)
 
-			-- Only digits, '-' and '.' are allowed while typing
 			box:GetPropertyChangedSignal("Text"):Connect(function()
 				local c = filterText(box.Text, "Number", nil, dec)
 				if c ~= box.Text then box.Text = c end
@@ -1225,11 +1273,11 @@ function Semesta:CreateWindow(cfg)
 			local BASE, ITEM_H = 40, 26
 			local f = makeRow(Tab, BASE, o.Title)
 
-			-- Header hit area first, so the option buttons below sit on top of it
 			local hit = pressable(f)
 			hit.Size = UDim2.new(1, 0, 0, BASE)
 
-			local x = rowIcon(f, o.Icon)
+			-- Anchor icon at the header (y = BASE/2) so it doesn't drop when list opens
+			local x = rowIcon(f, o.Icon, 18, BASE / 2)
 			local l = text(f, o.Title or "Dropdown", 13, "Text")
 			l.Position = UDim2.fromOffset(x, 0); l.Size = UDim2.new(1, -x - 170, 0, BASE)
 
@@ -1255,6 +1303,8 @@ function Semesta:CreateWindow(cfg)
 				Anim.to(chev, { Rotation = v and 180 or 0 }, 0.25)
 				if not v then task.delay(0.3, function() if not open then list.Visible = false end end) end
 			end
+
+			Win:AddCloser(function() if open then setOpen(false) end end)
 
 			for i, opt in ipairs(opts) do
 				local b = new("TextButton", {
@@ -1289,7 +1339,7 @@ function Semesta:CreateWindow(cfg)
 
 		function Tab:AddTextBox(o)
 			o = o or {}
-			local mode = o.Mode or "Any"          -- "Any" | "Number" | "Letters" | "Alnum"
+			local mode = o.Mode or "Any"
 			local dec = o.Decimals or 0
 			local maxLen = o.MaxLength
 			local minN, maxN = o.Min, o.Max
@@ -1317,7 +1367,6 @@ function Semesta:CreateWindow(cfg)
 			bind(tb, "TextColor3", "Text")
 			bind(tb, "PlaceholderColor3", "Dim")
 
-			-- Filter while typing
 			tb:GetPropertyChangedSignal("Text"):Connect(function()
 				local c = filterText(tb.Text, mode, maxLen, dec)
 				if c ~= tb.Text then tb.Text = c end
@@ -1332,10 +1381,7 @@ function Semesta:CreateWindow(cfg)
 			tb.FocusLost:Connect(function()
 				if mode == "Number" then
 					local n = tonumber(tb.Text)
-					if not n then
-						tb.Text = last -- not a valid number, go back
-						return
-					end
+					if not n then tb.Text = last; return end
 					if minN then n = max(n, minN) end
 					if maxN then n = min(n, maxN) end
 					tb.Text = string.format("%." .. dec .. "f", n)
@@ -1396,84 +1442,424 @@ function Semesta:CreateWindow(cfg)
 			}
 		end
 
+		-----------------------------------------------------------------
+		-- REAL color picker (SV square + hue strip + alpha strip + hex)
+		-----------------------------------------------------------------
 		function Tab:AddColorPicker(o)
 			o = o or {}
 			local color = o.Default or rgb(124, 111, 255)
 			local stored = getFlag(o.Flag, nil)
-			if type(stored) == "table" and #stored == 3 then color = Color3.fromRGB(stored[1], stored[2], stored[3]) end
+			if type(stored) == "table" and #stored >= 3 then
+				color = Color3.fromRGB(stored[1], stored[2], stored[3])
+			end
+			local h, s, v = color:ToHSV()
+			local alpha = (type(stored) == "table" and stored[4]) or o.Alpha or 1
 			local BASE = 40
+			local BODY_H = 200
 			local open = false
-			local f = makeRow(Tab, BASE, o.Title)
-			local x = rowIcon(f, o.Icon)
+			local f, item = makeRow(Tab, BASE, o.Title)
+
+			local x = rowIcon(f, o.Icon, 18, BASE / 2)
 			local l = text(f, o.Title or "Color", 13, "Text")
-			l.Position = UDim2.fromOffset(x, 0); l.Size = UDim2.new(1, -x - 50, 0, BASE)
+			l.Position = UDim2.fromOffset(x, 0); l.Size = UDim2.new(1, -x - 70, 0, BASE)
+
 			local preview = new("TextButton", {
-				AnchorPoint = Vector2.new(1, 0), Position = UDim2.new(1, -12, 0, 10), Size = UDim2.fromOffset(40, 20),
-				Text = "", AutoButtonColor = false, BorderSizePixel = 0, BackgroundColor3 = color, Active = true,
+				AnchorPoint = Vector2.new(1, 0), Position = UDim2.new(1, -12, 0, 10),
+				Size = UDim2.fromOffset(40, 20), Text = "", AutoButtonColor = false,
+				BorderSizePixel = 0, BackgroundColor3 = color, Active = true,
 			}, f)
 			cornerOf(preview, 6)
+			local pStroke = new("UIStroke", { Thickness = 1, ApplyStrokeMode = Enum.ApplyStrokeMode.Border }, preview)
+			bind(pStroke, "Color", "Line")
 
-			local swatchRow = new("Frame", {
-				Position = UDim2.fromOffset(10, BASE + 4), Size = UDim2.new(1, -20, 0, 26),
+			local body = new("Frame", {
+				Position = UDim2.fromOffset(10, BASE + 4),
+				Size = UDim2.new(1, -20, 0, BODY_H),
 				BackgroundTransparency = 1, Visible = false,
 			}, f)
+
+			local SV_W, SV_H = 130, 130
+
+			-- SV square: base hue, then white horizontal gradient, then black vertical gradient
+			local sv = new("Frame", {
+				Size = UDim2.fromOffset(SV_W, SV_H), BorderSizePixel = 0,
+			}, body)
+			cornerOf(sv, 6)
+
+			local svWhite = new("Frame", {
+				Size = UDim2.fromScale(1, 1), BackgroundColor3 = Color3.new(1, 1, 1), BorderSizePixel = 0,
+			}, sv)
+			cornerOf(svWhite, 6)
+			local wGrad = new("UIGradient", { Rotation = 0 }, svWhite)
+
+			local svBlack = new("Frame", {
+				Size = UDim2.fromScale(1, 1), BackgroundColor3 = Color3.new(0, 0, 0), BorderSizePixel = 0,
+			}, sv)
+			cornerOf(svBlack, 6)
+			local bGrad = new("UIGradient", { Rotation = 90 }, svBlack)
+			bGrad.Transparency = NumberSequence.new({
+				NumberSequenceKeypoint.new(0, 1),
+				NumberSequenceKeypoint.new(1, 0),
+			})
+
+			local svCursor = new("Frame", {
+				AnchorPoint = Vector2.new(0.5, 0.5), Size = UDim2.fromOffset(12, 12),
+				BackgroundColor3 = Color3.new(1, 1, 1), BorderSizePixel = 2, ZIndex = 4,
+			}, sv)
+			cornerOf(svCursor, 6)
+			new("UIStroke", { Thickness = 2, Color = Color3.new(1, 1, 1) }, svCursor)
+
+			-- Hue strip (vertical rainbow)
+			local hueStrip = new("Frame", {
+				Position = UDim2.fromOffset(SV_W + 10, 0),
+				Size = UDim2.new(1, -(SV_W + 10), 0, SV_H), BorderSizePixel = 0,
+			}, body)
+			cornerOf(hueStrip, 6)
+			local hGrad = new("UIGradient", { Rotation = 90 }, hueStrip)
+			hGrad.Color = ColorSequence.new({
+				ColorSequenceKeypoint.new(0 / 6, Color3.fromHSV(0 / 6, 1, 1)),
+				ColorSequenceKeypoint.new(1 / 6, Color3.fromHSV(1 / 6, 1, 1)),
+				ColorSequenceKeypoint.new(2 / 6, Color3.fromHSV(2 / 6, 1, 1)),
+				ColorSequenceKeypoint.new(3 / 6, Color3.fromHSV(3 / 6, 1, 1)),
+				ColorSequenceKeypoint.new(4 / 6, Color3.fromHSV(4 / 6, 1, 1)),
+				ColorSequenceKeypoint.new(5 / 6, Color3.fromHSV(5 / 6, 1, 1)),
+				ColorSequenceKeypoint.new(1.0, Color3.fromHSV(1.0, 1, 1)),
+			})
+			local hueCursor = new("Frame", {
+				AnchorPoint = Vector2.new(0.5, 0.5), Position = UDim2.new(0.5, 0, h, 0),
+				Size = UDim2.new(1, 4, 0, 4), BackgroundColor3 = Color3.new(1, 1, 1),
+				BorderSizePixel = 0, ZIndex = 4,
+			}, hueStrip)
+			cornerOf(hueCursor, 2)
+			new("UIStroke", { Thickness = 2, Color = Color3.new(1, 1, 1) }, hueCursor)
+
+			-- Alpha strip
+			local alphaY = SV_H + 10
+			local alphaWrap = new("Frame", {
+				Position = UDim2.fromOffset(0, alphaY), Size = UDim2.new(1, 0, 0, 16),
+				BackgroundColor3 = Color3.new(0.45, 0.45, 0.45), BorderSizePixel = 0,
+			}, body)
+			cornerOf(alphaWrap, 4)
+			local alphaFill = new("Frame", { Size = UDim2.fromScale(1, 1), BorderSizePixel = 0 }, alphaWrap)
+			cornerOf(alphaFill, 4)
+			local aGrad = new("UIGradient", { Rotation = 0 }, alphaFill)
+			aGrad.Transparency = NumberSequence.new({
+				NumberSequenceKeypoint.new(0, 0),
+				NumberSequenceKeypoint.new(1, 1),
+			})
+			local alphaCursor = new("Frame", {
+				AnchorPoint = Vector2.new(0.5, 0.5), Position = UDim2.new(alpha, 0, 0.5, 0),
+				Size = UDim2.fromOffset(4, 20), BackgroundColor3 = Color3.new(1, 1, 1),
+				BorderSizePixel = 0, ZIndex = 4,
+			}, alphaWrap)
+			cornerOf(alphaCursor, 2)
+			new("UIStroke", { Thickness = 2, Color = Color3.new(1, 1, 1) }, alphaCursor)
+
+			-- Hex input
+			local hexY = alphaY + 26
+			local hexWrap = new("Frame", {
+				Position = UDim2.fromOffset(0, hexY), Size = UDim2.fromOffset(120, 24), BorderSizePixel = 0,
+			}, body)
+			bind(hexWrap, "BackgroundColor3", "Panel")
+			cornerOf(hexWrap, 6)
+			local hexBox = new("TextBox", {
+				BackgroundTransparency = 1, Size = UDim2.fromScale(1, 1), Text = "#FFFFFF",
+				ClearTextOnFocus = false, TextSize = 12, TextXAlignment = Enum.TextXAlignment.Center,
+				Font = CurrentFont,
+			}, hexWrap)
+			fontList[#fontList + 1] = hexBox
+			bind(hexBox, "TextColor3", "Text")
+
+			-- Preset swatches
+			local swatchWrap = new("Frame", {
+				Position = UDim2.fromOffset(130, hexY), Size = UDim2.new(1, -130, 0, 24),
+				BackgroundTransparency = 1, BorderSizePixel = 0,
+			}, body)
 			new("UIListLayout", {
-				FillDirection = Enum.FillDirection.Horizontal, Padding = UDim.new(0, 6),
-				VerticalAlignment = Enum.VerticalAlignment.Center, SortOrder = Enum.SortOrder.LayoutOrder,
-			}, swatchRow)
-
-			local cycleH = nil
-			local function stopCycle()
-				if cycleH then cycleH.dead = true; cycleH = nil end
-			end
-			local function setColor(c, silent)
-				color = c
-				preview.BackgroundColor3 = c
-				setFlag(o.Flag, { floor(c.R * 255 + 0.5), floor(c.G * 255 + 0.5), floor(c.B * 255 + 0.5) })
-				if not silent then safeCall(o.Callback, c) end
-			end
-
+				FillDirection = Enum.FillDirection.Horizontal,
+				Padding = UDim.new(0, 4), SortOrder = Enum.SortOrder.LayoutOrder,
+			}, swatchWrap)
 			local palette = {
 				rgb(255, 255, 255), rgb(124, 111, 255), rgb(80, 170, 255), rgb(90, 220, 160),
 				rgb(255, 190, 70), rgb(255, 120, 100), rgb(255, 110, 170), rgb(60, 210, 210),
 			}
-			for i, c in ipairs(palette) do
-				local s = new("TextButton", {
-					Size = UDim2.fromOffset(22, 22), Text = "", AutoButtonColor = false, BorderSizePixel = 0,
-					BackgroundColor3 = c, LayoutOrder = i, Active = true,
-				}, swatchRow)
-				cornerOf(s, 11)
-				s.MouseButton1Click:Connect(function() stopCycle(); setColor(c) end)
+			local function setFromColor(c)
+				h, s, v = c:ToHSV()
 			end
-			local rainbow = new("TextButton", {
-				Size = UDim2.fromOffset(76, 22), Text = "Rainbow", TextSize = 12, Font = CurrentFont,
-				AutoButtonColor = false, BorderSizePixel = 0, LayoutOrder = 100, Active = true,
-			}, swatchRow)
-			fontList[#fontList + 1] = rainbow
-			cornerOf(rainbow, 6)
-			bind(rainbow, "BackgroundColor3", "Panel")
-			bind(rainbow, "TextColor3", "Text")
-			rainbow.MouseButton1Click:Connect(function()
-				if cycleH then stopCycle(); return end
-				cycleH = Anim.cycle(function(now)
-					local c = Color3.fromHSV((now * 0.2) % 1, 0.7, 1)
-					preview.BackgroundColor3 = c
-					color = c
-					safeCall(o.Callback, c)
-				end, 15)
+			local refresh
+			for i, c in ipairs(palette) do
+				local sw = new("TextButton", {
+					Size = UDim2.fromOffset(22, 22), Text = "", AutoButtonColor = false,
+					BorderSizePixel = 0, BackgroundColor3 = c, LayoutOrder = i, Active = true,
+				}, swatchWrap)
+				cornerOf(sw, 11)
+				sw.MouseButton1Click:Connect(function() setFromColor(c); refresh() end)
+			end
+
+			refresh = function(silent)
+				color = Color3.fromHSV(h, s, v)
+				-- SV base = pure hue
+				sv.BackgroundColor3 = Color3.fromHSV(h, 1, 1)
+				wGrad.Color = ColorSequence.new({
+					ColorSequenceKeypoint.new(0, Color3.new(1, 1, 1)),
+					ColorSequenceKeypoint.new(1, Color3.fromHSV(h, 1, 1)),
+				})
+				svCursor.Position = UDim2.fromScale(s, 1 - v)
+				hueCursor.Position = UDim2.new(0.5, 0, h, 0)
+				alphaCursor.Position = UDim2.new(alpha, 0, 0.5, 0)
+				alphaFill.BackgroundColor3 = color
+				preview.BackgroundColor3 = color
+				preview.BackgroundTransparency = 1 - alpha
+				if not hexBox:IsFocused() then hexBox.Text = hexOf(color) end
+				setFlag(o.Flag, {
+					floor(color.R * 255 + 0.5), floor(color.G * 255 + 0.5),
+					floor(color.B * 255 + 0.5), alpha,
+				})
+				if not silent then safeCall(o.Callback, color, alpha) end
+			end
+
+			-- Drag handlers
+			dragXY(sv, function(px, py)
+				local a = sv.AbsolutePosition; local sz = sv.AbsoluteSize
+				s = clamp((px - a.X) / max(sz.X, 1), 0, 1)
+				v = 1 - clamp((py - a.Y) / max(sz.Y, 1), 0, 1)
+				refresh()
+			end)
+			dragXY(hueStrip, function(_, py)
+				local a = hueStrip.AbsolutePosition; local sz = hueStrip.AbsoluteSize
+				h = clamp((py - a.Y) / max(sz.Y, 1), 0, 1)
+				refresh()
+			end)
+			dragXY(alphaWrap, function(px)
+				local a = alphaWrap.AbsolutePosition; local sz = alphaWrap.AbsoluteSize
+				alpha = clamp((px - a.X) / max(sz.X, 1), 0, 1)
+				refresh()
 			end)
 
-			local function setOpen(v)
-				open = v
-				swatchRow.Visible = v
-				Anim.to(f, { Size = UDim2.new(1, 0, 0, v and (BASE + 36) or BASE) }, 0.3, "Back")
+			hexBox.FocusLost:Connect(function()
+				local hex = hexBox.Text:gsub("[^%x]", "")
+				if #hex >= 6 then
+					local r = tonumber(hex:sub(1, 2), 16) or 0
+					local g = tonumber(hex:sub(3, 4), 16) or 0
+					local b = tonumber(hex:sub(5, 6), 16) or 0
+					local c = Color3.fromRGB(r, g, b)
+					h, s, v = c:ToHSV()
+				end
+				refresh()
+			end)
+
+			local function setOpen(val2)
+				open = val2
+				body.Visible = val2
+				Anim.to(f, { Size = UDim2.new(1, 0, 0, val2 and (BASE + BODY_H + 8) or BASE) }, 0.3, "Back")
 			end
 			preview.MouseButton1Click:Connect(function() setOpen(not open) end)
-			setColor(color, true)
+			Win:AddCloser(function() if open then setOpen(false) end end)
+
+			refresh(true)
+			return {
+				Set = function(_, c, a, silent)
+					h, s, v = c:ToHSV()
+					if a then alpha = a end
+					refresh(silent)
+				end,
+				Get = function() return color, alpha end,
+			}
+		end
+
+		-----------------------------------------------------------------
+		-- Theme preview picker (horizontal scroll, mini windows)
+		-----------------------------------------------------------------
+		function Tab:AddThemePreview(o)
+			o = o or {}
+			local current = getFlag(o.Flag, o.Default or "Midnight")
+			local CARD_W, CARD_H = 96, 100
+			local f, item = makeRow(Tab, CARD_H + 14, o.Title or "Theme")
+			local scroll = new("ScrollingFrame", {
+				Position = UDim2.fromOffset(8, 6),
+				Size = UDim2.new(1, -16, 0, CARD_H + 4),
+				BackgroundTransparency = 1, BorderSizePixel = 0,
+				ScrollBarThickness = 0, ScrollingDirection = Enum.ScrollingDirection.X,
+				CanvasSize = UDim2.new(), AutomaticCanvasSize = Enum.AutomaticSize.XY,
+			}, f)
+			new("UIListLayout", {
+				FillDirection = Enum.FillDirection.Horizontal,
+				Padding = UDim.new(0, 8), SortOrder = Enum.SortOrder.LayoutOrder,
+			}, scroll)
+
+			local cards = {}
+			local function select(name)
+				current = name
+				for _, c in pairs(cards) do
+					Anim.to(c.stroke, { Transparency = c.name == current and 0 or 1 }, 0.2)
+				end
+			end
+
+			for i, name in ipairs(PRESET_ORDER) do
+				local preset = PRESETS[name]
+				local card = new("TextButton", {
+					Size = UDim2.fromOffset(CARD_W, CARD_H),
+					Text = "", AutoButtonColor = false, BorderSizePixel = 0,
+					BackgroundTransparency = 1, LayoutOrder = i, Active = true,
+				}, scroll)
+				local cardStroke = new("UIStroke", {
+					Thickness = 2, ApplyStrokeMode = Enum.ApplyStrokeMode.Border,
+					Transparency = name == current and 0 or 1,
+				}, card)
+				bind(cardStroke, "Color", "Accent")
+
+				-- mini window
+				local preview = new("Frame", {
+					Size = UDim2.new(1, 0, 0, 66), BorderSizePixel = 0, BackgroundColor3 = preset.Bg,
+				}, card)
+				cornerOf(preview, 6)
+				local prevStroke = new("UIStroke", { Thickness = 1, ApplyStrokeMode = Enum.ApplyStrokeMode.Border, Color = preset.Line }, preview)
+
+				local side = new("Frame", {
+					Size = UDim2.new(0, 22, 1, 0), BorderSizePixel = 0, BackgroundColor3 = preset.Panel,
+				}, preview)
+				cornerOf(side, 6)
+				local sideMask = new("Frame", {
+					Size = UDim2.new(0, 6, 1, 0), Position = UDim2.new(1, -6, 0, 0),
+					BackgroundColor3 = preset.Panel, BorderSizePixel = 0,
+				}, side)
+
+				local acc = new("Frame", {
+					Position = UDim2.fromOffset(6, 6), Size = UDim2.fromOffset(10, 10),
+					BackgroundColor3 = preset.Accent, BorderSizePixel = 0,
+				}, preview)
+				cornerOf(acc, 5)
+
+				for j = 1, 3 do
+					local it = new("Frame", {
+						Position = UDim2.fromOffset(28, 8 + (j - 1) * 14),
+						Size = UDim2.new(1, -34, 0, 10),
+						BackgroundColor3 = preset.Item, BorderSizePixel = 0,
+					}, preview)
+					cornerOf(it, 3)
+					if j == 1 then
+						local dot = new("Frame", {
+							AnchorPoint = Vector2.new(1, 0.5), Position = UDim2.new(1, -4, 0.5, 0),
+							Size = UDim2.fromOffset(4, 4), BackgroundColor3 = preset.Accent, BorderSizePixel = 0,
+						}, it)
+						cornerOf(dot, 2)
+					end
+				end
+
+				local lbl = new("TextLabel", {
+					BackgroundTransparency = 1, Position = UDim2.fromOffset(0, 70),
+					Size = UDim2.new(1, 0, 0, 16), Text = name, TextSize = 12,
+					Font = CurrentFont, TextTruncate = Enum.TextTruncate.AtEnd,
+				}, card)
+				fontList[#fontList + 1] = lbl
+				bind(lbl, "TextColor3", "Dim")
+
+				card.MouseButton1Click:Connect(function()
+					select(name)
+					setFlag(o.Flag, name)
+					Win:SetTheme(name)
+					safeCall(o.Callback, name)
+				end)
+
+				cards[name] = { name = name, stroke = cardStroke }
+			end
 
 			return {
-				Set = function(_, c, silent) stopCycle(); setColor(c, silent) end,
-				Get = function() return color end,
+				Set = function(_, name, silent)
+					if not cards[name] then return end
+					select(name)
+					setFlag(o.Flag, name)
+					if not silent then safeCall(o.Callback, name) end
+				end,
+				Get = function() return current end,
+			}
+		end
+
+		-----------------------------------------------------------------
+		-- Font preview picker (horizontal scroll, live samples)
+		-----------------------------------------------------------------
+		function Tab:AddFontPicker(o)
+			o = o or {}
+			local current = getFlag(o.Flag, o.Default or "GothamMedium")
+			local CARD_W, CARD_H = 88, 100
+			local f, item = makeRow(Tab, CARD_H + 14, o.Title or "Font")
+			local scroll = new("ScrollingFrame", {
+				Position = UDim2.fromOffset(8, 6),
+				Size = UDim2.new(1, -16, 0, CARD_H + 4),
+				BackgroundTransparency = 1, BorderSizePixel = 0,
+				ScrollBarThickness = 0, ScrollingDirection = Enum.ScrollingDirection.X,
+				CanvasSize = UDim2.new(), AutomaticCanvasSize = Enum.AutomaticSize.XY,
+			}, f)
+			new("UIListLayout", {
+				FillDirection = Enum.FillDirection.Horizontal,
+				Padding = UDim.new(0, 8), SortOrder = Enum.SortOrder.LayoutOrder,
+			}, scroll)
+
+			local cards = {}
+			local function select(name)
+				current = name
+				for _, c in pairs(cards) do
+					Anim.to(c.stroke, { Transparency = c.name == current and 0 or 1 }, 0.2)
+				end
+			end
+
+			for i, fname in ipairs(FONT_LIST) do
+				local ef = Enum.Font[fname]
+				if ef then
+					local card = new("TextButton", {
+						Size = UDim2.fromOffset(CARD_W, CARD_H),
+						Text = "", AutoButtonColor = false, BorderSizePixel = 0,
+						BackgroundTransparency = 1, LayoutOrder = i, Active = true,
+					}, scroll)
+					local stroke = new("UIStroke", {
+						Thickness = 2, ApplyStrokeMode = Enum.ApplyStrokeMode.Border,
+						Transparency = fname == current and 0 or 1,
+					}, card)
+					bind(stroke, "Color", "Accent")
+
+					local prev = new("Frame", {
+						Size = UDim2.new(1, 0, 0, 66), BorderSizePixel = 0,
+					}, card)
+					bind(prev, "BackgroundColor3", "Item")
+					cornerOf(prev, 6)
+					local prevStroke = new("UIStroke", {
+						Thickness = 1, ApplyStrokeMode = Enum.ApplyStrokeMode.Border,
+					}, prev)
+					bind(prevStroke, "Color", "Line")
+
+					local sample = new("TextLabel", {
+						BackgroundTransparency = 1, Size = UDim2.fromScale(1, 1),
+						Text = "Aa", TextSize = 28, Font = ef,
+					}, prev)
+					bind(sample, "TextColor3", "Text")
+
+					local lbl = new("TextLabel", {
+						BackgroundTransparency = 1, Position = UDim2.fromOffset(0, 70),
+						Size = UDim2.new(1, 0, 0, 16), Text = fname, TextSize = 11,
+						Font = ef, TextTruncate = Enum.TextTruncate.AtEnd,
+					}, card)
+					bind(lbl, "TextColor3", "Dim")
+					-- do NOT add to fontList; this label always shows its own font
+
+					card.MouseButton1Click:Connect(function()
+						select(fname)
+						setFlag(o.Flag, fname)
+						Win:SetFont(fname)
+						safeCall(o.Callback, fname)
+					end)
+
+					cards[fname] = { name = fname, stroke = stroke }
+				end
+			end
+
+			return {
+				Set = function(_, name, silent)
+					if not cards[name] then return end
+					select(name)
+					setFlag(o.Flag, name)
+					if not silent then safeCall(o.Callback, name) end
+				end,
+				Get = function() return current end,
 			}
 		end
 
@@ -1574,6 +1960,10 @@ function Semesta:CreateWindow(cfg)
 
 	function Win:Minimize(v)
 		if v == nil then v = not Win.Minimized end
+		if v then
+			-- close all expandables instantly
+			for _, fn in ipairs(Win._closers) do safeCall(fn) end
+		end
 		Win.Minimized = v
 		body.Visible = not v
 		Anim.to(main, { Size = UDim2.fromOffset(W, v and HEAD_H or H) }, 0.3, "Back")
@@ -1605,8 +1995,10 @@ function Semesta:CreateWindow(cfg)
 	function Win:Notify(o)
 		o = o or {}
 		notifOrder += 1
+		local hasImg = o.Image ~= nil
+		local notifH = hasImg and 82 or 62
 		local wrap = new("Frame", {
-			Size = UDim2.new(1, 0, 0, 62), BackgroundTransparency = 1, ClipsDescendants = true, LayoutOrder = notifOrder,
+			Size = UDim2.new(1, 0, 0, notifH), BackgroundTransparency = 1, ClipsDescendants = true, LayoutOrder = notifOrder,
 		}, notifHolder)
 		local card = new("Frame", { Size = UDim2.new(1, 0, 1, 0), Position = UDim2.new(1, 40, 0, 0), BorderSizePixel = 0 }, wrap)
 		bind(card, "BackgroundColor3", "Panel")
@@ -1616,16 +2008,21 @@ function Semesta:CreateWindow(cfg)
 		local bar = new("Frame", { Size = UDim2.new(0, 3, 1, -16), Position = UDim2.fromOffset(8, 8), BorderSizePixel = 0 }, card)
 		bind(bar, "BackgroundColor3", "Accent")
 		cornerOf(bar, 2)
+
 		local x = 18
-		if o.Icon then
+		if hasImg then
+			thumb(card, o.Image, 18, (notifH - 46) / 2, 46)
+			x = 74
+		elseif o.Icon then
 			local ic = Icons.make(card, o.Icon, 18, "Accent")
 			ic.Position = UDim2.fromOffset(18, 12)
 			x = 46
 		end
+		local ty = hasImg and 14 or 10
 		local t = text(card, o.Title or "Notification", 13, "Text")
-		t.Position = UDim2.fromOffset(x, 10); t.Size = UDim2.new(1, -x - 12, 0, 18)
+		t.Position = UDim2.fromOffset(x, ty); t.Size = UDim2.new(1, -x - 12, 0, 18)
 		local c = text(card, o.Content or "", 12, "Dim")
-		c.Position = UDim2.fromOffset(x, 30); c.Size = UDim2.new(1, -x - 12, 0, 20)
+		c.Position = UDim2.fromOffset(x, ty + 20); c.Size = UDim2.new(1, -x - 12, 0, 20)
 		local timer = new("Frame", { Position = UDim2.new(0, 0, 1, -2), Size = UDim2.new(1, 0, 0, 2), BorderSizePixel = 0 }, card)
 		bind(timer, "BackgroundColor3", "Accent")
 
@@ -1652,7 +2049,7 @@ function Semesta:CreateWindow(cfg)
 	end
 
 	---------------------------------------------------------------------
-	-- Optional reopen bubble (cfg.Bubble = true)
+	-- Reopen bubble
 	---------------------------------------------------------------------
 	bubble = new("TextButton", {
 		Text = "", AutoButtonColor = false, BorderSizePixel = 0, Active = true, Visible = false,
@@ -1685,7 +2082,6 @@ function Semesta:CreateWindow(cfg)
 		end)
 	end
 
-	-- Toggle key: one listener. Uses the saved Settings keybind if one was set.
 	local defaultToggle = cfg.ToggleKey or Enum.KeyCode.RightShift
 	keep(UIS.InputBegan:Connect(function(i, gpe)
 		if gpe then return end
@@ -1816,13 +2212,13 @@ function Semesta:CreateWindow(cfg)
 	end
 
 	---------------------------------------------------------------------
-	-- Optional Settings tab (cfg.Settings = true)
+	-- Settings tab
 	---------------------------------------------------------------------
 	if cfg.Settings then
 		local S = Win:AddTab("Settings", "settings")
 		S:AddSection("Appearance")
-		S:AddDropdown({
-			Title = "Theme", Icon = "palette", Flag = "Theme", Options = PRESET_ORDER,
+		S:AddThemePreview({
+			Title = "Theme", Flag = "Theme",
 			Default = type(cfg.Theme) == "string" and cfg.Theme or "Midnight",
 			Callback = function(v) Win:SetTheme(v) end,
 		})
@@ -1848,9 +2244,8 @@ function Semesta:CreateWindow(cfg)
 			Options = { "Sidebar", "Topbar" }, Default = Win.Layout,
 			Callback = function(v) Win:SetLayout(v) end,
 		})
-		S:AddDropdown({
-			Title = "Font", Icon = "type", Flag = "Font",
-			Options = { "GothamMedium", "Gotham", "Code", "SourceSans", "Arcade" }, Default = "GothamMedium",
+		S:AddFontPicker({
+			Title = "Font", Flag = "Font", Default = "GothamMedium",
 			Callback = function(v) Win:SetFont(v) end,
 		})
 		S:AddSection("Window")
@@ -1859,7 +2254,6 @@ function Semesta:CreateWindow(cfg)
 		})
 	end
 
-	-- Apply saved settings silently
 	Win:SetTheme(getFlag("Theme", cfg.Theme or "Midnight"), false)
 	if getFlag("AccentCycle", false) then Win:SetAccentCycle(true) end
 	if getFlag("Borders", nil) ~= nil then setAllBorders(getFlag("Borders", true) == true) end
